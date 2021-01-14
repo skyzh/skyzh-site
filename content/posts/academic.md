@@ -4,7 +4,6 @@ date = "2021-01-14"
 update = true
 +++
 
-
 ## About Me
 
 I’m a junior undergraduate student studying Computer Science in
