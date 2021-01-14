@@ -1,0 +1,29 @@
+baseURL = "https://skyzh.dev"
+languageCode = "en-us"
+title = "Alex Chi"
+theme="archie"
+copyright = "© Alex Chi"
+# Code Highlight
+pygmentsstyle = "monokai"
+pygmentscodefences = true
+pygmentscodefencesguesssyntax = true
+
+paginate=3 # articles per page
+
+[params]
+	mode="light" # color-mode → light,dark or auto
+	useCDN=false # don't use CDNs for fonts and icons, instead serve them locally.
+
+# Social Tags
+
+[[params.social]]
+name = "GitHub"
+icon = "github"
+url = "https://github.com/skyzh"
+
+# Main menu Items
+
+# [[menu.main]]
+# name = "Home"
+# url = "/"
+# weight = 1
