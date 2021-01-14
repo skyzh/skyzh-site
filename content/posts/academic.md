@@ -2,6 +2,7 @@
 title = "Academic Profile"
 date = "2021-01-14"
 update = true
+aliases = ["/academic/"]
 +++
 
 ## About Me
