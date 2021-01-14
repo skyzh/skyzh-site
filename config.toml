@@ -1,4 +1,4 @@
-baseURL = "https://skyzh.dev"
+baseURL = "https://skyzh.dev/"
 languageCode = "en-us"
 title = "Alex Chi"
 theme="archie"
