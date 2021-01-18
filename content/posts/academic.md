@@ -136,14 +136,13 @@ to myself. From my perspective, what I've actually done is more important than t
 
 ## Academic Status
 
-* First Year GPA: 92.79/100 (1/154)
-* Second Year GPA: 94.94/100 (1/155)
+* First 2.5 years GPA: 93.99/100 (Rank: 1/156)
 
 I enjoy studying courses in Computer Science, and I did well in most of them.
 
 <details>
 
-<summary>Full-score courses</summary>
+<summary>A+ courses</summary>
 
 * Full-score (100/100) courses
   * CS154: C++ Programming Language (Fall 2018)
@@ -156,10 +155,13 @@ I enjoy studying courses in Computer Science, and I did well in most of them.
   [[final project + presentation]](https://github.com/skyzh/oom_killer)
   * CS145: Computer Architecture Experiments (Spring 2020)
   [[final project + report]](https://github.com/skyzh/mips-cpu)
-* Other major courses
+* Other A+ courses
   * (95/100) CS359: Computer Architecture (Spring 2020)
   * (96/100) EI209: Computer Organization (Spring 2020)
-  * (92/100) CS214: Algorithms and Complexity (Spring 2020)
+  * (96/100) CS339: Computer Networks (Fall 2020)
+  * (95/100) CS236: Cloud Computing (Fall 2020)
+  * (99/100) CS410: Artificial Intelligence (Fall 2020)
+  * (99/100) CS467: Theory of Computation (Fall 2020)
 
 </details>
 
