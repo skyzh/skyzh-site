@@ -20,7 +20,7 @@ jobs:
           hugo-version: 'latest'
 
       - name: Build
-        run: hugo --minify
+        run: hugo
 
       - name: Post Build
         run: cp CNAME ./public/
