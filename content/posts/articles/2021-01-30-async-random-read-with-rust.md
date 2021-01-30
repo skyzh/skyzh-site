@@ -3,8 +3,14 @@ title: "在 Rust 中实现基于 io_uring 的异步随机读文件"
 date: 2021-01-30T17:37:23+08:00
 ---
 
-在 [skyzh/uring-positioned-io][0] 中，我包装了 Tokio 提供的底层 `io_uring` 接口，在 Rust 中实现了基于 `io_uring` 的异步随机读文件。
-本文介绍了 `io_uring` 的基本使用方法，这个异步读文件库的实现方法，最后做了一个 benchmark 测性能。
+一句话总结：在 [skyzh/uring-positioned-io][0] 中，我包装了 Tokio 提供的底层 `io_uring` 接口，在 Rust 中实现了基于
+`io_uring` 的异步随机读文件。你可以这么用它：
+
+```rust
+ctx.read(fid, offset, &mut buf).await?;
+```
+
+本文介绍了 `io_uring` 的基本使用方法，这个异步读文件库的实现方法，最后做了一个 benchmark，和 mmap 对比性能。
 
 ## io_uring 简介
 
