@@ -101,13 +101,13 @@ ctx.read(fid, offset, &mut buf).await?;
 * 开发者在使用 `io_uring` 之前，需要创建一个 `UringContext`。
 * `UringContext` 被创建的同时，会在后台运行一个（或多个）用来提交任务和轮询完成任务的 `UringPollFuture`。
   (对应上一章节中读文件的第二步、第三步操作)。
-* 开发者可以从 `ctx` 调用读文件的接口，用 `ctx.read` 创建一个 `UringReadFuture`。
-* (1) `UringReadFuture` 会创建一个固定在内存中的对象 `UringTask`，然后把读文件任务放进队列里，将 `UringTask` 的地址作为
-  读操作的用户数据。`UringTask` 里面有个 channel。
-* (2) `UringPollFuture` 在后台提交任务。
-* (3) `UringPollFuture` 在后台轮询已经完成的任务。
-* (4) `UringPollFuture` 取出其中的用户数据，还原成 `UringTask` 对象，通过 channel 通知 `UringReadFuture`
-  I/O 操作已经完成。
+* 开发者可以从 `ctx` 调用读文件的接口，用 `ctx.read` 创建一个 `UringReadFuture`。在调用 `ctx.read.await` 后：
+    1. `UringReadFuture` 会创建一个固定在内存中的对象 `UringTask`，然后把读文件任务放进队列里，将 `UringTask` 的地址作为
+        读操作的用户数据。`UringTask` 里面有个 channel。
+    2. `UringPollFuture` 在后台提交任务。
+    3. `UringPollFuture` 在后台轮询已经完成的任务。
+    4. `UringPollFuture` 取出其中的用户数据，还原成 `UringTask` 对象，通过 channel 通知 `UringReadFuture`
+        I/O 操作已经完成。
 
 整个流程如下图所示。
 
@@ -118,16 +118,58 @@ ctx.read(fid, offset, &mut buf).await?;
 队列里可能存在多个未提交的任务，可以一次全部提交。这样可以减小 syscall 切上下文的开销 (当然也增大了 latency)。
 从 benchmark 的结果观察来看，每次提交都可以打包 20 个左右的读取任务。
 
-## 基准测试
+## Benchmark
 
-我们将 `io_uring` 和 `mmap` 的性能作对比。
+将包装后的 `io_uring` 和 `mmap` 的性能作对比。测试的负载是 128 个 1G 文件，随机读对齐的 4K block。
+我的电脑内存是 32G，有一块 1T 的 NVMe SSD。测试了下面 6 个 case：
 
-## 总结
+* 8 线程 mmap。 (mmap_8)
+* 32 线程 mmap。 (mmap_32)
+* 512 线程 mmap。 (mmap_512)
+* 8 线程 8 并发的 `io_uring`。(uring_8)
+* 8 线程 32 并发的 `io_uring`。即 8 个 worker thread, 32 个 future 同时 read。(uring_32)
+* 8 线程 512 并发的 `io_uring`。(uring_512)
 
-* 通过对比 Rust / C++ 在 io_uring nop 指令上的表现来测试 tokio 引入的开销。
-https://github.com/rust-lang/futures-rs/issues/1278
+测试了 Throughput (op/s) 和 Latency (ns)。
 
-## 相关阅读
+| case | throughput | p50 | p90 | p999 | p9999 | max |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| uring_8 | 104085.77710777053 | 83166 | 109183 | 246416 | 3105883 | 14973666 |
+| uring_32 | 227097.61356918357 | 142869 | 212730 |  1111491 | 3321889 | 14336132 |
+| uring_512 | 212076.5160505447 | 1973421 | 3521119 | 19478348 | 25551700 | 35433481 |
+| mmap_8 | 109697.87025744558 | 78971 | 107021 | 204211 | 1787823 | 18522047 |
+| mmap_32 | 312829.53428971884 | 100336 | 178914 | 419955 | 4408214 | 55129932 |
+| mmap_512 | 235368.9890904751 | 2556429 | 3265266 | 15946744 | 50029659 | 156095218 |
+
+发现 mmap 吊打 `io_uring`。嗯，果然这个包装做的不太行，但是勉强能用。下面是一分钟 latency 的 heatmap。上面是 mmap，下面是 `io_uring`。
+
+**mmap_8 / uring_8**
+![waterfall_mmap_8](https://user-images.githubusercontent.com/4198311/106357357-a14a7400-6340-11eb-89df-72e876855557.png)
+![waterfall_uring_8](https://user-images.githubusercontent.com/4198311/106357364-a60f2800-6340-11eb-9376-2d66ffa7098f.png)
+
+**mmap_32 / uring_32**
+![waterfall_mmap_32](https://user-images.githubusercontent.com/4198311/106357361-a5769180-6340-11eb-8a85-80180df69ea8.png)
+![waterfall_uring_32](https://user-images.githubusercontent.com/4198311/106357365-a6a7be80-6340-11eb-81e7-945758dd2092.png)
+
+**mmap_512 / uring_512**
+![waterfall_mmap_512](https://user-images.githubusercontent.com/4198311/106357363-a5769180-6340-11eb-9704-7c97d9a577a6.png)
+![waterfall_uring_512](https://user-images.githubusercontent.com/4198311/106357366-a6a7be80-6340-11eb-9b7e-ec4ff168962d.png)
+
+![Throughput-2](https://user-images.githubusercontent.com/4198311/106357531-904e3280-6341-11eb-9577-fcd1a487e6db.png)
+
+![p50 Latency (ns)](https://user-images.githubusercontent.com/4198311/106357534-93e1b980-6341-11eb-8974-05575e63b2b7.png)
+
+## 一些可能的改进
+
+* 看起来现在 `io_uring` 在我和 Tokio 的包装后性能不太行。之后可以通过对比 Rust / C 在 `io_uring` nop
+  指令上的表现来测试 Tokio 这层包装引入的开销。
+* 测试 Direct I/O 的性能。目前只测试了 Buffered I/O。
+* 和 Linux AIO 对比。（性能不会比 Linux AIO 还差吧（痛哭
+* 用 perf 看看现在的瓶颈在哪里。目前 `cargo flamegraph` 挂上去以后 `io_uring` 没法申请内存，这次懒得做了，下次一定。
+* 目前，用户必须保证 `&mut buf` 在整个 read 周期都有效。如果 Future 被 abort，会有内存泄漏的问题。
+  future-rs 的类似问题见 https://github.com/rust-lang/futures-rs/issues/1278 。Tokio 目前的
+  I/O 通过两次拷贝（先到缓存，再给用户）解决了这个问题。
+* 或许可以把写文件和其他操作也顺便包装一下。
 
 [0]: https://github.com/skyzh/uring-positioned-io
 [1]: https://github.com/facebook/rocksdb/pull/5881
@@ -141,5 +183,3 @@ https://github.com/rust-lang/futures-rs/issues/1278
 [9]: https://github.com/axboe/liburing
 [10]: https://github.com/tokio-rs/io-uring
 [11]: https://github.com/hmwill/tokio-linux-aio
-
-https://lwn.net/Articles/810414/
