@@ -10,8 +10,7 @@ date: 2021-01-30T17:37:23+08:00
 ctx.read(fid, offset, &mut buf).await?;
 ```
 
-本文介绍了 `io_uring` 的基本使用方法，这个异步读文件库的实现方法，最后做了一个 benchmark，和 mmap 对比性能。
-
+本文介绍了 `io_uring` 的基本使用方法，然后介绍了本人写的异步读文件库的实现方法，最后做了一个 benchmark，和 mmap 对比性能。
 ## io_uring 简介
 
 `io_uring` 是一个由 Linux 内核的提供的异步 I/O 接口。它于 2019 年 5 月在 Linux 5.1 中面世，现在已经在各种项目中被使用。
@@ -166,9 +165,9 @@ ctx.read(fid, offset, &mut buf).await?;
   指令上的表现来测试 Tokio 这层包装引入的开销。
 * 测试 Direct I/O 的性能。目前只测试了 Buffered I/O。
 * 和 Linux AIO 对比。（性能不会比 Linux AIO 还差吧（痛哭
-* 用 perf 看看现在的瓶颈在哪里。目前 `cargo flamegraph` 挂上去以后 `io_uring` 没法申请内存，这次懒得做了，下次一定。
+* 用 perf 看看现在的瓶颈在哪里。目前 `cargo flamegraph` 挂上去以后 `io_uring` 没法申请内存。（占个坑，说不定能出续集
 * 目前，用户必须保证 `&mut buf` 在整个 read 周期都有效。如果 Future 被 abort，会有内存泄漏的问题。
-  future-rs 的类似问题见 https://github.com/rust-lang/futures-rs/issues/1278 。Tokio 目前的
+  futures-rs 的类似问题见 https://github.com/rust-lang/futures-rs/issues/1278 。Tokio 目前的
   I/O 通过两次拷贝（先到缓存，再给用户）解决了这个问题。
 * 或许可以把写文件和其他操作也顺便包装一下。
 
