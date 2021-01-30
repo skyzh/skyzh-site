@@ -1,6 +1,7 @@
 +++
 title = "About Me"
 date = "2021-01-14"
+hidden = "true"
 +++
 
 *Study Computer Science. Reinvent the wheels. Code for fun. Make things happen.*
@@ -17,4 +18,5 @@ And do some cool things. &nbsp;
 [🌈 Real-Time Air Quality](https://bluesense.skyzh.dev)
 
 More about me. &nbsp;
-[Academic Profile]({{< ref "/posts/academic" >}} "Academic Profile")
+[Academic Profile]({{< ref "/posts/academic" >}} "Academic Profile") &nbsp;
+[Blog]({{< ref "/posts/" >}} "Blog")
