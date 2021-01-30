@@ -29,7 +29,8 @@ ctx.read(fid, offset, &mut buf).await?;
 ## 随机读文件的场景
 
 在数据库系统中，我们常常需要多线程读取文件任意位置的内容 `(<fid>, <offset>, <size>)`。
-我们经常使用的 `read / write` API 无法完成这种功能。通常来说，我们可以使用下面的方法实现文件随机读。
+经常使用的 `read / write` API 无法完成这种功能（因为要先 seek，需要独占文件句柄）。
+下面的方法可以实现文件随机读。
 
 * 通过 `mmap` 直接把文件映射到内存中。读文件变成了直接读内存，可以在多个线程中并发读。
 * `pread` 可以从某一位置 `offset` 开始读取 `count` 个字节，同样支持多线程并发读。
@@ -43,7 +44,7 @@ ctx.read(fid, offset, &mut buf).await?;
 Tokio 的 [io_uring crate][10] 在此基础之上，提供了 Rust 语言的 `io_uring` API。下面以它为例，
 介绍 `io_uring` 的使用方法。
 
-要使用 `io_uring`，需要先创建一个 ring。在这里我们使用了 `tokio-rs/io_uring` 提供的 `concurrent` API，
+要使用 `io_uring`，需要先创建一个 ring。在这里我们使用了 `tokio-rs/io-uring` 提供的 `concurrent` API，
 支持多线程使用同一个 ring。
 
 ```rust
@@ -141,7 +142,7 @@ ctx.read(fid, offset, &mut buf).await?;
 | mmap_32 | 312829.53428971884 | 100336 | 178914 | 419955 | 4408214 | 55129932 |
 | mmap_512 | 235368.9890904751 | 2556429 | 3265266 | 15946744 | 50029659 | 156095218 |
 
-发现 mmap 吊打 `io_uring`。嗯，果然这个包装做的不太行，但是勉强能用。下面是一分钟 latency 的 heatmap。上面是 mmap，下面是 `io_uring`。
+发现 mmap 吊打 `io_uring`。嗯，果然这个包装做的不太行，但是勉强能用。下面是一分钟 latency 的 heatmap。每一组数据的展示顺序是先 mmap 后 `io_uring`。
 
 **mmap_8 / uring_8**
 ![waterfall_mmap_8](https://user-images.githubusercontent.com/4198311/106357357-a14a7400-6340-11eb-89df-72e876855557.png)
