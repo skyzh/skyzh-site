@@ -6,7 +6,7 @@ on:
       - master  # Set a branch to deploy
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
