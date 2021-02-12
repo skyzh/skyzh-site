@@ -19,4 +19,5 @@ And do some cool things. &nbsp;
 
 More about me. &nbsp;
 [Academic Profile]({{< ref "/posts/academic" >}} "Academic Profile") &nbsp;
-[Blog]({{< ref "/posts/" >}} "Blog")
+[Blog (Chinese)]({{< ref "/posts/" >}} "Blog (Chinese)") &nbsp;
+[Résumé (Chinese)](https://www.skyzh.dev/files/resume_cn.pdf)
