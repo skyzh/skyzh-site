@@ -291,3 +291,11 @@ content: 'Markdown';
 background: royalblue;
 color: whitesmoke ;
 }
+
+.index-container {
+  min-height: 100vh; /* minimum height = screen height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+}

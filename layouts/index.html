@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html>
-	{{ partial "header.html" . }}
-	<body>
-		<div style="margin-top: 35vh" class="content">
-			{{ partial "head.html" . }}
-			<main>
-                <article>
-                    {{ with .Site.GetPage "/posts/about" }}{{ .Content }}{{ end }}
-                </article>
-			</main>
-			{{ partial "footer.html" . }}
+{{ partial "header.html" . }}
+
+<body>
+	<div class="index-container">
+		<div>
+			<div class="content">
+				{{ partial "head.html" . }}
+				<main>
+					<article>
+						{{ with .Site.GetPage "/posts/about" }}{{ .Content }}{{ end }}
+					</article>
+				</main>
+				{{ partial "footer.html" . }}
+			</div>
 		</div>
-		
-	</body>
+	</div>
+
+</body>
+
 </html>
