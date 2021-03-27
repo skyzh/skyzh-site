@@ -46,13 +46,14 @@ AgateDB is a Rust port of [BadgerDB][badger].
 
 ### Contributor in TiKV Community
 
-*May 2020 ~ December 2020*
+*May 2020 ~ March 2021*
 
 I became part of the TiKV community as a [Community Bridge][7] mentee. In
 [Full Chunk-based Computing][1] project, I migrated the TiKV coprocessor
 to use the TiDB Chunk format during the computation process and added some
 new features. Then, as community co-leader of the TiKV coprocessor, I
-mentored [@Xuanwo][5] on [Enum/Set support in TiKV][6].
+mentored on [Enum/Set support in TiKV][6] Project and
+co-mentored on [Coprocessor Plugin][8] Project.
 
 <details>
 
@@ -68,9 +69,9 @@ mentored [@Xuanwo][5] on [Enum/Set support in TiKV][6].
 [2]: https://tikv.org/blog/communitybridge-mentorship/
 [3]: https://youtu.be/46zhiiDBT5w?t=682
 [4]: https://github.com/skyzh/tikv/projects/1
-[5]: https://github.com/Xuanwo
 [6]: https://github.com/tikv/tikv/issues/9066
 [7]: https://mentorship.lfx.linuxfoundation.org
+[8]: https://github.com/tikv/tikv/issues/9747
 
 
 ### TA in PPCA Ray-Tracing Project
@@ -102,13 +103,15 @@ the Rust programming language.
 Shanghai Jiao Tong University Linux User Group ([SJTUG][sjtug_3])
 sets up a public mirror of open-source software in China, which
 serves 70k users and 1.5 million requests per day. I built
-infrasturcture for the new [Siyuan][sjtug_2] mirror server, which
-enables on-demand mirroring with [mirror-intel][sjtug_1] and hosts
+infrastructure for the new [Siyuan][sjtug_2] mirror server, which
+enables on-demand mirroring with [mirror-intel][sjtug_1], enabled
+rsync to simple object storage with [mirror-clone][sjtug_4] and hosts
 the first Flathub mirror in China.
 
 [sjtug_1]: https://github.com/sjtug/mirror-intel
 [sjtug_2]: https://github.com/sjtug/mirror-docker-siyuan
 [sjtug_3]: https://github.com/sjtug/
+[sjtug_4]: https://github.com/sjtug/mirror-clone
 
 ## Projects
 
