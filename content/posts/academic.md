@@ -1,6 +1,6 @@
 +++
 title = "Academic Profile"
-date = "2021-01-15"
+date = "2021-03-27"
 update = true
 aliases = ["/academic/"]
 hidden = "true"
