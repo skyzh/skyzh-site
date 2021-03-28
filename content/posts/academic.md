@@ -1,6 +1,6 @@
 +++
 title = "Academic Profile"
-date = "2021-03-27"
+date = "2021-03-28"
 update = true
 aliases = ["/academic/"]
 hidden = "true"
@@ -24,10 +24,10 @@ Only then did I find myself more of an engineer than a researcher.
 
 My past experience focuses on building system software with the Rust programming
 language, especially storage systems. I built [AgateDB][agatedb] during my
-internship in PingCAP.
-In addition to individual projects, I love becoming part of the open-source
-community. I contributed to [the TiKV project](https://tikv.org), and I'm
-currently a maintainer at [SJTUG mirror](https://mirrors.sjtug.sjtu.edu.cn).
+internship in PingCAP. Also, I love becoming part of the open-source
+community. Currently I'm a contributor of [the TiKV project](https://tikv.org),
+and a maintainer at [SJTUG mirror](https://mirrors.sjtug.sjtu.edu.cn).
+In a nutshell, I build things that interest me, excite me and impact people.
 
 ## Experience
 
