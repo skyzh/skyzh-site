@@ -104,7 +104,7 @@ Shanghai Jiao Tong University Linux User Group ([SJTUG][sjtug_3])
 sets up a public mirror of open-source software in China, which
 serves 70k users and 1.5 million requests per day. I built
 infrastructure for the new [Siyuan][sjtug_2] mirror server, which
-enables on-demand mirroring with [mirror-intel][sjtug_1], enabled
+enables on-demand mirroring with [mirror-intel][sjtug_1], enables
 rsync to simple object storage with [mirror-clone][sjtug_4] and hosts
 the first Flathub mirror in China.
 
@@ -132,6 +132,10 @@ I enjoy making toy projects. This "learn by doing" process is so much fun. For e
 </details>
 
 You may refer to [my GitHub](https://github.com/skyzh/) for more information.
+
+<p></p>
+<p></p>
+<p></p>
 
 ---
 
