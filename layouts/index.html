@@ -9,7 +9,7 @@
 				{{ partial "head.html" . }}
 				<main>
 					<article>
-						{{ with .Site.GetPage "/posts/about" }}{{ .Content }}{{ end }}
+						{{ with .Site.GetPage "/posts" }}{{ .Content }}{{ end }}
 					</article>
 				</main>
 				{{ partial "footer.html" . }}
