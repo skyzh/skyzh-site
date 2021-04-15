@@ -170,6 +170,7 @@ I enjoy studying courses in Computer Science, and I did well in most of them.
   * (95/100) CS236: Cloud Computing (Fall 2020)
   * (99/100) CS410: Artificial Intelligence (Fall 2020)
   * (99/100) CS467: Theory of Computation (Fall 2020)
+  * etc.
 
 </details>
 
