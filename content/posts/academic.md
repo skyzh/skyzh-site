@@ -1,6 +1,6 @@
 +++
 title = "Academic Profile"
-date = "2021-03-28"
+date = "2021-05-02"
 update = true
 aliases = ["/academic/"]
 hidden = "true"
@@ -8,45 +8,41 @@ hidden = "true"
 
 ## Introduction
 
-I’m a junior undergraduate student studying Computer Science in
+I’m a junior undergraduate student studying Computer Science at
 [Shanghai Jiao Tong University](http://en.sjtu.edu.cn/) (SJTU).
 I’m expected to graduate in 2022.
 
 My real name is Chi Zhang. As the name is too common in Chinese culture, I’m generally
-referred to as Alex Chi.
+referred to as **Alex Chi**.
 
 In my second year at SJTU, I applied for a research internship.
 It turned out that the whole experience was a disaster for me. For half a year
 I had nothing to do, except attending weekly lab meetups. I had no idea of what
 the team was doing, and what I could do. I suffered a lot, questioning myself,
 "Am I qualified for this position?" The next semester I quit that team.
-Only then did I find myself more of an engineer than a researcher.
+Only then did I find myself more of **an engineer** than a researcher.
 
 My past experience focuses on building system software with the Rust programming
 language, especially storage systems. I built [AgateDB][agatedb] during my
 internship in PingCAP. Also, I love becoming part of the open-source
-community. Currently I'm a contributor of [the TiKV project](https://tikv.org),
+community. Currently, I'm a contributor of [the TiKV project](https://tikv.org)
 and a maintainer at [SJTUG mirror](https://mirrors.sjtug.sjtu.edu.cn).
-In a nutshell, I build things that interest me, excite me and impact people.
+In a nutshell, **I build things that interest me, excite me, and impact people**.
 
 ## Experience
 
-### Intern at PingCAP, Inc.
-
-*August 2020 ~ January 2021*
+### Intern at PingCAP, Inc. &nbsp;<small>(2020/08 - 2021/01)</small>
 
 I built a key-value storage engine [AgateDB][agatedb].
-Inspired by the WiscKey paper, AgateDB separates large values from the
+Inspired by WiscKey paper, AgateDB separates large values from the
 LSM tree into a value log. This design leads to a 10x write speedup
-on large values, compared with current storage engine used by TiKV.
+on large values, compared with the current storage engine used by TiKV.
 AgateDB is a Rust port of [BadgerDB][badger].
 
 [badger]: https://github.com/dgraph-io/badger
 [agatedb]: https://github.com/tikv/agatedb
 
-### Contributor in TiKV Community
-
-*May 2020 ~ March 2021*
+### Contributor in TiKV Community &nbsp;<small>(2020/05 - 2021/05)</small>
 
 I became part of the TiKV community as a [Community Bridge][7] mentee. In
 [Full Chunk-based Computing][1] project, I migrated the TiKV coprocessor
@@ -74,9 +70,7 @@ co-mentored on [Coprocessor Plugin][8] Project.
 [8]: https://github.com/tikv/tikv/issues/9747
 
 
-### TA in PPCA Ray-Tracing Project
-
-*July 2020 ~ August 2020*
+### TA in PPCA Ray-Tracing Project &nbsp;<small>(2020/07 - 2020/08)</small>
 
 Principle and Practice of Computer Algorithms (PPCA)
 is a project-oriented course for first-year undergraduates,
@@ -96,16 +90,14 @@ the Rust programming language.
 [ppca_1]: https://github.com/skyzh/raytracer-tutorial/issues/9
 [ppca_2]: https://github.com/skyzh/raytracer-tutorial
 
-### Maintainer of SJTUG Mirror
-
-*May 2019 ~ Now*
+### Maintainer of SJTUG Mirror &nbsp;<small>(2019/05 - Now)</small>
 
 Shanghai Jiao Tong University Linux User Group ([SJTUG][sjtug_3])
 sets up a public mirror of open-source software in China, which
 serves 70k users and 1.5 million requests per day. I built
 infrastructure for the new [Siyuan][sjtug_2] mirror server, which
 enables on-demand mirroring with [mirror-intel][sjtug_1], enables
-rsync to simple object storage with [mirror-clone][sjtug_4] and hosts
+rsync to simple object storage with [mirror-clone][sjtug_4], and hosts
 the first Flathub mirror in China.
 
 [sjtug_1]: https://github.com/sjtug/mirror-intel
@@ -115,32 +107,16 @@ the first Flathub mirror in China.
 
 ## Projects
 
-I enjoy making toy projects. This "learn by doing" process is so much fun. For example,
-[core-os-riscv](https://github.com/skyzh/core-os-riscv), a toy operating system based on xv6 in Rust.
+I enjoy making toy projects. As most of them could be found on
+[my GitHub Profile](https://github.com/skyzh/), I won't list them here.
 
-<details>
-
-<summary>More Projects</summary>
-
-* [a distributed key-value store based on Raft](https://github.com/skyzh/raft-kvs) (Rust, Apr. 2020)
-* [a dynamic-scheduling RISC-V simulator](https://github.com/skyzh/RISCV-Simulator) (C++, July 2019),
-  also [a MIPS simulator](https://github.com/skyzh/mips-simulator) (Haskell, Apr. 2020)
-* [a simple ray-tracer](https://github.com/skyzh/raytracer.rs) (Rust, Jan. 2019)
-* [a real-time environment monitoring service](https://github.com/skyzh/BlueSense)
-  (Vue, golang, Python, May 2017 ~ Now), [[website]](https://bluesense.skyzh.xyz)
-
-</details>
-
-You may refer to [my GitHub](https://github.com/skyzh/) for more information.
-
-<p></p>
-<p></p>
-<p></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
 ---
 
 The following things are necessary parts of an academic profile, but I don't think they are meaningful
-to myself. From my perspective, what I've actually done is more important than those scores and awards.
+to me. From my perspective, what I've done is more important than those scores and awards.
 
 ## Academic Status
 

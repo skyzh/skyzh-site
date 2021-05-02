@@ -4,7 +4,7 @@ date = "2021-01-14"
 hidden = "true"
 +++
 
-*Study Computer Science. Reinvent the wheels. Code for fun. Make things happen.*
+*Study Computer Science / Reinvent the wheels / Code for fun / Make things happen*
 
 I reinvent the wheels. &nbsp;
 [📦 AgateDB](https://github.com/tikv/agatedb) &nbsp;
