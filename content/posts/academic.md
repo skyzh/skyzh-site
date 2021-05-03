@@ -106,9 +106,14 @@ the first Flathub mirror in China.
 [sjtug_4]: https://github.com/sjtug/mirror-clone
 
 ## Projects
-
-I enjoy making toy projects. As most of them could be found on
-[my GitHub Profile](https://github.com/skyzh/), I won't list them here.
+I enjoy making toy projects. They are fun to play with,
+and I learned a lot from them. Currently, I'm rethinking how
+to present my projects. There are so many of them, and I want
+to exhibit the most exciting and interesting ones, which best
+summarize what I've done previously.
+It may take some time for me to re-organize this part. Therefore,
+if you are interested in my previous projects, you may
+take a look at my [my GitHub Profile](https://github.com/skyzh).
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
