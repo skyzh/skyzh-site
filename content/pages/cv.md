@@ -14,7 +14,7 @@ September 2018 — June 2022 (Expected) \
 Shanghai, China
 
 <details>
-<summary>First 2.5 years GPA: 93.99/100 (Rank: 1/154)</summary>
+<summary>First 2.5 years GPA: 93.99 / 100 (Rank: 1 / 154)</summary>
 
 I enjoy studying courses in Computer Science, and I did well in most of them.
 
