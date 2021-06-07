@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html {{- if (eq .Site.Params.mode "dark") -}}class="dark"{{ end }}>
+{{ partial "header.html" . }}
+<body>
+	<div class="container wrapper">
+		{{ partial "head.html" . }}
+        <main>
+            <article>
+                {{ with .Site.GetPage "/" }}{{ .Content }}{{ end }}
+            </article>
+        </main>
+	</div>
+	{{ partial "footer.html" . }}
+</body>
+</html>
