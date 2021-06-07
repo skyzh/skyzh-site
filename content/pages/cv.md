@@ -16,8 +16,6 @@ Shanghai, China
 <details>
 <summary>First 2.5 years GPA: 93.99 / 100 (Rank: 1 / 154)</summary>
 
-I enjoy studying courses in Computer Science, and I did well in most of them.
-
 * Full-score (100/100) courses
     * CS154: C++ Programming Language (Fall 2018)
     * CS149: Data Structure (Spring 2019)

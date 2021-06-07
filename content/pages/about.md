@@ -10,16 +10,28 @@ I’m expected to graduate in 2022.
 My real name is Chi Zhang. As the name is too common in Chinese culture, I’m generally
 referred to as **Alex Chi**.
 
-In my second year at SJTU, I applied for a research internship.
+In my second year in SJTU, I applied for a research internship.
 It turned out that the whole experience was a disaster for me. For half a year
 I had nothing to do, except attending weekly lab meetups. I had no idea of what
 the team was doing, and what I could do. I suffered a lot, questioning myself,
 "Am I qualified for this position?" The next semester I quit that team.
-Only then did I find myself more of **an engineer** than a researcher.
+Only then did I find myself more of an engineer than a researcher.
 
-My past experience focuses on building system software with the Rust programming
-language, especially storage systems. I built [AgateDB](https://github.com/tikv/agatedb) during my
-internship in PingCAP. Also, I love becoming part of the open-source
-community. Currently, I'm a contributor of [the TiKV project](https://tikv.org)
-and a maintainer at [SJTUG mirror](https://mirrors.sjtug.sjtu.edu.cn).
-In a nutshell, **I build things that interest me, excite me, and impact people**.
+During my third year in SJTU, I lost interest in most of my courses, where teachers
+taught outdated materials which I would never use in my career in a tedious and boring
+way. I [criticized a lot](https://zhuanlan.zhihu.com/p/345269981) on how our university
+educates our students and made efforts to improve the current situation.
+After that, some of the professors took my advice and made their course more
+approachable and meaningful.
+
+Luckily, after long frustration and struggling, I have a vague idea of what my future
+life should become: do solid works, build exciting things and make software used
+by a large community.
+
+For the past two years, I focus on building system software with the Rust programming
+language, especially storage systems. One example is [AgateDB](https://github.com/tikv/agatedb),
+which was built during my internship in PingCAP. Also, I love becoming part of the open-source
+community. Currently, I contribute to [the TiKV community](https://tikv.org)
+and maintains a lot of projects in [the SJTUG community](https://github.com/sjtug).
+For the future, I am constantly seeking opportunities to build things that interest me,
+excites me, and impact people.
