@@ -189,11 +189,15 @@ ul.flat li {
 }
 
 ul {
-    list-style: disc inside;
+    list-style: disc outside;
 }
 
-.post ul li {
-    margin-bottom: 10px;
+ul ul {
+    list-style: square outside;
+}
+
+ul ul ul {
+    list-style: circle outside;
 }
 
 .post ul li p {
