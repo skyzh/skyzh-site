@@ -69,7 +69,7 @@ May 2020 — Now
         * Also check out the [blog post](https://tikv.org/blog/my-experience-in-flx-for-tikv/) by our mentee Xuanwo.
     * Co-mentored on [Coprocessor Plugin](https://github.com/tikv/tikv/issues/9747) project with [Andy Lok](https://github.com/andylokandy). (Mar 2021 — May 2021)
         * Also check out the [blog post](https://tikv.org/blog/lfx-2021-copr-v2/) by our mentee Andreas Zimmerer.
-* Develop AgateDB (after my internship in PingCAP).
+* Develop AgateDB (after my internship in PingCAP)
 
 ### Shanghai Jiao Tong University Linux User Group
 
@@ -78,13 +78,13 @@ May 2019 — Now
 [SJTUG](https://github.com/sjtug/), or Shanghai Jiao Tong University Linux User Group,
 is an open-source community as well as a Linux user group in SJTU.
 
-* Maintainer of SJTUG mirror service
+* Maintainer of SJTUG mirror service (Since May 2019)
     * SJTUG mirror serves 70k users, 1.5 million requests, and 3TB of data per day.
     * Build an open-source [mirror infrastructure](https://github.com/sjtug/mirror-docker-unified).
     * Set up [Siyuan mirror server](https://mirror.sjtu.edu.cn).
     * Build [mirror-intel](https://github.com/sjtug/mirror-intel), which enables us to host the first Flathub mirror in China.
     * Leverage object storage service to store files with [mirror-clone](https://github.com/sjtug/mirror-clone).
-* Maintainer of SJTU TeX Templates
+* Maintainer of SJTU TeX Templates (Since May 2021)
     * Maintainer of [SJTUThesis](https://github.com/sjtug/SJTUThesis), the LaTeX thesis template for all SJTU students.
     * Incubate [SJTUBeamer](https://github.com/sjtug/SJTUBeamer) template.
 
