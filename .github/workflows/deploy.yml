@@ -22,8 +22,8 @@ jobs:
       - name: Build
         run: hugo
 
-      - name: Post Build
-        run: cp CNAME ./public/
+      # - name: Post Build
+      #   run: cp CNAME ./public/
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
