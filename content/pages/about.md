@@ -22,8 +22,9 @@ During my third year in SJTU, I lost interest in most of my courses, where teach
 taught outdated materials which I would never use in my career in a tedious and boring
 way, and our students competed for GPA in a non-sense way. It is relatively easy for
 me to get a high score, but I could hardly learn anything throughout the process.
-I [criticized a lot](https://zhuanlan.zhihu.com/p/345269981) on how our university
-educates our students and made efforts to improve the current situation.
+I criticized a lot [[1]](https://zhuanlan.zhihu.com/p/345269981)
+[[2]](https://survivesjtu.gitbook.io/survivesjtumanual/fu-lu/ben-ke-sheng-zhuan-ye-jie-shao-todo/cs-zi-jiu-zhi-bei)
+on how our university educates our students and made efforts to improve the current situation.
 After that, some of the professors took my advice and made their course more
 approachable and meaningful.
 
