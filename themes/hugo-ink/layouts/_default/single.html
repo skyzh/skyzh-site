@@ -17,6 +17,9 @@
 				{{ end }}
 				<div class="matter">
 					<h1 class="title">{{ .Title }}</h1>
+					{{ with .Params.subtitle }}
+						{{ . }}
+					{{ end }}
 				</div>
 			</div>
 					

@@ -36,6 +36,12 @@ Shanghai, China
     * etc.
 </details>
 
+### No.2 High School Attached to East China Normal University
+
+High School \
+September 2015 — June 2018 \
+Shanghai, China
+
 ## Experience
 
 ### TiKV Storage Team R&D Intern
@@ -66,7 +72,7 @@ May 2020 — Now
         * And the [presentation](https://youtu.be/46zhiiDBT5w?t=682) on TiKV monthly meeting.
     * Mentored on [Enum/Set support in TiKV](https://github.com/tikv/tikv/issues/9066) project. (September 2020 — December 2020)
         * Also check out the [blog post](https://tikv.org/blog/my-experience-in-flx-for-tikv/) by our mentee Xuanwo.
-    * Co-mentored on [Coprocessor Plugin](https://github.com/tikv/tikv/issues/9747) project with [Andy Lok](https://github.com/andylokandy). (Mar 2021 — May 2021)
+    * Co-mentored on [Coprocessor Plugin](https://github.com/tikv/tikv/issues/9747) project with [Andy Lok](https://github.com/andylokandy). (March 2021 — May 2021)
         * Also check out the [blog post](https://tikv.org/blog/lfx-2021-copr-v2/) by our mentee Andreas Zimmerer.
 * Develop AgateDB (after my internship in PingCAP)
 

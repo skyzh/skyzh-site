@@ -1,5 +1,6 @@
 +++
 title = "Build things for fun, for all"
+subtitle = "The Stories Behind My Projects"
 hidden = true
 date = "2021-06-08"
 +++
@@ -27,6 +28,25 @@ There are also some other interesting works.
 * [A simple ray-tracer](https://github.com/skyzh/raytracer.rs), which is later used in [PPCA Ray-Tracing Project](https://github.com/skyzh/raytracer-tutorial).
 * [uring-positioned-io](https://github.com/skyzh/uring-positioned-io), an asynchronized positioned-I/O library based on io-uring, built with the Rust programming language.
 
+And some web, mobile and desktop applications.
+
+* [tenitsu](https://github.com/skyzh/tenitsu), a robot collecting tennis balls.
+* [Kanbasu](https://github.com/untitled-group/kanbasu), a third-party Canvas LMS client.
+* [make-a-fortune](https://github.com/skyzh/make-a-fortune), an anonymous forum frontend.
+* [libook](https://github.com/sjtu-libook/libook), a library seat-booking system.
+* [canvas_grab](https://github.com/skyzh/canvas_grab), one-click script to synchronize files from Canvas LMS.
+* and many more on my [GitHub Profile](https://github.com/skyzh).
+
+Course projects could be found in [Curriculum Vitae](/pages/cv) by expanding the "GPA" part.
+
+This “learn by doing” process is so much fun, and I enjoy making these toy projects. After all, I *code for fun*.
+
 ## Into the Open-Source Community
 
-[TODO]
+Build systems that could be used by thousands or millions of users, collaborate with developers worldwide anytime, and improve my understanding of technology and software. That is how the open-source community influenced me.
+
+Although there are quite a lot of open-source projects on my GitHub profile, I have never thought of what an open-source community could be like. My journey into a real-world open-source community began when I joined [the TiKV community](https://github.com/tikv) as a Community Bridge mentee. After completing the [Full Chunk-based Computing project](https://github.com/tikv/tikv/issues/7724), I became a committer of the TiKV project. Then I mentored on other LFX Mentorship programs such as [Enum/Set Support in TiKV](https://github.com/tikv/tikv/issues/9066) and [Coprocessor Plugin project](https://github.com/tikv/tikv/issues/9747) (co-mentor).
+
+In the meantime, I led the development of [SJTUG mirror service](https://mirror.sjtu.edu.cn) infrastructure leveraging cloud service, including [mirror-docker-unified](https://github.com/sjtug/mirror-docker-unified), [mirror-intel](https://github.com/sjtug/mirror-intel), and [mirror-clone](https://github.com/sjtug/mirror-clone). SJTUG mirror now serves 3TB of data per day, which is 3 times more than it was 2 years ago. Also, I am a maintainer of [SJTUThesis](https://github.com/sjtug/SJTUThesis), the LaTeX thesis template used by SJTU students. Tens of thousands of users are using infrastructure and services provided by the SJTUG community, which is exciting and inspiring. We are building things used by users all around the world, together in the open-source community.
+
+Now you may have a better idea of the motivation behind what I have done: for fun, for all.
