@@ -1,6 +1,7 @@
 +++
 title = "Build things for fun, for all"
 hidden = true
+date = "2021-06-08"
 +++
 
 ## Early Days
