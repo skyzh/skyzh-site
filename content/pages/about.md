@@ -19,7 +19,9 @@ Only then did I find myself more of an engineer than a researcher.
 
 During my third year in SJTU, I lost interest in most of my courses, where teachers
 taught outdated materials which I would never use in my career in a tedious and boring
-way. I [criticized a lot](https://zhuanlan.zhihu.com/p/345269981) on how our university
+way, and our students competed for GPA in a non-sense way. It is relatively easy for
+me to get a high score, but I could hardly learn anything throughout the process.
+I [criticized a lot](https://zhuanlan.zhihu.com/p/345269981) on how our university
 educates our students and made efforts to improve the current situation.
 After that, some of the professors took my advice and made their course more
 approachable and meaningful.
@@ -32,6 +34,6 @@ For the past two years, I focus on building system software with the Rust progra
 language, especially storage systems. One example is [AgateDB](https://github.com/tikv/agatedb),
 which was built during my internship in PingCAP. Also, I love becoming part of the open-source
 community. Currently, I contribute to [the TiKV community](https://tikv.org)
-and maintains a lot of projects in [the SJTUG community](https://github.com/sjtug).
+and maintain several widely-used projects in [the SJTUG community](https://github.com/sjtug).
 For the future, I am constantly seeking opportunities to build things that interest me,
 excites me, and impact people.
