@@ -23,6 +23,12 @@
 				</div>
 			</div>
 					
+			<div>
+				{{ if eq .Params.toc true }}
+					{{ .TableOfContents }}
+					<hr>
+				{{ end }}
+			</div>
 			<div class="markdown">
 				{{ .Content }}
 			</div>
