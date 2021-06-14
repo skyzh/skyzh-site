@@ -253,3 +253,5 @@ trace-cmd record -p function_graph -F [command]
 
 * [io_uring 的第一组 patch](https://lore.kernel.org/linux-block/20190116175003.17880-6-axboe@kernel.dk/)
 * [@YangKeao 谈 ftrace](https://twitter.com/YangKeao/status/1402902939832750082)
+
+您可以在该文对应的 [GitHub Pull Request](https://github.com/skyzh/skyzh.github.io/pull/2) 中评论这篇文章。
