@@ -26,7 +26,9 @@ Being a university student means a lot of free time for exploration. By self-stu
 There are also some other interesting works.
 
 * [A simple ray-tracer](https://github.com/skyzh/raytracer.rs), which is later used in [PPCA Ray-Tracing Project](https://github.com/skyzh/raytracer-tutorial).
-* [uring-positioned-io](https://github.com/skyzh/uring-positioned-io), an asynchronized positioned-I/O library based on io-uring, built with the Rust programming language.
+* Linux I/O Experiments and Readings
+  * [uring-positioned-io](https://github.com/skyzh/uring-positioned-io), an asynchronized positioned-I/O library based on io-uring, built with the Rust programming language.
+  * [Deep Dive io-uring (Chinese)](/posts/articles/2021-06-14-deep-dive-io-uring/) A blog post on Linux io_uring implementation.
 
 And some web, mobile and desktop applications.
 
