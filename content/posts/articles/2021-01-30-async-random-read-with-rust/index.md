@@ -3,7 +3,7 @@ title: "在 Rust 中实现基于 io_uring 的异步随机读文件"
 date: 2021-01-30T17:37:23+08:00
 ---
 
-一句话总结：在 [skyzh/uring-positioned-io][0] 中，我包装了 Tokio 提供的底层 `io_uring` 接口，在 Rust 中实现了基于
+一句话总结：在 skyzh/uring-positioned-io 中，我包装了 Tokio 提供的底层 `io_uring` 接口，在 Rust 中实现了基于
 `io_uring` 的异步随机读文件。你可以这么用它：
 
 ```rust
@@ -11,6 +11,9 @@ ctx.read(fid, offset, &mut buf).await?;
 ```
 
 本文介绍了 `io_uring` 的基本使用方法，然后介绍了本人写的异步读文件库的实现方法，最后做了一个 benchmark，和 mmap 对比性能。
+
+[点击这里可以访问 GitHub 项目][0]。
+
 ## io_uring 简介
 
 `io_uring` 是一个由 Linux 内核的提供的异步 I/O 接口。它于 2019 年 5 月在 Linux 5.1 中面世，现在已经在各种项目中被使用。
@@ -111,7 +114,7 @@ ctx.read(fid, offset, &mut buf).await?;
 
 整个流程如下图所示。
 
-![uring](https://user-images.githubusercontent.com/4198311/106355863-b53ca880-6335-11eb-9dfe-0682aefa1093.png)
+![uring](uring-impl.png)
 
 这样，我们就可以方便地调用 `io_uring` 实现文件的异步读取。这么做还顺便带来了一个好处：任务提交可以自动 batching。
 通常来说，一次 I/O 操作会产生一次 syscall。但由于我们使用一个单独的 Future 来提交、轮询任务，在提交的时候，
@@ -144,20 +147,20 @@ ctx.read(fid, offset, &mut buf).await?;
 发现 mmap 吊打 `io_uring`。嗯，果然这个包装做的不太行，但是勉强能用。下面是一分钟 latency 的 heatmap。每一组数据的展示顺序是先 mmap 后 `io_uring`。
 
 **mmap_8 / uring_8**
-![waterfall_mmap_8](https://user-images.githubusercontent.com/4198311/106357357-a14a7400-6340-11eb-89df-72e876855557.png)
-![waterfall_uring_8](https://user-images.githubusercontent.com/4198311/106357364-a60f2800-6340-11eb-9376-2d66ffa7098f.png)
+![waterfall_mmap_8](waterfall_mmap_8.png)
+![waterfall_uring_8](waterfall_uring_8.png)
 
 **mmap_32 / uring_32**
-![waterfall_mmap_32](https://user-images.githubusercontent.com/4198311/106357361-a5769180-6340-11eb-8a85-80180df69ea8.png)
-![waterfall_uring_32](https://user-images.githubusercontent.com/4198311/106357365-a6a7be80-6340-11eb-81e7-945758dd2092.png)
+![waterfall_mmap_32](waterfall_mmap_32.png)
+![waterfall_uring_32](waterfall_uring_32.png)
 
 **mmap_512 / uring_512**
-![waterfall_mmap_512](https://user-images.githubusercontent.com/4198311/106357363-a5769180-6340-11eb-9704-7c97d9a577a6.png)
-![waterfall_uring_512](https://user-images.githubusercontent.com/4198311/106357366-a6a7be80-6340-11eb-9b7e-ec4ff168962d.png)
+![waterfall_mmap_512](waterfall_mmap_512.png)
+![waterfall_uring_512](waterfall_uring_512.png)
 
-![Throughput-2](https://user-images.githubusercontent.com/4198311/106357531-904e3280-6341-11eb-9577-fcd1a487e6db.png)
+![Throughput](throughput.png)
 
-![p50 Latency (ns)](https://user-images.githubusercontent.com/4198311/106357534-93e1b980-6341-11eb-8974-05575e63b2b7.png)
+![p50 Latency (ns)](p50-latency.png)
 
 ## 一些可能的改进
 
