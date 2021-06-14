@@ -10,7 +10,7 @@ toc = true
 
 `io_uring` 的实现主要在 [`fs/io_uring.c`](https://elixir.bootlin.com/linux/v5.12.10/source/fs/io_uring.c) 中。
 
-## 用户态 API
+## io_uring 的 用户态 API
 
 `io_uring` 的实现仅仅使用了三个 syscall：`io_uring_setup`, `io_uring_enter` 和 `io_uring_register`。它们分别用于设置 `io_uring` 上下文，提交并获取完成任务，以及注册内核用户共享的缓冲区。使用前两个 syscall 已经足够使用 `io_uring` 接口了。
 
@@ -19,8 +19,8 @@ toc = true
 | 缩略语 | 英语 | 中文 | 解析 |
 | ---- | ---- | ---- | ---- |
 | SQ | Submission Queue | 提交队列 | 一整块连续的内存空间存储的环形队列。<br>用于存放将执行操作的数据。 |
-| CQ | Completion Queue Entry | 完成队列 | 一整块连续的内存空间存储的环形队列。<br>用于存放完成操作返回的结果。 |
-| SQE | Submission Queue | 提交队列项 | 提交队列中的一项。 |
+| CQ | Completion Queue | 完成队列 | 一整块连续的内存空间存储的环形队列。<br>用于存放完成操作返回的结果。 |
+| SQE | Submission Queue Entry | 提交队列项 | 提交队列中的一项。 |
 | CQE | Completion Queue Entry | 完成队列项 | 完成队列中的一项。 |
 | Ring | Ring | 环 | 比如 SQ Ring，就是“提交队列信息”的意思。<br>包含队列数据、队列大小、丢失项等等信息。 |
 
@@ -215,7 +215,7 @@ struct io_uring_cqe {
 
 ## io_uring 的任务依赖管理
 
-在实际生产环境中，我们往往会有这样的需求：往文件中写入 n 次，然后用 `fsync` 落盘。在使用 `io_uring` 时，SQ 中的任务不一定会按顺序执行。给操作设定 `IO_SQE_LINK` 选项，可以建立任务之间的先后关系。`IO_SQE_LINK` 之后的第一个任务一定在当前任务完成后执行。[^7]
+在实际生产环境中，我们往往会有这样的需求：往文件中写入 n 次，然后用 `fsync` 落盘。在使用 `io_uring` 时，SQ 中的任务不一定会按顺序执行。给操作设定 `IO_SQE_LINK` 选项，就可以建立任务之间的先后关系。`IO_SQE_LINK` 之后的第一个任务一定在当前任务完成后执行。[^7]
 
 ![Task Link](submit_lifecycle.png)
 
@@ -234,7 +234,7 @@ struct io_uring_cqe {
 
 ## 附录
 
-### 使用 fio 的 `io_uring` 模式进行测试
+### 使用 fio 的 io_uring 模式进行测试
 
 
 ```bash
@@ -259,4 +259,4 @@ trace-cmd record -p function_graph -F [command]
 * [io_uring 的第一组 patch](https://lore.kernel.org/linux-block/20190116175003.17880-6-axboe@kernel.dk/)
 * [@YangKeao 谈 ftrace](https://twitter.com/YangKeao/status/1402902939832750082)
 
-您可以在该文对应的 [GitHub Pull Request](https://github.com/skyzh/skyzh.github.io/pull/2) 中评论这篇文章。
+您可以在本文对应的 [GitHub Pull Request](https://github.com/skyzh/skyzh.github.io/pull/2) 中评论这篇文章。
