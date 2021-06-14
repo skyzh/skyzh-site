@@ -15,7 +15,7 @@ googleAnalytics = "UA-52525161-8"
 [params]
 avatar = "https://avatars.githubusercontent.com/u/4198311"
 mode = "light"
-featherIconsCDN = false
+featherIconsCDN = true
 subtitle = "Code for fun, Make things happen"
 excludedTypes = ["page", "pages"]
 
