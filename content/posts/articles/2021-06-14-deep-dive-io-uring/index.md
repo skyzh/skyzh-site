@@ -92,7 +92,7 @@ static inline int io_rw_prep_async(struct io_kiocb *req, int rw);
 
 <details>
 
-<summary>`io_uring_sqe` 的定义</summary>
+<summary><code>io_uring_sqe</code> 的定义</summary>
 
 ```c
 struct io_uring_sqe {
@@ -151,11 +151,11 @@ struct io_uring_cqe {
 * 将 SQE 写入 SQEs 区域，而后将 SQE 编号写入 SQ。（对应图中绿色第一步）
 * 更新用户态记录的队头。（对应图中绿色第二步）
 * 如果有多个任务需要同时提交，用户不断重复上面的过程。
-* 将最终的队头编号写入与内核共享的 io_uring 上下文。（对应图中绿色第三步）
+* 将最终的队头编号写入与内核共享的 `io_uring` 上下文。（对应图中绿色第三步）
 
 接下来我们简要介绍内核获取任务、内核完成任务、用户收割任务的过程。
 
-* 内核态获取任务的方式是，从队尾读取 SQE，并更新 io_uring 上下文的 SQ tail。
+* 内核态获取任务的方式是，从队尾读取 SQE，并更新 `io_uring` 上下文的 SQ tail。
 
 ![Retrieve CQE](cqe_retrieve.png)
 
@@ -192,6 +192,8 @@ struct io_uring_cqe {
 * 如果在 SQE 中指定了 `IOSQE_ASYNC` 选项，该操作会直接被放入 io-wq 队列。
 * 如果没有指定 `IOSQE_ASYNC` 选项，`io_uring` 会先用非阻塞模式尝试执行一次 SQE 中包含的操作。举个例子：执行 `io_read` 时，如果数据已经在 page cache 里面，非阻塞模式的 `io_read` 操作就会成功。如果成功，则直接返回。如果不成功，放入 io-wq 中。
 
+所有的操作都被提交到内核队列后，如果用户设置了 `IORING_ENTER_GETEVENTS` flag，`io_uring_enter` 在返回用户态前会等待指定个数的操作完成。
+
 之后，Linux 随时会调度 io-wq 的内核线程执行。此时，`io_wq_submit_work` 函数会不断用阻塞模式执行用户指定的操作。某个操作完整执行后，它的返回值就会被写入 CQ 中。用户通过 `io_uring` 上下文中的 CQ 队尾位置就能知道内核处理好了哪些操作，无需再次调用 `io_uring_enter`。
 
 ![Flamegraph when io-wq enabled](flamegraph_iowq.png)
@@ -207,7 +209,9 @@ struct io_uring_cqe {
 ![Callgraph Waterfall in IOPOLL mode](callgraph_waterfall_iopoll.png)
 
 
-在轮询模式下，io-wq 不会被使用。提交任务时，`io_read` 直接调用内核的 Direct I/O 接口向设备队列提交任务。收割任务时，`io_iopoll_check` 会直接调用内核接口轮询任务是否完成。
+在轮询模式下，io-wq 不会被使用。提交任务时，`io_read` 直接调用内核的 Direct I/O 接口向设备队列提交任务。
+
+如果用户设置了 `IORING_ENTER_GETEVENTS` flag，在返回用户态前，`io_uring_enter` 会通过 `io_iopoll_check` 调用内核接口轮询任务是否完成。
 
 ![Flamegraph in IOPOLL mode](flamegraph_iopoll.png)
 
@@ -231,6 +235,13 @@ struct io_uring_cqe {
 
 [^7]: [[PATCHSET 0/3] io_uring: support for linked SQEs](https://lore.kernel.org/linux-block/20190517214131.5925-1-axboe@kernel.dk/), [[PATCHSET v2 0/3] io_uring: support for linked SQEs](https://lore.kernel.org/linux-block/20190529202948.20833-1-axboe@kernel.dk/)
 [^8]: [[fs/io_uring.c#L6510]](https://elixir.bootlin.com/linux/v5.12.10/source/fs/io_uring.c#L6510)
+
+## 总结与启示
+
+* `io_uring` 大致可以分为默认、`IOPOLL`、`SQPOLL`、`IOPOLL + SQPOLL` 四种模式。可以根据操作是否需要轮询选择开启 `IOPOLL`。如果需要更高实时性、减少 syscall 开销，可以考虑开启 `SQPOLL`。
+* 如果只是使用 Buffered I/O，`io_uring` 相比于用户态直接调用 syscall，通常不会有特别大的性能提升。`io_uring` 内部通过 io-wq 执行 Buffered I/O 操作，和直接在用户态调用 syscall 在本质上没有太大区别，只能减小用户态内核态切换的开销。`io_uring` 提交任务要走一遍 `io_uring_enter` syscall，延迟和吞吐量应该比不上 mmap 之类的文件 I/O 操作方法。
+* 如果不想在提交时立刻尝试执行一次任务（比如之前提到的文件内容已经在 page cache 的情况），可以加上 `IOSQE_ASYNC` flag，强制走 io-wq。
+* 使用 `IO_SQE_LINK`, `IOSQE_IO_DRAIN` 和 `IOSQE_IO_HARDLINK` 可以控制任务的依赖关系。
 
 ## 附录
 
