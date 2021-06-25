@@ -2,6 +2,7 @@
 title = "ChiBot"
 hidden = true
 date = "2021-06-07"
+date_update = true
 +++
 
 ChiBot is an initiative by my friends to develop a chat-bot which acts like me. \

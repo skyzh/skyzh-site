@@ -2,6 +2,7 @@
 title = "About Me"
 hidden = true
 date = "2021-06-07"
+date_update = true
 +++
 
 I’m a junior undergraduate student studying Computer Science at

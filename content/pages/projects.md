@@ -3,6 +3,7 @@ title = "Build things for fun, for all"
 subtitle = "The Stories Behind My Projects"
 hidden = true
 date = "2021-06-08"
+date_update = true
 +++
 
 ## Early Days

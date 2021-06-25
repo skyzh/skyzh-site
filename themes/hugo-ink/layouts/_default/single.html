@@ -8,12 +8,14 @@
 		<div class="post">
 			<div class="post-header">
 				{{ if ne .Date.Year 1 }}
-					<div class="meta">
-						<div class="date">
-							<span class="day">{{ dateFormat "02" .Date }}</span>
-							<span class="rest">{{ if $.Site.Data.month }}{{ index $.Site.Data.month (printf "%d" .Date.Month) }} {{ .Date.Year }}{{ else }}{{ dateFormat "Jan 2006" .Date }}{{ end }}</span>
+					{{ if not .Params.date_update }}
+						<div class="meta">
+							<div class="date">
+								<span class="day">{{ dateFormat "02" .Date }}</span>
+								<span class="rest">{{ if $.Site.Data.month }}{{ index $.Site.Data.month (printf "%d" .Date.Month) }} {{ .Date.Year }}{{ else }}{{ dateFormat "Jan 2006" .Date }}{{ end }}</span>
+							</div>
 						</div>
-					</div>
+					{{ end }}
 				{{ end }}
 				<div class="matter">
 					<h1 class="title">{{ .Title }}</h1>
@@ -31,6 +33,9 @@
 			</div>
 			<div class="markdown">
 				{{ .Content }}
+				{{ if .Params.date_update }}
+					<small>Updated at {{ dateFormat "Jan 2, 2006" .Date }}</small>
+				{{ end }}
 			</div>
 
 			<div class="tags">

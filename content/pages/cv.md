@@ -2,6 +2,7 @@
 title = "Curriculum Vitae"
 hidden = true
 date = "2021-06-07"
+date_update = true
 +++
 
 ## Education
