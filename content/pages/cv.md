@@ -1,7 +1,7 @@
 +++
 title = "Curriculum Vitae"
 hidden = true
-date = "2021-06-07"
+date = "2021-07-03"
 date_update = true
 +++
 
@@ -14,7 +14,7 @@ September 2018 — June 2022 (Expected) \
 Shanghai, China
 
 <details>
-<summary>First 2.5 years GPA: 93.99 / 100 (Rank: 1 / 154)</summary>
+<summary>First 3 years GPA: 93.97 / 100 (Rank: 1 / 154)</summary>
 
 * Full-score (100/100) courses
     * CS154: C++ Programming Language (Fall 2018)
@@ -110,11 +110,15 @@ You may take a look at [Student Project Showcase](https://github.com/skyzh/raytr
 
 ## Talks
 
-* [Paper Reading](https://www.bilibili.com/video/BV1Yi4y1j74S) on “Lethe: A Tunable Delete-Aware LSM Engine”
+* Paper Reading on “Lethe: A Tunable Delete-Aware LSM Engine” (October 2020)
+    * Video on [Bilibili](https://www.bilibili.com/video/BV1Yi4y1j74S)
     * [Original Paper](https://arxiv.org/abs/2006.04777)
-* [Paper Reading](https://www.bilibili.com/video/BV1wf4y1Y7eZ) on “FPTree: A Hybrid SCM-DRAM Persistent and Concurrent B-Tree for Storage Class Memory”
+* Paper Reading on “FPTree: A Hybrid SCM-DRAM Persistent and Concurrent B-Tree for Storage Class Memory” (May 2021)
+    * Video on [Bilibili](https://www.bilibili.com/video/BV1wf4y1Y7eZ)
     * [Original Paper](https://wwwdb.inf.tu-dresden.de/misc/papers/2016/Oukid_FPTree.pdf)
     * [Slides](https://docs.google.com/presentation/d/1RHVP81jJHqHhzHACu98RZMNXxRMsa1pPllqjVkfIM7g)
+* The SJTUG Mirror Service (July 2021)
+    * [Slides](https://github.com/skyzh/skyzh.github.io/files/6757800/The.SJTUG.Mirror.Service.pdf)
 
 ## Projects
 
