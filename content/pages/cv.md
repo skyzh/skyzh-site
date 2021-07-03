@@ -117,7 +117,7 @@ You may take a look at [Student Project Showcase](https://github.com/skyzh/raytr
     * Video on [Bilibili](https://www.bilibili.com/video/BV1wf4y1Y7eZ)
     * [Original Paper](https://wwwdb.inf.tu-dresden.de/misc/papers/2016/Oukid_FPTree.pdf)
     * [Slides](https://docs.google.com/presentation/d/1RHVP81jJHqHhzHACu98RZMNXxRMsa1pPllqjVkfIM7g)
-* The SJTUG Mirror Service (July 2021)
+* Sharing of “The SJTUG Mirror Service” (July 2021, at [Tunight](https://tuna.moe/event/2021/summer-salon/))
     * [Slides](https://github.com/skyzh/skyzh.github.io/files/6757800/The.SJTUG.Mirror.Service.pdf)
 
 ## Projects
