@@ -250,13 +250,13 @@ struct io_uring_cqe {
 
 ```bash
 # 开启 SQPOLL + IOPOLL
-fio -threads=8 -size=32G -bs=1m -direct=1 -rw=randread -name=test -group_reporting -filename=./io.tmp -runtime 60 --ioengine=io_uring --iodepth=512 --sqthread_poll 1
+fio -size=32G -bs=1m -direct=1 -rw=randread -name=test -group_reporting -filename=./io.tmp -runtime 60 --ioengine=io_uring --iodepth=512 --sqthread_poll 1
 # 开启 SQPOLL
-fio -threads=8 -size=32G -bs=1m -direct=0 -rw=randread -name=test -group_reporting -filename=./io.tmp -runtime 60 --ioengine=io_uring --iodepth=512 --sqthread_poll 1
+fio -size=32G -bs=1m -direct=0 -rw=randread -name=test -group_reporting -filename=./io.tmp -runtime 60 --ioengine=io_uring --iodepth=512 --sqthread_poll 1
 # 开启 IOPOLL
-fio -threads=8 -size=32G -bs=1m -direct=1 -rw=randread -name=test -group_reporting -filename=./io.tmp -runtime 60 --ioengine=io_uring --iodepth=512
+fio -size=32G -bs=1m -direct=1 -rw=randread -name=test -group_reporting -filename=./io.tmp -runtime 60 --ioengine=io_uring --iodepth=512
 # 关闭 IOPOLL
-fio -threads=8 -size=32G -bs=1m -direct=0 -rw=randread -name=test -group_reporting -filename=./io.tmp -runtime 60 --ioengine=io_uring --iodepth=512
+fio -size=32G -bs=1m -direct=0 -rw=randread -name=test -group_reporting -filename=./io.tmp -runtime 60 --ioengine=io_uring --iodepth=512
 
 # 而后使用 bcc (eBPF) 跟踪内核函数调用，生成火焰图
 /usr/share/bcc/tools/profile -p `pidof fio` -f
