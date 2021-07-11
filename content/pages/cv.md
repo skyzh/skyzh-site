@@ -1,7 +1,7 @@
 +++
 title = "Curriculum Vitae"
 hidden = true
-date = "2021-07-03"
+date = "2021-07-11"
 date_update = true
 +++
 
@@ -14,7 +14,7 @@ September 2018 — June 2022 (Expected) \
 Shanghai, China
 
 <details>
-<summary>First 3 years GPA: 93.97 / 100 (Rank: 1 / 154)</summary>
+<summary>First 3 years GPA: 93.97 / 100 (Rank: 1 / 154) <br> (Click to Expand)</summary>
 
 * Full-score (100/100) courses
     * CS154: C++ Programming Language (Fall 2018)
@@ -27,6 +27,7 @@ Shanghai, China
     [[final project + presentation]](https://github.com/skyzh/oom_killer)
     * CS145: Computer Architecture Experiments (Spring 2020)
     [[final project + report]](https://github.com/skyzh/mips-cpu)
+    * ... and 2 more
 * Other A+ courses
     * (95/100) CS359: Computer Architecture (Spring 2020)
     * (96/100) EI209: Computer Organization (Spring 2020)
@@ -34,7 +35,7 @@ Shanghai, China
     * (95/100) CS236: Cloud Computing (Fall 2020)
     * (99/100) CS410: Artificial Intelligence (Fall 2020)
     * (99/100) CS467: Theory of Computation (Fall 2020)
-    * etc.
+    * ... and 16 more
 </details>
 
 ### No.2 High School Attached to East China Normal University
