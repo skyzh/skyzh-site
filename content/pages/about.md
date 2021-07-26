@@ -39,4 +39,4 @@ which was built during my internship in PingCAP. Also, I love becoming part of t
 community. Currently, I contribute to [the TiKV community](https://tikv.org)
 and maintain several widely-used projects in [the SJTUG community](https://github.com/sjtug).
 For the future, I am constantly seeking opportunities to build things that interest me,
-excites me, and impact people.
+excite me, and impact people.
