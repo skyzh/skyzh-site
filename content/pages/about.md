@@ -5,9 +5,9 @@ date = "2021-06-07"
 date_update = true
 +++
 
-I’m a junior undergraduate student studying Computer Science at
+I’m a senior undergraduate student studying Computer Science at
 [Shanghai Jiao Tong University](http://en.sjtu.edu.cn/) (SJTU).
-I’m expected to graduate in 2022.
+I’m expected to graduate in Summer 2022.
 
 My real name is Chi Zhang. As the name is too common in Chinese culture, I’m generally
 referred to as **Alex Chi**.
