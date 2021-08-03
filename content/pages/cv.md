@@ -125,6 +125,7 @@ You may take a look at [Student Project Showcase](https://github.com/skyzh/raytr
 * Paper Reading on “Lethe: A Tunable Delete-Aware LSM Engine” (October 2020)
     * Video on [Bilibili](https://www.bilibili.com/video/BV1Yi4y1j74S)
     * [Original Paper](https://arxiv.org/abs/2006.04777)
+    * [Slides](https://docs.google.com/presentation/d/1cDi_mHLuNcSkatck5R6wk1TAYV7tsTyaPkrv4-7M95Y)
 * Paper Reading on “FPTree: A Hybrid SCM-DRAM Persistent and Concurrent B-Tree for Storage Class Memory” (May 2021)
     * Video on [Bilibili](https://www.bilibili.com/video/BV1wf4y1Y7eZ)
     * [Original Paper](https://wwwdb.inf.tu-dresden.de/misc/papers/2016/Oukid_FPTree.pdf)
