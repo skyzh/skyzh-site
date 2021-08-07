@@ -185,3 +185,5 @@ LSM 树的 KV 分离可以减小存储引擎的写放大。但与此同时，它
 * [TerarkDB All-In-One Docs](https://bytedance.feishu.cn/docs/doccnZmYFqHBm06BbvYgjsHHcKc#)
 * [tikv/titan: A RocksDB plugin for key-value separation, inspired by WiscKey](https://github.com/tikv/titan/tree/master)
 * [Titan 的设计与实现](https://pingcap.com/blog-cn/titan-design-and-implementation/)
+
+欢迎在这篇文章对应的 [Pull Request](https://github.com/skyzh/skyzh.github.io/pull/5) 下使用 GitHub 账号评论、交流你的想法。
