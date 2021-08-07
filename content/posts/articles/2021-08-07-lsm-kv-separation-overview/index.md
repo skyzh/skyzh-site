@@ -7,7 +7,7 @@ toc = true
 
 常见的 LSM 存储引擎，如 LevelDB 和 RocksDB，将用户写入的一组的 key 和 value 存放在一起，按顺序写入 SST。在 compaction 过程中，引擎将上层的 SST 与下层 SST 合并，产生新的 SST 文件。这一过程中，SST 里面的 key 和 value 都会被重写一遍，带来较大的写放大。如果 value 的大小远大于 key，compaction 过程带来的写放大会引入巨大的开销。
 
-在 WiscKey (FAST '16) 中，作者提出了一种对 SSD 友好的基于 LSM 树的存储引擎设计。它通过 KV 分离降低了 LSM 树的写放大。
+在 [WiscKey (FAST '16)](https://www.usenix.org/conference/fast16/technical-sessions/presentation/lu) 中，作者提出了一种对 SSD 友好的基于 LSM 树的存储引擎设计。它通过 KV 分离降低了 LSM 树的写放大。
 KV 分离就是将大 value 存放在其他地方，并在 LSM 树中存放一个 value pointer (vptr) 指向 value 所在的位置。在 WiscKey 中，这个存放 value 的地方被称为 Value Log (vLog)。由此，LSM 树 compaction 时就不需要重写 value，仅需重新组织 key 的索引。这样一来，就能大大减少写放大，减缓 SSD 的磨损。
 
 ![KV separation comparison](compaction-comparison.png)
@@ -179,6 +179,7 @@ LSM 树的 KV 分离可以减小存储引擎的写放大。但与此同时，它
 
 ## Reference
 
+* [WiscKey: Separating Keys from Values in SSD-conscious Storage](https://www.usenix.org/conference/fast16/technical-sessions/presentation/lu)
 * [dgraph-io/badger: Fast key-value DB in Go.](https://github.com/dgraph-io/badger)
 * [Introducing Badger: A fast key-value store written purely in Go](https://blog.dgraph.io/post/badger/)
 * [bytedance/terarkdb: A RocksDB compatible KV storage engine with better performance](https://github.com/bytedance/terarkdb)
