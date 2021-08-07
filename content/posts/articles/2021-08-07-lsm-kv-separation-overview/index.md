@@ -67,7 +67,7 @@ LSM 树的第 0 层包含多个 SST，SST 的 key 范围可能互相重叠。从
 
 Titan 是 RocksDB 的一个插件，所以整体的前台流程和 RocksDB 几乎一样。后台流程和 TerarkDB 相近，唯一的区别是存储大 value 的方式。Titan 通过特殊的格式 BlobFile 存储大 value。BlobFile 中包含了有序存储的 KV 对，KV 对按单个记录压缩。因此，在 Flush 的过程中，大 value 在 LSM 树中的存储形式为 `<key, <fileno, offset>>`。
 
-### 对比
+### 写流程对比
 
 | 存储引擎                       | BadgerDB           | TerarkDB                    | Titan                          |
 | ------------------------------ | ------------------ | --------------------------- | ------------------------------ |
@@ -98,7 +98,7 @@ BadgerDB 在重写 vLog 过程中，会扫描当前处理的 key 在 LSM 树中�
 
 ![Garbage collection consistency in Badger](gc-consistency-badger.png)
 
-如上图所示，BadgerDB 的内部存储的 key 是 key + timestamp 的组合。在回写 LSM 树时，BadgerDB 无需考虑当前 key 是否已经被用户删除或更新。这样确实会导致用户新写入的 value 反而在旧 value 之下，不过 Badger 在读取时会扫描所有层，由此解决了这个可能存在的正确性问题。在后面的读流程中，我也会介绍这一点。
+如上图所示，BadgerDB 的内部存储的 key 是 key + timestamp 的组合。在回写 LSM 树时，BadgerDB 无需考虑当前 key 是否已经被用户删除或更新。这样确实会导致用户新写入的 value (对应的 key-vptr) 反而在旧 value (对应的 key-vptr) 之下，不过 Badger 在读取时会扫描所有层，由此解决了这个可能存在的正确性问题。在后面的读流程中，我也会介绍这一点。
 
 ### TerarkDB 的 Compaction 与垃圾回收
 
@@ -128,7 +128,7 @@ Titan 的普通垃圾回收 (Regular GC) 采用了和 BadgerDB 类似的策略�
 
 Titan 的 Level Merge 仅在 LSM 树的最后两层启用。
 
-### 对比
+### GC 流程对比
 
 | 存储引擎        | BadgerDB            | TerarkDB             | Titan                                |
 | --------------- | ------------------- | -------------------- | ------------------------------------ |
@@ -164,7 +164,7 @@ Titan 的 Level Merge 仅在 LSM 树的最后两层启用。
 
 Titan 读取时需要从 LSM 树中找到 vptr，然后访问对应的 BlobFile。
 
-### 对比
+### 读流程对比
 
 | 存储引擎  | BadgerDB          | TerarkDB            | Titan              |
 | --------- | ----------------- | ------------------- | ------------------ |
@@ -179,5 +179,9 @@ LSM 树的 KV 分离可以减小存储引擎的写放大。但与此同时，它
 
 ## Reference
 
-Titan 文档
-TerarkDB 文档
+* [dgraph-io/badger: Fast key-value DB in Go.](https://github.com/dgraph-io/badger)
+* [Introducing Badger: A fast key-value store written purely in Go](https://blog.dgraph.io/post/badger/)
+* [bytedance/terarkdb: A RocksDB compatible KV storage engine with better performance](https://github.com/bytedance/terarkdb)
+* [TerarkDB All-In-One Docs](https://bytedance.feishu.cn/docs/doccnZmYFqHBm06BbvYgjsHHcKc#)
+* [tikv/titan: A RocksDB plugin for key-value separation, inspired by WiscKey](https://github.com/tikv/titan/tree/master)
+* [Titan 的设计与实现](https://pingcap.com/blog-cn/titan-design-and-implementation/)
