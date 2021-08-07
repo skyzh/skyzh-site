@@ -4,8 +4,6 @@ date = "2021-06-14T22:00:00+08:00"
 toc = true
 +++
 
-## 前言
-
 `io_uring` 是 Linux 提供的一个异步 I/O `接口。io_uring` 在 2019 年加入 Linux 内核，经过了两年的发展，现在已经变得非常强大。本文基于 Linux 5.12.10 介绍 `io_uring` 接口。
 
 `io_uring` 的实现主要在 [`fs/io_uring.c`](https://elixir.bootlin.com/linux/v5.12.10/source/fs/io_uring.c) 中。
