@@ -77,6 +77,8 @@ I built a key-value storage engine [AgateDB][agatedb].
 
 May 2020 — Now
 
+TiKV is a distributed key-value storage engine behind the MySQL-compatible HTAP database TiDB. I worked on several components of TiKV.
+
 * TiKV Maintainer, Co-leader of Coprocessor SIG
     * Migrate the TiKV Coprocessor framework to use TiDB Chunk format (similar to Apache Arrow) during the computation process, as a mentee in Community Bridge mentorship. This is so-called [Full Chunk-based Computing](https://github.com/tikv/tikv/issues/7724) project. (May 2020 — July 2020)
         * Also check out the [blog post](https://tikv.org/blog/communitybridge-mentorship/) by me.
@@ -93,8 +95,7 @@ May 2020 — Now
 
 May 2019 — Now
 
-[SJTUG](https://github.com/sjtug/), or Shanghai Jiao Tong University Linux User Group,
-is an open-source community as well as a Linux user group in SJTU.
+[SJTUG](https://github.com/sjtug/), or Shanghai Jiao Tong University Linux User Group, is an open-source community as well as a Linux user group in SJTU. I maintains the SJTUG mirror service and the SJTUThesis LaTeX template.
 
 * Maintainer of SJTUG mirror service (May 2019 — Now)
     * SJTUG mirror serves 70k users, 1.5 million requests, and 3TB of data per day.
