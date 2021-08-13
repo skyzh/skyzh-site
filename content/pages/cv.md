@@ -1,7 +1,7 @@
 +++
 title = "Curriculum Vitae"
 hidden = true
-date = "2021-07-11"
+date = "2021-08-13"
 date_update = true
 +++
 
@@ -46,26 +46,27 @@ Shanghai, China
 
 ## Experience
 
-### TerarkDB Team
+### TerarkDB Team @ Bytedance
 
-Storage System R&D Intern, Bytedance \
+Storage System R&D Intern \
 June 2021 — Now \
 Beijing, China
 
-I worked on TerarkDB for Zoned Namespace SSDs, and an unnamed
-file system for next-generation key-value storage engine.
+I worked on [TerarkDB](https://github.com/bytedance/terarkdb) for Zoned Namespace SSDs, and an unnamed file system for the next-generation key-value storage engine.
 
-### TiKV Storage Team
+* Implemented Zone-aware garbage collection in TerarkDB. Key-value separation in TerarkDB would lead to high garbage rate in ZenFS. The new GC scheme in TerarkDB will reduce 3~4x of space amplification, while write amplification remains nearly the same as before.
+* Co-designed an unnamed file system for the next-generation key-value storage engine, and proposed several core techniques, based on my prior experience with ZenFS.
+* Added several features and fixed several bugs in [ZenFS](https://github.com/westerndigitalcorporation/zenfs) (by Western Digital).
 
-Storage System R&D Intern, PingCAP \
+### TiKV Storage Team @ PingCAP
+
+Storage System R&D Intern \
 August 2020 — January 2021 \
 Shanghai, China
 
 I built a key-value storage engine [AgateDB][agatedb].
-Inspired by WiscKey paper, AgateDB separates large values 
-from the LSM tree into a value log. This design leads to a 
-10x write speedup on large values, compared with the
-current storage engine used by TiKV. AgateDB is a Rust port of [BadgerDB][badger].
+
+* Inspired by WiscKey paper, AgateDB separates large values from the LSM tree into a value log. This design leads to a 10x write speedup on large values in some cases, compared with the current storage engine used by TiKV.
 
 [badger]: https://github.com/dgraph-io/badger
 [agatedb]: https://github.com/tikv/agatedb
@@ -111,12 +112,7 @@ is an open-source community as well as a Linux user group in SJTU.
 
 July 2020 — August 2020
 
-Principle and Practice of Computer Algorithms (PPCA)
-is a project-oriented course for first-year undergraduates,
-where they use what they have learned to build a toy application
-in one month. I designed a lab based on *Ray Tracing In One Weekend*
-and mentored 13 students to make a ray-tracer with the Rust
-programming language.
+Principle and Practice of Computer Algorithms (PPCA) is a project-oriented course for first-year undergraduates, where they use what they have learned to build a toy application in one month. I designed a lab based on *Ray Tracing In One Weekend* and mentored 13 students to make a ray-tracer with the Rust programming language.
 
 You may take a look at [Student Project Showcase](https://github.com/skyzh/raytracer-tutorial/issues/9) and [Project Template and Tutorials](https://github.com/skyzh/raytracer-tutorial).
 
@@ -136,6 +132,11 @@ You may take a look at [Student Project Showcase](https://github.com/skyzh/raytr
 ## Projects
 
 See [Build things for fun, for all](/pages/projects).
+
+## Skills
+
+* Fan of Rust programming language.
+* Know a little about LSM-based key-value storage engines.
 
 ## Honors and Awards
 
