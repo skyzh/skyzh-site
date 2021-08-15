@@ -1,5 +1,5 @@
 +++
-title = "Finding Paradise"
+title = "An Untitled Story"
 subtitle = "About Me, and My Life at SJTU"
 hidden = true
 date = "2021-08-15"
