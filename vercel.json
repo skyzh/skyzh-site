@@ -6,5 +6,6 @@
     "env": {
       "HUGO_VERSION": "0.83.1"
     }
-  }
+  },
+  "trailingSlash": true
 }
