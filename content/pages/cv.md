@@ -55,7 +55,7 @@ Beijing, China
 I worked on [TerarkDB](https://github.com/bytedance/terarkdb) for Zoned Namespace SSDs, contributed to [ZenFS](https://github.com/westerndigitalcorporation/zenfs), and co-designed an unnamed file system for the next-generation key-value storage engine.
 
 * Implemented Zone-aware garbage collection in TerarkDB. Key-value separation in TerarkDB would lead to a high garbage rate in ZenFS. The new GC scheme in TerarkDB will reduce 3~4x of space amplification, while write amplification remains nearly the same as before.
-* Worked on ZenFS by Western Digital. I added observability facilities to ZenFS to trace time-consuming operations in the critical path, analyzed bottlenecks of current ZenFS, and worked on a new WAL-aware zone allocator, which reduces tail latency from several seconds to several milliseconds.
+* Worked on ZenFS by Western Digital. I added observability facilities to ZenFS to trace time-consuming operations in the critical path, analyzed bottlenecks of current implementation, and worked on a new WAL-aware zone allocator, which reduces tail latency from several seconds to several milliseconds.
 * Co-designed an unnamed file system for the next-generation key-value storage engine. I proposed several core techniques based on my prior experience with ZenFS.
 
 ### TiKV Storage Team @ PingCAP

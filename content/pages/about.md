@@ -1,5 +1,5 @@
 +++
-title = "An Untitled Story"
+title = "FA001: Intro to Failure"
 subtitle = "About Me, and My Life at SJTU"
 hidden = true
 date = "2021-08-15"
