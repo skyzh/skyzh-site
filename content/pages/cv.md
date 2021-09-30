@@ -5,6 +5,8 @@ date = "2021-09-30"
 date_update = true
 +++
 
+A more concise pdf version can be viewed [here](https://skyzh.github.io/files/cv.pdf).
+
 ### Education
 
 #### Shanghai Jiao Tong University
@@ -81,7 +83,7 @@ I built a key-value storage engine [AgateDB][agatedb].
 
 [agatedb]: https://github.com/tikv/agatedb
 
-### Open Source Contributions
+### Open-Source Contributions
 
 #### TiKV Community
 
