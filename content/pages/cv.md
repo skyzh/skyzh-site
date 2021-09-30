@@ -156,7 +156,7 @@ Rust (proficient), C++ (novice), Golang (able to read), Python and Node.js
 * Database Systems (TiDB)
 * Stream-Processing Systems (Flink)
 
-## Honors and Awards
+### Honors and Awards
 
 National Scholarship (Ministry of Education of P.R. China), 2019
 
