@@ -2,7 +2,7 @@
 title = "FA001: Intro to Failure"
 subtitle = "About Me, and My Life at SJTU"
 hidden = true
-date = "2021-08-15"
+date = "2021-09-30"
 date_update = true
 +++
 
@@ -16,4 +16,4 @@ During my third year in SJTU, I lost interest in most of my courses, where teach
 
 Luckily, after long frustration and struggling, I have a vague idea of what my future life should become: do solid works, build exciting things and make software used by a large community.
 
-For the past two years, I focus on building system software, especially storage systems. I built [AgateDB](https://github.com/tikv/agatedb) during my internship in PingCAP, and worked on [TerarkDB](https://github.com/bytedance/terarkdb) for Zoned Namespace SSDs during my internship at ByteDance. Also, I love becoming part of the open-source community. I'm currently a contributor in [the TiKV community](https://tikv.org), and I'm maintaining several widely-used projects in [the SJTUG community](https://github.com/sjtug). For the future, I am constantly seeking opportunities to build things that interest me, excite me, and impact people.
+For the past two years, I focus on building system software, especially storage systems. I built [AgateDB](https://github.com/tikv/agatedb) during my internship in PingCAP, worked on [TerarkDB](https://github.com/bytedance/terarkdb) for Zoned Namespace SSDs during my internship at ByteDance, and is now building a streaming database product at [Singularity Data](https://www.singularity-data.com). Also, I love becoming part of the open-source community. I'm currently a contributor in [the TiKV community](https://tikv.org), and I'm maintaining several widely-used projects in [the SJTUG community](https://github.com/sjtug). For the future, I am constantly seeking opportunities to build things that interest me, excite me, and impact people.
