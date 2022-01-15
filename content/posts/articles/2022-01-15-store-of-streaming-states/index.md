@@ -250,3 +250,13 @@ Visit table 返回对应记录后，Join 算子就可以根据两次 Upquery 的
 * 存储完整状态 (以 Flink 为例)：流上传递数据。
 * 共享状态存储 (以 Materialize / DD 为例)：流上传递数据和 snapshot。
 * 存储部分状态 (以 Noria 为例)：流上传递数据，流上双向都有消息。
+
+## Reference
+
+* [Apache Flink](https://flink.apache.org)
+* [Flink SQL](https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/dev/table/sql/gettingstarted/)
+* [Materialize](https://github.com/MaterializeInc/materialize)
+* [differential-dataflow](https://github.com/TimelyDataflow/differential-dataflow)
+* [Noria](https://github.com/mit-pdos/noria)
+
+欢迎在这篇文章对应的 [Pull Request](https://github.com/skyzh/skyzh.github.io/pull/6) 下使用 GitHub 账号评论、交流你的想法。
