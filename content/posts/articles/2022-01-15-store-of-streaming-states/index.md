@@ -71,19 +71,17 @@ Vegetable, 60
 
 ### Join State 的存储
 
-![join state of Flink](flink-state-join.png)
-
 数据源的消息进入系统后，碰到的第一个算子就是 Join。回顾 SQL 查询的 Join 条件: `info INNER JOIN visit ON product`。Join 算子在收到左侧 `info` 的消息后，会先将 `visit` 一侧的 `product` 相同的行查出来，然后发给下游。之后，将 `info` 一侧的消息记录在自己的状态中。对于右侧消息的处理也如出一辙。
 
-比如，现在 `visit` 一侧收到 Eve 对着 Potato 看了 60 秒 `+ Potato Eve 60` 的消息。假设此时 `info` 一侧的状态已经有了四条记录：
+比如，现在 `visit` 一侧收到 Eve 对着 Potato 看了 60 秒 `+ Potato Eve 60` 的消息。假设此时 `info` 一侧的状态已经有了四条记录。
 
-Join 算子会查询 `info` 一侧 product = Potato 的记录，得到 Potato 是 Vegetable 的结果，之后将 `Potato, Vegetable, 60` 发给下游。
+![join state of Flink](flink-state-join.png)
 
-而后，`visit` 一侧的状态会加入 `Potato -> Eve, 60` 的记录，这样以来，如果 `info` 发生变化，Join 算子也能对应 `visit` 给下游发送 Join 算子的更新。
+Join 算子会查询 `info` 一侧 `product = Potato` 的记录，得到 Potato 是 Vegetable 的结果，之后将 `Potato, Vegetable, 60` 发给下游。
+
+而后，`visit` 一侧的状态会加入 `Potato -> Eve, 60` 的记录，这样一来，如果 `info` 发生变化，Join 算子也能对应 `visit` 给下游发送 Join 算子的更新。
 
 ### Aggregation State 的存储
-
-![aggregation state of Flink](flink-state-agg.png)
 
 消息接下来被传递到了 Agg 算子上，Agg 算子需要根据 category 分组，计算每个 category 中 length 的最大值。
 
@@ -110,6 +108,9 @@ DELETE Vegetable, 50
 INSERT Vegetable, 60
 ```
 
+整个过程如下图所示：
+
+![aggregation state of Flink](flink-state-agg.png)
 
 ### 总结
 
@@ -256,7 +257,11 @@ Visit table 返回对应记录后，Join 算子就可以根据两次 Upquery 的
 * [Apache Flink](https://flink.apache.org)
 * [Flink SQL](https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/dev/table/sql/gettingstarted/)
 * [Materialize](https://github.com/MaterializeInc/materialize)
+* [Joins in Materialize](https://materialize.com/joins-in-materialize/)
+* [Maintaining Joins using Few Resources](https://materialize.com/maintaining-joins-using-few-resources/)
 * [differential-dataflow](https://github.com/TimelyDataflow/differential-dataflow)
 * [Noria](https://github.com/mit-pdos/noria)
+
+写这篇文章时，我也大量阅读了 Materialize, Differential Dataflow 和 Noria 的源代码。如果有具体实现上的问题，也欢迎交流。
 
 欢迎在这篇文章对应的 [Pull Request](https://github.com/skyzh/skyzh.github.io/pull/6) 下使用 GitHub 账号评论、交流你的想法。
