@@ -157,7 +157,7 @@ SQL 的 A Join B 操作在 DD 中对应三个算子：两个 `Arrange` 和一个
 
 ![join state of differential dataflow](dd-state-join.png)
 
-如上图所示，现在 Info 侧来了一条更新：Eve 对着 Potato 看了 60 秒。`JoinCore` 算子通过 Trace A 访问到这条更新，并向另一侧的 Trace B 查询 `product = Potato` 的行，匹配到 `Potato` 是一种蔬菜，往下游输出 `Potato, Vegetable, 60` 的更改。
+如上图所示，现在 Visit 侧来了一条更新：Eve 对着 Potato 看了 60 秒。`JoinCore` 算子通过 Trace B 访问到这条更新，并向另一侧的 Trace A 查询 `product = Potato` 的行，匹配到 `Potato` 是一种蔬菜，往下游输出 `Potato, Vegetable, 60` 的更改。
 
 ### Reduce 状态的存储
 
