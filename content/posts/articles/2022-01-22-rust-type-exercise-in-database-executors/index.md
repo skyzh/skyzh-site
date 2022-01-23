@@ -7,6 +7,8 @@ tags = ["Rust", "数据库", "执行器", "类型", "GAT"]
 
 TL;DR: 本人前两天刚写的 [type-exercise-in-rust (GitHub)](https://github.com/skyzh/type-exercise-in-rust) 中已经包含了一整套数据库执行器的类型设计，本文将详细介绍整个设计过程中的思考过程和解决方案。
 
+## Day 0: 引入
+
 通常来说，在 Rust 语言中可以使用 trait 来做泛型 (generics)。但由于语言的一些限制，开发者往往难以用编程语言表达自己所需的 trait。在这种背景下，开发者往往会诉诸其他工具。举个例子：
 
 ```rust
@@ -48,7 +50,7 @@ pub fn generate_code() -> Result<()> {
 
 《用 Rust 做类型体操》系列以构造一个数据库执行器的数据类型框架为例，带开发者了解如何使用 Rust 语言的黑魔法，在 safe nightly Rust 中实现各种神奇的泛型操作，在编译期用最少的代码量生成尽可能多的调用组合，减少运行时开销。
 
-## 设计目标
+### 设计目标
 
 ![数据类型关联图](map-of-types.png)
 
@@ -132,7 +134,7 @@ pub fn build_binary_expression(
 }
 ```
 
-您可以在 [type-exercise-in-rust](https://github.com/skyzh/type-exercise-in-rust) 中围观使用整个系统的实现。与此同时，我司赞助开发、2022 年 1 月底开源的教学用 OLAP 数据库 [RisingLight](https://github.com/risinglightdb/risinglight) 项目也大量使用了本系列中提到的技巧。欢迎参考实现、下载体验！
+您可以在 [type-exercise-in-rust](https://github.com/skyzh/type-exercise-in-rust) 中围观使用整个系统的实现。
 
 ## Day 1: `Array` 与 `ArrayBuilder`
 
@@ -576,3 +578,7 @@ pub trait ArrayBuilder {
 ```
 
 于是，编译通过，day 1 结束了！
+
+欢迎在这篇文章对应的 [Issue](https://github.com/skyzh/skyzh.github.io/issues/9) 下使用 GitHub 账号评论、交流你的想法。
+
+*（未完待续）*
