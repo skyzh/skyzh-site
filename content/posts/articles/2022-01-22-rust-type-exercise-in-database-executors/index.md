@@ -252,7 +252,7 @@ pub trait Array: Send + Sync + Sized + 'static {
     type RefItem;
 
     /// Retrieve a reference to value.
-    fn get(&self, idx: usize) -> Option<Self::Item>;
+    fn get(&self, idx: usize) -> Option<Self::RefItem>;
 
     /// Number of items of array.
     fn len(&self) -> usize;
@@ -912,4 +912,4 @@ where
 
 欢迎在这篇文章对应的 [Issue](https://github.com/skyzh/skyzh.github.io/issues/9) 下使用 GitHub 账号评论、交流你的想法。
 
-*（未完待续）*
+*《用 Rust 做类型体操 (中篇) 》已发布！如需了解，请至我的博客文章列表中找到中篇。*
