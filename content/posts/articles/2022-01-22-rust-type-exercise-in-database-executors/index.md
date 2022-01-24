@@ -282,7 +282,7 @@ impl Array for StringArray {
 
 接下来就出现了一些大问题：
 
-```
+```plain
 error[E0106]: missing lifetime specifier
   --> archive/day1/src/array/string_array.rs:29:20
    |
@@ -302,7 +302,7 @@ impl Array for StringArray {
     type RefItem<'a> = &'a str;
 ```
 
-```
+```plain
 error[E0658]: generic associated types are unstable
   --> archive/day1/src/array/string_array.rs:29:5
    |
@@ -578,6 +578,337 @@ pub trait ArrayBuilder {
 ```
 
 于是，编译通过，day 1 结束了！
+
+## Day 2: `Scalar` 与 `ScalarRef`
+
+
+![Day 2 题图](type-exercise-rust-part-2.png)
+
+如果您想直接看最终实现，可以直接跳转到 [Day 2 对应的源代码](https://github.com/skyzh/type-exercise-in-rust/tree/master/archive/day2).
+
+### 目标
+
+回到之前向量化执行的代码：
+
+```rust
+fn eval_binary<I: Array, O: Array>(i1: I, i2: I) -> O {
+    assert_eq!(i1.len(), i2.len(), "size mismatch");
+    let mut builder = O::Builder::with_capacity(i1.len());
+    for (i1, i2) in i1.iter().zip(i2.iter()) {
+       builder.push(sql_func(i1, i2));
+    }
+    builder.finish()
+}
+```
+
+思考一下 `sql_func` 的函数签名应该是什么样？我们可以从 primitive type 和 string 两方面去考虑。
+
+```rust
+// 两数相加
+fn sql_add(a: i32, b: i32) -> i32 { a + b }
+
+// 字符串拼接
+fn concat(a: &str, b: &str) -> String { a.to_string() + b }
+```
+
+我们会发现一件神奇的事情：`sql_func` 通常来说会接收两个引用，然后产生一个有所有权的类型，比如 `String`。但是，`builder.push` 接收的是一个引用类型 `&str`。
+
+```rust
+builder.push(sql_func(i1, i2).xxx() /* do some cast? */);
+```
+
+怎么在泛型函数里面转换这两个类型呢？这就需要我们引入新的 trait 来解决这个问题。
+
+### 实现 `Scalar`
+
+有了上次实现 `Array` 和 `ArrayBuilder` 的经验，我们可以用 associated type 来关联 `Array` 和 `Scalar` 两个类型。注意写 `ArrayType` 的 trait bound 的时候要指明“Scalar 的 Array 的 OwnedItem 是我自己”。
+
+```rust
+/// An owned single value.
+///  
+/// For example, `i32`, `String` both implements [`Scalar`].
+pub trait Scalar: std::fmt::Debug + Clone + Send + Sync + 'static {
+    /// The corresponding [`Array`] type.
+    type ArrayType: Array<OwnedItem = Self>;
+}
+
+pub trait Array: Send + Sync + Sized + 'static {
+    /// The owned item of this array.
+    type OwnedItem: Scalar<ArrayType = Self>;
+}
+```
+
+之后给各个类型都 impl `Scalar`，就没什么问题了。
+
+### 实现 `ScalarRef`
+
+`ScalarRef` 表示一个 `Scalar` 对应的某个生命周期的引用类型。举例：
+
+* `i32` 是 `Scalar`, 也是 `ScalarRef`.
+* `String` 是 `Scalar`, `&'a str` 是 `ScalarRef<'a>`.
+
+我们先实现 `ScalarRef`，然后把 `Array`, `Scalar`, `ScalarRef` 三者关联起来。
+
+```rust
+/// A borrowed value.
+///
+/// For example, `i32`, `&str` both implements [`ScalarRef`].
+pub trait ScalarRef<'a>: std::fmt::Debug + Clone + Copy + Send + 'a {
+    /// The corresponding [`Array`] type.
+    type ArrayType: Array<RefItem<'a> = Self>;
+
+    /// The corresponding [`Scalar`] type.
+    type ScalarType: Scalar<RefType<'a> = Self>;
+
+    /// Convert the reference into an owned value.
+    fn to_owned_scalar(&self) -> Self::ScalarType;
+}
+
+pub trait Scalar: std::fmt::Debug + Clone + Send + Sync + 'static {
+    /// The corresponding [`Array`] type.
+    type ArrayType: Array<OwnedItem = Self>;
+
+    /// The corresponding [`ScalarRef`] type.
+    type RefType<'a>: ScalarRef<'a, ScalarType = Self, ArrayType = Self::ArrayType>
+    where
+        Self: 'a;
+
+    /// Get a reference of the current value.
+    fn as_scalar_ref(&self) -> Self::RefType<'_>;
+}
+
+/// [`Array`] is a collection of data of the same type.
+pub trait Array: Send + Sync + Sized + 'static {
+    /// The owned item of this array.
+    type OwnedItem: Scalar<ArrayType = Self>;
+
+    type RefItem<'a>: ScalarRef<'a, ScalarType = Self::OwnedItem, ArrayType = Self>;
+}
+```
+
+接着对各个类型都实现 `ScalarRef`，即可通过 `Scalar::as_scalar_ref` 将一个 OwnedType 转换为 RefType。
+
+```rust
+/// Implement [`Scalar`] for `i32`. Note that `i32` is both [`Scalar`] and [`ScalarRef`].
+impl Scalar for i32 {
+    type ArrayType = I32Array;
+    type RefType<'a> = i32;
+
+    fn as_scalar_ref(&self) -> i32 {
+        *self
+    }
+}
+
+/// Implement [`ScalarRef`] for `i32`. Note that `i32` is both [`Scalar`] and [`ScalarRef`].
+impl<'a> ScalarRef<'a> for i32 {
+    type ArrayType = I32Array;
+    type ScalarType = i32;
+
+    fn to_owned_scalar(&self) -> i32 {
+        *self
+    }
+}
+
+/// Implement [`Scalar`] for `String`.
+impl Scalar for String {
+    type ArrayType = StringArray;
+    type RefType<'a> = &'a str;
+
+    fn as_scalar_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+
+/// Implement [`ScalarRef`] for `&str`.
+impl<'a> ScalarRef<'a> for &'a str {
+    type ArrayType = StringArray;
+    type ScalarType = String;
+
+    fn to_owned_scalar(&self) -> String {
+        self.to_string()
+    }
+}
+```
+
+### 用 HRTB 表达 GAT 类型相同
+
+一切都非常地顺利，于是我们来试着编译一下向量化函数：
+
+```rust
+fn sql_func<'a, I: Array, O: Array>(i1: I::RefItem<'a>, i2: I::RefItem<'a>) -> O::OwnedItem {
+    todo!()
+}
+
+fn eval_binary<I: Array, O: Array>(i1: I, i2: I) -> O {
+    assert_eq!(i1.len(), i2.len(), "size mismatch");
+    let mut builder = O::Builder::with_capacity(i1.len());
+    for (i1, i2) in i1.iter().zip(i2.iter()) {
+        match (i1, i2) {
+            (Some(i1), Some(i2)) => {
+                builder.push(Some(sql_func::<I, O>(i1, i2).as_scalar_ref()))
+            }
+            _ => builder.push(None),
+        }
+    }
+    builder.finish()
+}
+```
+
+编译器又一次无情打脸：
+
+```plain
+error[E0308]: mismatched types
+  --> archive/day2/src/array.rs:85:39
+   |
+85 |                     builder.push(Some(sql_func::<I, O>(i1, i2).as_scalar_ref()))
+   |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected array::Array::RefItem, found scalar::Scalar::RefType
+   |
+   = note: expected associated type `<O as array::Array>::RefItem<'_>`
+              found associated type `<<O as array::Array>::OwnedItem as scalar::Scalar>::RefType<'_>`
+```
+
+这是怎么回事捏？为什么编译器说 `Array::RefItem` 和 `Scalar::RefType` 不是一个类型呢？
+
+回顾之前我们写的所有 trait bound：
+
+对于 `ScalarRef`，我们提供的类型信息是：
+
+* `type ArrayType: Array<RefItem<'a> = Self>;`
+	* ScalarRef 的 Array 的 RefItem 是我自己。
+* `type ScalarType: Scalar<RefType<'a> = Self>;`
+	* ScalarRef 的 Scalar 是我自己。
+
+对于 `Scalar`，我们提供的类型信息是：
+
+* `type ArrayType: Array<OwnedItem = Self>;`
+	* Scalar 的 Array 的 OwnedItem 是我自己。
+* `type RefType<'a>: ScalarRef<'a, ScalarType = Self, ArrayType = Self::ArrayType>`
+	* Scalar 的 RefType 的 ScalarType 是我自己
+	* Scalar 的 RefType 的 ArrayType 是我的 ArrayType
+
+对于 `Array`, 我们提供的类型信息是：
+
+* `type OwnedItem: Scalar<ArrayType = Self>;`
+	* Array 的 OwnedItem 的 Array 是我自己。
+* `type RefItem<'a>: ScalarRef<'a, ScalarType = Self::OwnedItem, ArrayType = Self>;`
+	* Array 的 RefItem 的 ScalarType 是我的 OwnedItem，Array 的 RefItem 的 ArrayType 是我自己。
+
+这么看了一圈，唯独缺了编译器提示的这一条信息：
+
+```plain
+note: expected associated type `<O as array::Array>::RefItem<'_>`
+              found associated type `<<O as array::Array>::OwnedItem as scalar::Scalar>::RefType<'_>`
+```
+
+我们没有证明 Array 的 RefItem 都是 Array 的 OwnedItem 的 RefType！
+
+![没有证明的 bound](type-exercise-rust-part-2-2.png)
+
+这个 trait bound 应该怎么写在 Array 上呢？
+
+* `RefItem<'a>`, `RefType<'a>` 是一个 GAT
+* `Array::RefItem<'a> == Array::OwnedItem::RefType<'a>` 要成立
+* Array 自己没有生命周期，这个 `'a` 从哪里来？
+
+经过一番思考，`Array::RefItem<'a> == Array::OwnedItem::RefType<'a>` 这个性质应该**对任意生命周期都成立**。因此，我们可以用 [HRTB](https://doc.rust-lang.org/nomicon/hrtb.html) Higher-Rank Trait Bounds 来写。
+
+```rust
+pub trait Array: Send + Sync + Sized + 'static
+where
+    for<'a> Self::OwnedItem: Scalar<RefType<'a> = Self::RefItem<'a>>,
+{
+    /* ... */
+}
+```
+
+这样就可以表达两个 GAT 之间的关系了。
+
+### 为 PrimitiveArray 加上新的 trait bound
+
+试着编译一下代码，又被编译器无情打脸：
+
+```plain
+error[E0271]: type mismatch resolving `<T as scalar::Scalar>::ArrayType == PrimitiveArray<T>`
+  --> archive/day2/src/array/primitive_array.rs:46:20
+   |
+46 |     type Builder = PrimitiveArrayBuilder<T>;
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^ expected struct `PrimitiveArray`, found associated type
+   |
+   = note:       expected struct `PrimitiveArray<T>`
+           found associated type `<T as scalar::Scalar>::ArrayType`
+   = help: consider constraining the associated type `<T as scalar::Scalar>::ArrayType` to `PrimitiveArray<T>`
+   = note: for more information, visit https://doc.rust-lang.org/book/ch19-03-advanced-traits.html
+```
+
+*注：`Scalar` 相关的编译错误其实之前就应该出现，不过为了文章的编排顺序，我们在这里和 HRTB bound 一起讲。*
+
+这个错误其实很好理解：在我们的系统里，可以有 `PrimitiveArray<u8>`, 可以有 `PrimitiveArray<i64>`，但只有后者是实现了 Array 的，前者没有。所以，在 `impl PrimitiveArray<T>` 的时候，也要对相关的 trait 做一些限制，只对我们支持的类型 impl。因此，要加上 `Scalar` 和 `ScalarRef` 的两个 bound。由于 `Array` 本身没有生命周期，因此要用 HRTB bound 表达当前 Array 产生的所有 `ScalarRef` 和 `Scalar`, `Array` 都有对应关系。
+
+```rust
+impl<T> Array for PrimitiveArray<T>
+where
+    T: PrimitiveType,
+    T: Scalar<ArrayType = Self>,
+    for<'a> T: ScalarRef<'a, ScalarType = T, ArrayType = Self>,
+```
+
+加完之后，编译器又报了一个错：
+
+```plain
+error[E0271]: type mismatch resolving `for<'a> <T as scalar::Scalar>::RefType<'a> == T`
+  --> archive/day2/src/array/primitive_array.rs:51:22
+   |
+42 | impl<T> Array for PrimitiveArray<T>
+   |      - this type parameter
+...
+51 |     type OwnedItem = T;
+   |                      ^ expected type parameter `T`, found associated type
+   |
+   = note: expected type parameter `T`
+             found associated type `<T as scalar::Scalar>::RefType<'_>`
+note: required by a bound in `array::Array::OwnedItem`
+  --> archive/day2/src/array.rs:23:37
+   |
+23 |     for<'a> Self::OwnedItem: Scalar<RefType<'a> = Self::RefItem<'a>>,
+   |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `array::Array::OwnedItem`
+...
+31 |     type OwnedItem: Scalar<ArrayType = Self>;
+   |          --------- required by a bound in this
+help: consider further restricting type parameter `T`
+   |
+46 |     for<'a> T: ScalarRef<'a, ScalarType = T, ArrayType = Self>, T: scalar::Scalar<RefType<'_> = T>
+   |                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
+
+这该怎么理解捏？
+
+用 `i32` 来举例，编译器推导不出来  `i32::RefType == i32 (OwnedType)`。这个报错很明显和我们预想实现的不太一样：RefType 怎么可能等于 OwnedType？感觉像是报错没报对地方。
+
+稍作思考，为什么这个地方 `OwnedType` 和 `RefType` 关联起来了？因为 `i32` 既是 `ScalarRef`, 也是 `Scalar`。逆向思维一下，这个报错可能实际上是由：
+
+```plain
+<i32 as Scalar>::RefType ?= i32 (Array::RefItem)`
+```
+
+引起的。
+
+因此，我们只需要把 PrimitiveArray 的 `for<'a> T: Scalar<RefType<'a> = T>` 的 bound 就上就行了，以满足 Array 的 `for<'a> Self::OwnedItem: Scalar<RefType<'a> = Self::RefItem<'a>>`。
+
+```rust
+impl<T> Array for PrimitiveArray<T>
+where
+    T: PrimitiveType,
+    T: Scalar<ArrayType = Self>,
+    for<'a> T: ScalarRef<'a, ScalarType = T, ArrayType = Self>,
+    for<'a> T: Scalar<RefType<'a> = T>,
+{
+    // ...
+}
+```
+
+`PrimitiveArray` 和 `PrimitiveArrayBuilder` 有了这四个 bound 之后，编译就能通过了。day 2 顺利结束！
+
+---
 
 欢迎在这篇文章对应的 [Issue](https://github.com/skyzh/skyzh.github.io/issues/9) 下使用 GitHub 账号评论、交流你的想法。
 
