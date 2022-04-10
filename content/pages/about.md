@@ -18,7 +18,7 @@ During my third year in SJTU, I lost interest in most of my courses, where teach
 
 Luckily, after long frustration and struggling, I have a vague idea of what my future life should become: do solid work, build exciting things and make software used by a large community.
 
-I have focused on building system software for the past three years, especially database systems. I built [AgateDB][agatedb] during my internship in PingCAP, worked on [TerarkDB][terarkdb] for Zoned Namespace SSDs at ByteDance, and am now building a streaming database product called *RisingWave* at Singularity Data.
+I have focused on building system software for the past three years, especially database systems. I built [AgateDB][agatedb] during my internship in PingCAP, worked on [TerarkDB][terarkdb] for Zoned Namespace SSDs at ByteDance, and am now building a streaming database product called [RisingWave][risingwave] at Singularity Data.
 
 [agatedb]: https://github.com/tikv/agatedb
 [terarkdb]: https://github.com/bytedance/terarkdb
@@ -28,5 +28,6 @@ Also, I love becoming part of the open-source community. I’m currently the [Ti
 [tikv]: https://tikv.org
 [sjtug]: https://github.com/sjtug
 [risinglight]: https://github.com/risinglightdb/risinglight
+[risingwave]: https://github.com/singularity-data/risingwave
 
 For the future, I am constantly seeking opportunities to build things that interest me, excite me, and impact people.
