@@ -1,12 +1,11 @@
 +++
-title = "FA001: Intro to Failure"
-subtitle = "About Me, and My Life at SJTU"
+title = "About Me"
 hidden = true
-date = "2022-01-30"
+date = "2022-04-10"
 date_update = true
 +++
 
-I’m a senior undergraduate student studying Computer Science at [Shanghai Jiao Tong University][sjtu] (SJTU). I’m expected to graduate in Summer 2022.
+I’m a senior undergraduate student studying Computer Science at [Shanghai Jiao Tong University][sjtu] (SJTU) and an incoming student to Carnegie Mellon University.
 
 [sjtu]: http://en.sjtu.edu.cn/
 
