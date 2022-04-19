@@ -222,7 +222,7 @@ Join 算子要得到蔬菜对应的所有信息，需要向两个上游表分别
 
 ![join implementation of Noria - the left side](noria-join-left.png)
 
-Info table 返回蔬菜分类下的所有产品后，Join 算子会再发一个 upquery 给另一边 Visit table，查询萝卜、土豆对应的浏览记录。
+Info table 返回蔬菜分类下的所有产品后，Join 算子会再发一个 upquery 给另一边 Visit table，查询胡萝卜、土豆对应的浏览记录。
 
 ![join implementation of Noria - the right side](noria-join-right.png)
 
