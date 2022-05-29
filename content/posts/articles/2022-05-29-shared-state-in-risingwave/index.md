@@ -177,6 +177,8 @@ Delta Join 的计算图由 `LogicalMultiWayJoin` 生成。如果索引匹配上�
 
 RisingWave 中的状态共享和 Join 优化已初具雏形。我们在 MVCC 状态存储的基础上实现了流处理系统的共享状态和索引，并基于此做了基于索引的 Join 优化。未来还有许多优化可以做，比如支持二级索引、支持共享缓存、支持更多 Join 类型等等。关于这些 topics，下次一定介绍 🤪。
 
+广告时间：[RisingWave](https://github.com/singularity-data/risingwave) 是 [Singularity Data, Inc.](https://singularity-data.com) 开源的 Rust 实现的流数据库产品。关于什么是流数据库，欢迎收听[牛油果烤面包第 95 期：流数据库](https://avocadotoast.typlog.io/episodes/streamdb)。
+
 ---
 
 欢迎在这篇文章对应的 [GitHub Issue](https://github.com/skyzh/skyzh-site/issues/17) 下使用 GitHub 账号评论、交流你的想法。
