@@ -5,7 +5,9 @@ toc = true
 tags = ["Rust", "数据库", "执行器", "类型", "GAT"]
 +++
 
-TL;DR: 本人前两天刚写的 [type-exercise-in-rust (GitHub)](https://github.com/skyzh/type-exercise-in-rust) 中已经包含了一整套数据库执行器的类型设计，本文将详细介绍整个设计过程中的思考过程和解决方案。
+TL;DR: 本人前两天刚写的 [type-exercise-in-rust (GitHub)][github] 中已经包含了一整套数据库执行器的类型设计，本文将详细介绍整个设计过程中的思考过程和解决方案。
+
+[github]: https://github.com/skyzh/type-exercise-in-rust
 
 ## Day 0: 引入
 
