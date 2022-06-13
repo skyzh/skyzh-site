@@ -4,7 +4,9 @@ title = "Home"
 +++
 
 * [About Me](/pages/about)
-* [Blog (Chinese) / 中文博客](/posts)
+* [Blog in Chinese / 中文博客](/posts)
+<!-- * [Blog in English](/posts-ng) -->
+
 
 I'm also available at:
 

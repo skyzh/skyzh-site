@@ -3,6 +3,7 @@ title = "在 Rust 中用 GAT 手动实现零开销 async trait"
 date = "2022-01-31T23:00:00+17:00"
 toc = true
 tags = ["Rust", "GAT", "async", "异步", "零开销"]
+categories = ["Tech"]
 +++
 
 在这篇文章中，我们将以实现类似 RocksDB 的一系列 iterator 为例，讲解如何在 Rust 中用 GAT 实现零开销 async trait。本文中的代码需要 nightly Rust 才能编译。

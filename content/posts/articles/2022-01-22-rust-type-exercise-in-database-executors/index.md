@@ -3,6 +3,7 @@ title = "用 Rust 做类型体操 (上篇)"
 date = "2022-01-22T16:00:00+08:00"
 toc = true
 tags = ["Rust", "数据库", "执行器", "类型", "GAT"]
+categories = ["Tech"]
 +++
 
 TL;DR: 本人前两天刚写的 [type-exercise-in-rust (GitHub)][github] 中已经包含了一整套数据库执行器的类型设计，本文将详细介绍整个设计过程中的思考过程和解决方案。

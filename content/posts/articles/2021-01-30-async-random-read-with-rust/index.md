@@ -1,8 +1,9 @@
----
-title: "在 Rust 中实现基于 io_uring 的异步随机读文件"
-date: 2021-01-30T17:37:23+08:00
-toc: true
----
++++
+title = "在 Rust 中实现基于 io_uring 的异步随机读文件"
+date = 2021-01-30T17:37:23+08:00
+toc = true
+categories = ["Tech"]
++++
 
 一句话总结：在 skyzh/uring-positioned-io 中，我包装了 Tokio 提供的底层 `io_uring` 接口，在 Rust 中实现了基于
 `io_uring` 的异步随机读文件。你可以这么用它：

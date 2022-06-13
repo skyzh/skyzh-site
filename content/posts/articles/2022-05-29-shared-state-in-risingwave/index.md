@@ -4,6 +4,7 @@ date = "2022-05-29T23:00:00+08:00"
 toc = true
 tags = ["Rust", "数据库", "流处理", "RisingWave", "索引", "共享状态"]
 katex = true
+categories = ["Tech"]
 +++
 
 在数据库系统中，我们可以通过创建索引的方式来加速 Join 计算的性能。比如 Postgres 就支持 [Index Scans][1]，通过扫描索引来加快 Join 的速度。然而，“索引”在流处理系统中很难实现。原因有二：

@@ -7,7 +7,6 @@ title = "Alex Chi"
 pygmentscodefences = true
 pygmentscodefencesguesssyntax = true
 pygmentsstyle = "vs"
-
 paginate = 3 # articles per page
 
 googleAnalytics = "UA-52525161-8"

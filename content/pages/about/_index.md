@@ -5,9 +5,10 @@ date = "2022-04-10"
 date_update = true
 +++
 
-I’m a senior undergraduate student studying Computer Science at [Shanghai Jiao Tong University][sjtu] (SJTU) and an incoming student to Carnegie Mellon University.
+I’m a senior undergraduate student studying Computer Science at [Shanghai Jiao Tong University][sjtu] and an incoming student to [Carnegie Mellon University][cmu].
 
 [sjtu]: http://en.sjtu.edu.cn/
+[cmu]: https://www.cs.cmu.edu/
 
 My real name is Chi Zhang. However, as the name is too common in Chinese culture, I’m generally referred to **Alex Chi**.
 
@@ -30,3 +31,12 @@ Also, I love becoming part of the open-source community. I’m currently the [Ti
 [risingwave]: https://github.com/singularity-data/risingwave
 
 For the future, I am constantly seeking opportunities to build things that interest me, excite me, and impact people.
+
+<details>
+<summary>My profile photo</summary>
+
+![Profile Photo](./profile.png)
+
+*Shot with iPhone 13 Pro (Front Camera) at Sea World Culture and Arts Center, Shenzhen, China*
+
+</details>
