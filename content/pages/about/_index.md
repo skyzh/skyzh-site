@@ -37,6 +37,6 @@ For the future, I am constantly seeking opportunities to build things that inter
 
 ![Profile Photo](./profile.png)
 
-*Shot with iPhone 13 Pro (Front Camera) at Sea World Culture and Arts Center, Shenzhen, China*
+*Shot with iPhone 13 Pro (Front Camera) at Sea World Culture and Arts Center, Shenzhen City, Guangdong Province, P.R. China*
 
 </details>
