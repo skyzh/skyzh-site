@@ -5,7 +5,7 @@ date = "2022-04-10"
 date_update = true
 +++
 
-I’m a senior undergraduate student studying Computer Science at [Shanghai Jiao Tong University][sjtu] and an incoming student to [Carnegie Mellon University][cmu].
+I am currently a master’s student at [Carnegie Mellon University][cmu]. I obtained my Bachelor’s degree in computer science from [Shanghai Jiao Tong University][sjtu].
 
 [sjtu]: http://en.sjtu.edu.cn/
 [cmu]: https://www.cs.cmu.edu/
