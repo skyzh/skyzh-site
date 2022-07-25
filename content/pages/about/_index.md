@@ -1,7 +1,7 @@
 +++
 title = "About Me"
 hidden = true
-date = "2022-04-10"
+date = "2022-07-25"
 date_update = true
 +++
 
@@ -11,6 +11,8 @@ I am currently a master’s student at [Carnegie Mellon University][cmu]. I obta
 [cmu]: https://www.cs.cmu.edu/
 
 My real name is Chi Zhang. However, as the name is too common in Chinese culture, I’m generally referred to **Alex Chi**.
+
+Knowing oneself is hard, and I spent two years figuring out what I enjoyed most.
 
 In my second year at SJTU, I applied for a research internship. It turned out that the whole experience was a disaster for me. I had nothing to do for half a year except attend weekly lab meetups. I had no idea what the team was doing or what I could do. I suffered a lot, questioning myself, “Am I qualified for this position?” The next semester I quit that team. Only then did I find myself more of an engineer than a researcher.
 
@@ -23,14 +25,14 @@ I have focused on building system software for the past three years, especially 
 [agatedb]: https://github.com/tikv/agatedb
 [terarkdb]: https://github.com/bytedance/terarkdb
 
-Also, I love becoming part of the open-source community. I’m currently the [TiKV project’s][tikv] maintainer. In addition, I maintain several widely-used projects like SJTUG mirror and SJTUThesis in the [SJTUG community][sjtug]. Furthermore, to enable more and more students to learn about the database, I built an educational OLAP database called [RisingLight][risinglight] with my colleagues in Singularity Data.
+Also, I love becoming part of the open-source community. I’m currently the [TiKV project’s][tikv] maintainer. In addition, I maintain several widely-used projects like SJTUG mirror and SJTUThesis in the [SJTUG community][sjtug]. Furthermore, to enable more and more students to learn about the database, I built an educational OLAP database called [RisingLight][risinglight] with my friends.
 
 [tikv]: https://tikv.org
 [sjtug]: https://github.com/sjtug
 [risinglight]: https://github.com/risinglightdb/risinglight
 [risingwave]: https://github.com/singularity-data/risingwave
 
-For the future, I am constantly seeking opportunities to build things that interest me, excite me, and impact people.
+For the future, I am constantly seeking opportunities to build things that excite me and impact people.
 
 <details>
 <summary>My profile photo</summary>

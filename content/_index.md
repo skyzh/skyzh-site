@@ -4,6 +4,7 @@ title = "Home"
 +++
 
 * [About Me](/pages/about)
+* [Curriculum Vitae](https://skyzh.github.io/files/cv.pdf)
 * [中文博客 / Blog in Chinese](/posts)
 * [Blog in English](/posts-ng)
 
