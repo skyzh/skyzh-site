@@ -20,12 +20,12 @@ During my third year in SJTU, I lost interest in most of my courses, where teach
 
 Luckily, after long frustration and struggling, I have a vague idea of what my future life should become: do solid work, build exciting things and make software used by a large community.
 
-I have focused on building system software for the past three years, especially database systems. I built [AgateDB][agatedb] during my internship in PingCAP, worked on [TerarkDB][terarkdb] for Zoned Namespace SSDs at ByteDance, and am now building a streaming database product called [RisingWave][risingwave] at Singularity Data.
+I have focused on building system software for the past three years, especially database systems. I built [AgateDB][agatedb] during my internship in PingCAP, worked on [TerarkDB][terarkdb] for Zoned Namespace SSDs at ByteDance, and participated in the early stage development of [RisingWave][risingwave] at RisingWave Labs (formerly known as Singularity Data).
 
 [agatedb]: https://github.com/tikv/agatedb
 [terarkdb]: https://github.com/bytedance/terarkdb
 
-Also, I love becoming part of the open-source community. I’m currently the [TiKV project’s][tikv] maintainer. In addition, I maintain several widely-used projects like SJTUG mirror and SJTUThesis in the [SJTUG community][sjtug]. Furthermore, to enable more and more students to learn about the database, I built an educational OLAP database called [RisingLight][risinglight] with my friends.
+Also, I love becoming part of the open-source community. I’m currently the [TiKV project’s][tikv] maintainer. In addition, I maintain several widely-used projects like SJTUG mirror and SJTUThesis in the [SJTUG community][sjtug]. Furthermore, to enable more students to learn about database systems, I built an educational OLAP database called [RisingLight][risinglight] with my friends. The SQL layer of RisingLight was then ported to [BusTub](https://github.com/cmu-db/bustub), the course project for CMU 15-445/645 Database Systems, which made BusTub become a real "SQL" database system.
 
 [tikv]: https://tikv.org
 [sjtug]: https://github.com/sjtug
