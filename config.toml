@@ -12,11 +12,12 @@ paginate = 10 # articles per page
 googleAnalytics = "UA-52525161-8"
 
 [params]
-avatar = "https://avatars.githubusercontent.com/u/4198311"
+avatar = "/skyzh.jpg"
 mode = "light"
 featherIconsCDN = true
 subtitle = "Code for fun, Make things happen"
 excludedTypes = ["page", "pages"]
+images = ['skyzh.jpg']
 
 [[params.social]]
 icon = "github"
