@@ -10,6 +10,8 @@ I am currently a master’s student at [Carnegie Mellon University][cmu]. I obta
 [sjtu]: http://en.sjtu.edu.cn/
 [cmu]: https://www.cs.cmu.edu/
 
+I can be referred to as any combination of *Alex*, *Chi* and *Zhang*. For example, Alex Chi, Chi Zhang, Alex Chi Z., or Chi (Alex) Zhang.
+
 I have focused on building system software, especially database systems, during my undergraduate and graduate study. I built [AgateDB][agatedb] during my internship in PingCAP, worked on [TerarkDB][terarkdb] for Zoned Namespace SSDs at ByteDance, and participated in the early stage development of [RisingWave][risingwave] at RisingWave Labs (formerly known as Singularity Data).
 
 [agatedb]: https://github.com/tikv/agatedb
