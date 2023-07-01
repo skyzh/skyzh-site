@@ -9,7 +9,7 @@ pygmentscodefencesguesssyntax = true
 pygmentsstyle = "vs"
 paginate = 10 # articles per page
 
-googleAnalytics = "UA-52525161-8"
+googleAnalytics = "G-812BQ96S8Q"
 
 [params]
 avatar = "/skyzh.jpg"
