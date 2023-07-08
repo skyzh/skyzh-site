@@ -16,8 +16,7 @@ function OneReaction({ slug, eid, emoji, count }: { slug: string, eid: string, e
     const [clicked, setClicked] = useState<number>(0)
     const updateReaction = () => {
         setClicked(clicked + 1)
-        let req = { name: slug }
-        console.log(eid, count)
+        let req: any = { name: slug }
         req[eid] = 1
         fetch(`/api/reactions/add/`, {
             method: "POST",
@@ -43,12 +42,12 @@ export default function ({ slug }: { slug: string }) {
         async function tryFetch() {
             for (let i = 0; i < 3; i += 1) {
                 try {
-                    let json = (await fetch(`/api/reactions/get/?slug=${slug}`)).json()
-                    setReaction(json)
+                    let json = await (await fetch(`/api/reactions/get/?slug=${slug}`)).json()
+                    setReaction(json.reactions)
                     break
                 } catch (e) {
                     console.error(e)
-                    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+                    const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
                     await sleep(2000)
                     continue
                 }
