@@ -23,5 +23,6 @@ export default defineConfig({
 				// Katex plugin options
 			}]
 		]
-	}
+	},
+	trailingSlash: 'always',
 });
