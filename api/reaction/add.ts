@@ -24,14 +24,14 @@ export default async (req: Request, ctx: any) => {
             .updateTable('reaction')
             .where('name', '=', body.name)
             .set(({ bxp }) => ({
-                'emoji_1': bxp('emoji_1', '+', body.emoji_1),
-                'emoji_2': bxp('emoji_2', '+', body.emoji_2),
-                'emoji_3': bxp('emoji_3', '+', body.emoji_3),
-                'emoji_4': bxp('emoji_4', '+', body.emoji_4),
-                'emoji_5': bxp('emoji_5', '+', body.emoji_5),
-                'emoji_6': bxp('emoji_6', '+', body.emoji_6),
-                'emoji_7': bxp('emoji_7', '+', body.emoji_7),
-                'emoji_8': bxp('emoji_8', '+', body.emoji_8),
+                'emoji_1': bxp('emoji_1', '+', body.emoji_1 || 0),
+                'emoji_2': bxp('emoji_2', '+', body.emoji_2 || 0),
+                'emoji_3': bxp('emoji_3', '+', body.emoji_3 || 0),
+                'emoji_4': bxp('emoji_4', '+', body.emoji_4 || 0),
+                'emoji_5': bxp('emoji_5', '+', body.emoji_5 || 0),
+                'emoji_6': bxp('emoji_6', '+', body.emoji_6 || 0),
+                'emoji_7': bxp('emoji_7', '+', body.emoji_7 || 0),
+                'emoji_8': bxp('emoji_8', '+', body.emoji_8 || 0),
             }))
 
         const reactions = await query.executeTakeFirst();
