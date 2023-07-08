@@ -1,11 +1,6 @@
 {
-  "github": {
-    "silent": true
-  },
-  "build": {
-    "env": {
-      "HUGO_VERSION": "0.115.0"
-    }
-  },
-  "trailingSlash": true
+    "github": {
+        "silent": true
+    },
+    "trailingSlash": true
 }
