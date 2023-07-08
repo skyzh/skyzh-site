@@ -12,13 +12,13 @@ interface Reaction {
     emoji_8: number;
 }
 
-function OneReaction({ slug, id, emoji, count }: { slug: string, id: string, emoji: string; count: number }) {
+function OneReaction({ slug, eid, emoji, count }: { slug: string, eid: string, emoji: string; count: number }) {
     const [clicked, setClicked] = useState<number>(0)
     const updateReaction = () => {
         setClicked(clicked + 1)
         let req = { name: slug }
-        req[id] = count
-        fetch(`/api/reactions/add`, {
+        req[eid] = count
+        fetch(`/api/reactions/add/`, {
             method: "POST",
             body: JSON.stringify(req)
         }).then()
@@ -28,10 +28,10 @@ function OneReaction({ slug, id, emoji, count }: { slug: string, id: string, emo
 
 function Reactions({ slug, reaction }: { slug: string, reaction: Reaction }) {
     return <div>
-        <OneReaction slug={slug} id="emoji_1" emoji="❤️" count={reaction.emoji_1} />
-        <OneReaction slug={slug} id="emoji_2" emoji="👍" count={reaction.emoji_2} />
-        <OneReaction slug={slug} id="emoji_3" emoji="😅" count={reaction.emoji_3} />
-        <OneReaction slug={slug} id="emoji_4" emoji="💩" count={reaction.emoji_4} />
+        <OneReaction slug={slug} eid="emoji_1" emoji="❤️" count={reaction.emoji_1} />
+        <OneReaction slug={slug} eid="emoji_2" emoji="👍" count={reaction.emoji_2} />
+        <OneReaction slug={slug} eid="emoji_3" emoji="😅" count={reaction.emoji_3} />
+        <OneReaction slug={slug} eid="emoji_4" emoji="💩" count={reaction.emoji_4} />
         <small>Reactions powered by <a href="https://neon.tech/" target="_blank">Neon</a></small>
     </div>
 }
@@ -43,5 +43,6 @@ export default function ({ slug }: { slug: string }) {
             .then(res => res.json())
             .then(setReaction)
     }, [])
+    // const reaction = { "name": "test", "emoji_1": 1, "emoji_2": 2, "emoji_3": 3, "emoji_4": 4, "emoji_5": 5, "emoji_6": 6, "emoji_7": 7, "emoji_8": 8 }
     return reaction ? <Reactions slug={slug} reaction={reaction} /> : <div></div>
 }
