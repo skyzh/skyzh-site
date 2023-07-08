@@ -17,7 +17,8 @@ function OneReaction({ slug, eid, emoji, count }: { slug: string, eid: string, e
     const updateReaction = () => {
         setClicked(clicked + 1)
         let req = { name: slug }
-        req[eid] = count
+        console.log(eid, count)
+        req[eid] = 1
         fetch(`/api/reactions/add/`, {
             method: "POST",
             body: JSON.stringify(req)
@@ -39,9 +40,21 @@ function Reactions({ slug, reaction }: { slug: string, reaction: Reaction }) {
 export default function ({ slug }: { slug: string }) {
     const [reaction, setReaction] = useState<Reaction | null>(null)
     useEffect(() => {
-        fetch(`/api/reactions/get/?slug=${slug}`)
-            .then(res => res.json())
-            .then(setReaction)
+        async function tryFetch() {
+            for (let i = 0; i < 3; i += 1) {
+                try {
+                    let json = (await fetch(`/api/reactions/get/?slug=${slug}`)).json()
+                    setReaction(json)
+                    break
+                } catch (e) {
+                    console.error(e)
+                    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+                    await sleep(2000)
+                    continue
+                }
+            }
+        }
+        tryFetch().then(() => { })
     }, [])
     // const reaction = { "name": "test", "emoji_1": 1, "emoji_2": 2, "emoji_3": 3, "emoji_4": 4, "emoji_5": 5, "emoji_6": 6, "emoji_7": 7, "emoji_8": 8 }
     return reaction ? <Reactions slug={slug} reaction={reaction} /> : <div></div>
