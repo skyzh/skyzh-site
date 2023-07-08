@@ -1,0 +1,26 @@
+---
+import { CollectionEntry, getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+	const posts = await getCollection('blog');
+	return posts.map((post) => ({
+		params: { slug: post.slug },
+        props: post,
+	}));
+}
+type Props = CollectionEntry<'blog'>;
+
+const post = Astro.props;
+const url = `/blog/${post.slug}/`;
+---
+
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+        <meta http-equiv="refresh" content={ `0; url=${url}` } />
+    </head>
+	<body>
+		<p>You will be shortly redirected to the new page for <a href={url}>{post.data.title}</a>.</p>
+	</body>
+</html>
