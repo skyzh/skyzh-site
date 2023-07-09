@@ -8,7 +8,9 @@ neonConfig.webSocketConstructor = ws;
 import 'dotenv/config'
 
 export async function main() {
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    const data = DATA
+    data.items.push({ slug: 'page-about' })
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL })
     pool.on('error', err => console.error(err))
     const db = new Kysely({ dialect: new PostgresDialect({ pool }) });
     const result = await db.insertInto('reaction').values(DATA.items.map((item) => ({
