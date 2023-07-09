@@ -27,12 +27,12 @@ function OneReaction({ slug, eid, emoji, count }: { slug: string, eid: string, e
 }
 
 function Reactions({ slug, reaction }: { slug: string, reaction: Reaction }) {
-    return <div>
+    return <div style={{ marginTop: "1em" }}>
         <OneReaction slug={slug} eid="emoji_1" emoji="❤️" count={reaction.emoji_1} />
         <OneReaction slug={slug} eid="emoji_2" emoji="👍" count={reaction.emoji_2} />
         <OneReaction slug={slug} eid="emoji_3" emoji="😅" count={reaction.emoji_3} />
         <OneReaction slug={slug} eid="emoji_4" emoji="💩" count={reaction.emoji_4} />
-        <small>Reactions powered by <a href="https://neon.tech/" target="_blank">Neon</a></small>
+        <small>Reactions powered by <a href="https://neon.tech/" target="_blank">Neon</a> + <a href="https://vercel.com/" target="_blank">Vercel</a></small>
     </div>
 }
 
