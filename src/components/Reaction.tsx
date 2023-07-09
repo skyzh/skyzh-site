@@ -27,7 +27,7 @@ function OneReaction({ slug, eid, emoji, count }: { slug: string, eid: string, e
 }
 
 function Reactions({ slug, reaction }: { slug: string, reaction: Reaction }) {
-    return <div style={{ marginTop: "1em" }}>
+    return <div>
         <OneReaction slug={slug} eid="emoji_1" emoji="❤️" count={reaction.emoji_1} />
         <OneReaction slug={slug} eid="emoji_2" emoji="👍" count={reaction.emoji_2} />
         <OneReaction slug={slug} eid="emoji_3" emoji="😅" count={reaction.emoji_3} />
@@ -53,8 +53,12 @@ export default function ({ slug }: { slug: string }) {
                 }
             }
         }
-        tryFetch().then(() => { })
+
+        if (import.meta.env.MODE === "development") {
+            setReaction({ "name": "test", "emoji_1": 1, "emoji_2": 2, "emoji_3": 3, "emoji_4": 4, "emoji_5": 5, "emoji_6": 6, "emoji_7": 7, "emoji_8": 8 })
+        } else {
+            tryFetch().then(() => { })
+        }
     }, [])
-    // const reaction = { "name": "test", "emoji_1": 1, "emoji_2": 2, "emoji_3": 3, "emoji_4": 4, "emoji_5": 5, "emoji_6": 6, "emoji_7": 7, "emoji_8": 8 }
     return reaction ? <Reactions slug={slug} reaction={reaction} /> : <div></div>
 }

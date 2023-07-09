@@ -54,6 +54,7 @@ code {
 }
 pre {
 	padding: 1rem;
+	border: 1px solid #eee;
 }
 pre > code {
 	all: unset;
@@ -65,3 +66,4 @@ blockquote {
 	margin: 0px;
 	font-style: italic;
 }
+

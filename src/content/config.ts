@@ -15,6 +15,7 @@ const blog = defineCollection({
 			.optional()
 			.transform((str) => (str ? new Date(str) : undefined)),
 		heroImage: z.string().optional(),
+		socialImage: z.string().optional(),
 		lang: z.string().optional(),
 		external: z.boolean().optional(),
 		enable_katex: z.boolean().optional(),

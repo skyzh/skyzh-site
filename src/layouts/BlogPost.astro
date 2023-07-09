@@ -8,12 +8,12 @@ import Reaction from '../components/Reaction';
 
 type Props = CollectionEntry<'blog'>['data'] & { slug: string } ;
 
-const { title, description, pubDate, updatedDate, heroImage, enable_katex, slug } = Astro.props;
+const { title, description, pubDate, updatedDate, socialImage, heroImage, enable_katex, slug } = Astro.props;
 ---
 
 <html lang="en">
 	<head>
-		<BaseHead title={title} description={description} enable_katex={enable_katex} />
+		<BaseHead title={title} description={description} enable_katex={enable_katex} image={socialImage} />
 		<style>
 			.title {
 				font-size: 2em;
@@ -48,7 +48,9 @@ const { title, description, pubDate, updatedDate, heroImage, enable_katex, slug 
 				}
 			</article>
 		</main>
-		<Reaction slug={slug} client:load />
+		<div style={{ marginTop: "1em" }}>
+			<Reaction slug={slug} client:load />
+		</div>
 		<Footer />
 	</body>
 </html>
