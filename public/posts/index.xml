@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+   <channel>
+      <title>Alex Chi Z.</title>
+      <description>Alex Chi's personal website</description>
+      <link>https://www.skyzh.dev/</link>
+      <item>
+         <title>This RSS feed is permanently moved.</title>
+         <link>https://www.skyzh.dev/blog/</link>
+         <guid isPermaLink="true">https://www.skyzh.dev/blog/</guid>
+         <description>This RSS feed is permanently moved. Please reconfigure your client to use the latest RSS feed from skyzh.dev.</description>
+         <pubDate>Mon, 10 Jul 2023 05:30:00 GMT</pubDate>
+      </item>
+   </channel>
+</rss>
