@@ -51,6 +51,9 @@ import { DEAFULT_SOCIAL_IMAGE } from "../consts";
 <meta property="og:description" content={description} />
 <meta property="og:image" content={new URL(image || DEAFULT_SOCIAL_IMAGE, Astro.url)} />
 
+<!-- sitemap -->
+<link rel="sitemap" href="/sitemap-index.xml" />
+
 {
 	enable_katex && (
 		<link
