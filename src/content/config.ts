@@ -19,6 +19,7 @@ const blog = defineCollection({
 		lang: z.string().optional(),
 		external: z.boolean().optional(),
 		enable_katex: z.boolean().optional(),
+		tags: z.array(z.string()).optional(),
 	}),
 });
 

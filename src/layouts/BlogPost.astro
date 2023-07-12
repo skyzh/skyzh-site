@@ -1,19 +1,34 @@
 ---
-import type { CollectionEntry } from 'astro:content';
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import FormattedDate from '../components/FormattedDate.astro';
-import Reaction from '../components/Reaction';
+import type { CollectionEntry } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import FormattedDate from "../components/FormattedDate.astro";
+import Reaction from "../components/Reaction";
 
-type Props = CollectionEntry<'blog'>['data'] & { slug: string } ;
+type Props = CollectionEntry<"blog">["data"] & { slug: string };
 
-const { title, description, pubDate, updatedDate, socialImage, heroImage, enable_katex, slug } = Astro.props;
+const {
+	title,
+	description,
+	pubDate,
+	updatedDate,
+	socialImage,
+	heroImage,
+	enable_katex,
+	slug,
+	tags,
+} = Astro.props;
 ---
 
 <html lang="en">
 	<head>
-		<BaseHead title={title} description={description} enable_katex={enable_katex} image={socialImage} />
+		<BaseHead
+			title={title}
+			description={description}
+			enable_katex={enable_katex}
+			image={socialImage}
+		/>
 		<style>
 			.title {
 				font-size: 2em;
@@ -34,9 +49,13 @@ const { title, description, pubDate, updatedDate, socialImage, heroImage, enable
 		<Header />
 		<main>
 			<article>
-				{heroImage && <img width={720} height={360} src={heroImage} alt="" />}
+				{
+					heroImage && (
+						<img width={720} height={360} src={heroImage} alt="" />
+					)
+				}
 				<h1 class="title">{title}</h1>
-				{ pubDate && <FormattedDate date={pubDate} /> }
+				{pubDate && <FormattedDate date={pubDate} />}
 				<hr />
 				<slot />
 				{
@@ -48,6 +67,16 @@ const { title, description, pubDate, updatedDate, socialImage, heroImage, enable
 				}
 			</article>
 		</main>
+		<div style={{ marginTop: "1em" }}>
+			{
+				tags &&
+					tags.map((tag) => (
+						<small style={{ marginRight: "0.5em" }}>
+							<a href={`/tags/${tag}/`}>#{tag}</a>
+						</small>
+					))
+			}
+		</div>
 		<div style={{ marginTop: "1em" }}>
 			<Reaction slug={slug} client:load />
 		</div>

@@ -1,0 +1,51 @@
+---
+import BaseHead from "../../components/BaseHead.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../../consts";
+import { getCollection } from "astro:content";
+
+const tags_ = (await getCollection("blog")).map((x) => x.data.tags).flat();
+var tags = [...new Set(tags_)].sort();
+---
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+        <style>
+            ul {
+                list-style-type: none;
+                padding: unset;
+            }
+            ul li {
+                display: flex;
+            }
+            ul li :global(time) {
+                flex: 0 0 130px;
+                font-style: italic;
+                color: #595959;
+            }
+            ul li a:visited {
+                color: #8e32dc;
+            }
+        </style>
+    </head>
+    <body>
+        <Header />
+        <main>
+            <section>
+                <ul>
+                    {
+                        tags.map((tag) => (
+                            <li>
+                                <a href={`/tags/${tag}/`}>{tag}</a>
+                            </li>
+                        ))
+                    }
+                </ul>
+            </section>
+        </main>
+        <Footer />
+    </body>
+</html>

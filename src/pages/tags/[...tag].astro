@@ -1,0 +1,17 @@
+---
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+
+export async function getStaticPaths() {
+    const tags = (await getCollection("blog"))
+        .map((x: CollectionEntry<"blog">) => x.data.tags)
+        .flat();
+    return tags.map((t) => ({ params: { tag: t } }));
+}
+
+const { tag } = Astro.params;
+
+import BlogList from "../../layouts/BlogList.astro";
+---
+
+<BlogList tag={tag} />
