@@ -5,8 +5,9 @@ import type { CollectionEntry } from "astro:content";
 export async function getStaticPaths() {
     const tags = (await getCollection("blog"))
         .map((x: CollectionEntry<"blog">) => x.data.tags)
+        .filter(x => x)
         .flat();
-    return tags.map((t) => ({ params: { tag: t } }));
+    return tags.map((t) => ({ params: { tag: t.toLowerCase() } }));
 }
 
 const { tag } = Astro.params;

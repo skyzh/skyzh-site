@@ -13,7 +13,7 @@ let posts = (await getCollection("blog")).sort(
 );
 
 if (tag) {
-	posts = posts.filter((x) => x.data.tags?.includes(tag));
+	posts = posts.filter((x) => x.data.tags?.map((t) => t.toLowerCase()).includes(tag));
 }
 ---
 

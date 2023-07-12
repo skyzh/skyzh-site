@@ -72,7 +72,7 @@ const {
 				tags &&
 					tags.map((tag) => (
 						<small style={{ marginRight: "0.5em" }}>
-							<a href={`/tags/${tag}/`}>#{tag}</a>
+							<a href={`/tags/${tag.toLowerCase()}/`}>#{tag}</a>
 						</small>
 					))
 			}

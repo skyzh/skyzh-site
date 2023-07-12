@@ -4,8 +4,12 @@ import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../../consts";
 import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 
-const tags_ = (await getCollection("blog")).map((x) => x.data.tags).flat();
+const tags_ = (await getCollection("blog"))
+    .map((x: CollectionEntry<"blog">) => x.data.tags)
+    .filter(x => x)
+    .flat();
 var tags = [...new Set(tags_)].sort();
 ---
 
@@ -39,7 +43,9 @@ var tags = [...new Set(tags_)].sort();
                     {
                         tags.map((tag) => (
                             <li>
-                                <a href={`/tags/${tag}/`}>{tag}</a>
+                                <a href={`/tags/${tag.toLowerCase()}/`}>
+                                    {tag}
+                                </a>
                             </li>
                         ))
                     }
