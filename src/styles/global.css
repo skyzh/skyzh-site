@@ -55,6 +55,7 @@ code {
 pre {
 	padding: 1rem;
 	border: 1px solid #eee;
+	border-radius: 5px;
 }
 pre > code {
 	all: unset;
@@ -67,3 +68,7 @@ blockquote {
 	font-style: italic;
 }
 
+.img-border {
+	border: 1px solid #999;
+	border-radius: 5px;
+}
