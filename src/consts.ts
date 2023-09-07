@@ -3,5 +3,5 @@
 
 export const SITE_TITLE = 'Alex Chi Z.';
 export const SITE_DESCRIPTION = 'Alex Chi\'s personal website';
-export const CV_URL = "https://skyzh.github.io/files/cv.pdf";
+export const CV_URL = "/cv/";
 export const DEAFULT_SOCIAL_IMAGE = "/images/skyzh.jpeg";
