@@ -2,7 +2,7 @@
 title: "My Final Semester in BusTub"
 pubDate: "2023-12-20T18:00:00+08:00"
 tags: ["BusTub", "15-445", "CMU", "Database"]
-description: "In the last semester of Chi’s time in CMU, he made a lot of changes to the BusTub project..."
+description: "In the last semester of Chi’s time in CMU, he made a lot of changes to the BusTub project... In this blog post, he shares his experience of the story of the BusTub MVCC project and how to design a good course project."
 socialImage: "/images/2023-12-20-the-final-semester-in-bustub-social.png"
 heroImage: "/images/2023-12-20-the-final-semester-in-bustub-banner.png"
 ---
@@ -86,7 +86,7 @@ Things worked well and I spent half of my fall break working on the reference so
 
 ## Now It’s Meeting Time...
 
-At the first meeting on this project, I presented the project as 10 tasks, where I expect each of them to take students 2-3 hours to complete. [Abi](https://abigalekim.github.io/) was like, NOOOOO YOU CAN NOT ASK STUDENTS TO IMPLEMENT HYPER. [Yuchen](https://www.liangyc.me/) was like, okay..., I _partially_ understand the algorithm. [Avery](https://github.com/AveryQi115) was like, THIS IS SO CLEVER but I have a few more questions. Andy was kind of, well, it’s exciting to have MVCC in the course project, but we need to cut down the workload. Jignesh then followed, this is exciting and I really want to have that... but you need to think about the students. Anyway, the course stuff felt like the whole thing was too hard for students to implement.
+At the first meeting on this project, I presented the project as 10 tasks, where I expect each of them to take students 2-3 hours to complete. [Abi](https://abigalekim.github.io/) was like, NOOOOO YOU CAN NOT ASK STUDENTS TO IMPLEMENT HYPER. [Yuchen](https://www.liangyc.me/) was like, okay..., I _partially_ understand the algorithm. [Avery](https://github.com/AveryQi115) was like, THIS IS SO CLEVER but I have a few more questions. Andy was kind of, well, it’s exciting to have MVCC in the course project, but we need to cut down the workload. Jignesh then followed, this is exciting and I really want to have that... but you need to think about the students -- if everything is hard, it will be a disaster; but if we have three things that students will be challenged on, like version chain maintenance, garbage collection, and index insertion concurrency, it will be good. Anyway, the course stuff felt like the whole thing was too hard for students to implement.
 
 The other day after the DB lab meeting, I pitched [Wan](https://wanshenl.me/) with the new MVCC project I was working on. As a former CMU undergrad who took 15-445 (well, I did not take the course because I [TAed in my first semester](https://www.skyzh.dev/blog/2023-08-11-a-year-in-bustub/)), Wan provided a good estimation of what a normal student would be if they worked on the project. In the end, the course staff agreed on an easy 80 points on the MVCC implementation and a hard 20 points on concurrency and index stuff, with an extra 20 points bonus on aborts and serializable verifications. I assume getting 100 points would be as hard as the previous B+ tree project.
 
