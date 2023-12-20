@@ -72,3 +72,22 @@ blockquote {
 	border: 1px solid #999;
 	border-radius: 5px;
 }
+
+.table-container {
+	overflow-x: scroll;
+}
+
+.table-container table {
+	width: max-content;
+}
+
+.table-container td {
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+.table-container th {
+	padding-left: 1em;
+	padding-right: 1em;
+}
+

@@ -13,21 +13,21 @@ heroImage: "/images/2023-07-09-blog-update-banner.png"
 
 # Introduction
 
-It's been quite some time since my last post on my personal website, but I recently dedicated a weekend to revamping it.
-Here's a brief summary of the changes I made:
+It’s been quite some time since my last post on my personal website, but I recently dedicated a weekend to revamping it.
+Here’s a brief summary of the changes I made:
 
 * Migration from [Hugo](https://gohugo.io) to [Astro](https://astro.build), a web framework similar to Next.js.
 * Introduction of reaction buttons at the end of each blog post.
 
 The transition from Hugo to Astro went smoothly, primarily because Astro provides excellent support for Markdown,
-which I had been using for my blog. In this article, I'll share my experience with the transition process and delve
+which I had been using for my blog. In this article, I’ll share my experience with the transition process and delve
 into the steps I took to implement the blog reaction buttons.
 
 # The Blog Framework -- Astro
 
 When deciding on a framework for my new personal website, Astro stood out for two primary reasons. Firstly, I wanted
 to explore a full-stack web application framework in JavaScript / TypeScript, and Astro provided the perfect opportunity
-to do so. Secondly, Astro's blog template offered easy customization options and comprehensive RSS support, which was
+to do so. Secondly, Astro’s blog template offered easy customization options and comprehensive RSS support, which was
 crucial for my blogging needs.
 
 <small>Fun fact: A hidden facet of my expertise that often goes unnoticed -- I have been involved in web development for 9 years since my initial PHP project in 2014, apart from my more recent Rust + database background. The PHP project was a Codeforces-style online judge for internal use.</small>
@@ -46,13 +46,13 @@ After a 30-second setup wizard, I got the website running locally:
 
 ## Migrating Markdown Files and Assets
 
-Thanks to Astro's native support for Markdown, transferring my previous blog content to the new blog was a breeze. I
+Thanks to Astro’s native support for Markdown, transferring my previous blog content to the new blog was a breeze. I
 simply had to copy and paste all the markdown files from my previous blog into the new Astro setup. However, there was
 a slight issue. I was using TOML front-matters while Astro only supports YAML ones. I had to make some minor
 modifications to the front-matter to make it work.
 
 As for image assets, Astro offers a handy extension called [@astrojs/image](https://docs.astro.build/en/guides/integrations-guide/image/),
-which automatically compresses and optimizes all images on the website. However, my website doesn't contain heavy image
+which automatically compresses and optimizes all images on the website. However, my website doesn’t contain heavy image
 assets, and I decided to take a different approach that I placed them directly into the public directory. This way, the
 directory layout is structured as follows:
 
@@ -94,11 +94,11 @@ detailed overview of how I implemented this new feature.
 ## Redirects
 
 After completing the migration, I realized that the URLs for all my blog posts had changed. To ensure that users who
-still access my website using the old URLs don't encounter 404 errors, I needed to set up redirects. Fortunately, Astro
+still access my website using the old URLs don’t encounter 404 errors, I needed to set up redirects. Fortunately, Astro
 offers a redirects configuration option in the `astro.config.mjs` file.
 
-I wanted to redirect all requests from `/posts/articles/*` to `/blog/*`, but Astro's redirects feature doesn't support
-wildcard redirects in static rendering mode. It requires server-side rendering support, which I didn't want to enable
+I wanted to redirect all requests from `/posts/articles/*` to `/blog/*`, but Astro’s redirects feature doesn’t support
+wildcard redirects in static rendering mode. It requires server-side rendering support, which I didn’t want to enable
 for my website.
 
 To overcome this limitation, I configured Astro to generate a redirect page for each of my blog posts at the old URL.
@@ -108,11 +108,11 @@ corresponding new URL. You can find the [[source code]](https://github.com/skyzh
 # Reactions
 
 
-One exciting feature I've been diligently working on for my new personal website is the integration of reactions within
+One exciting feature I’ve been diligently working on for my new personal website is the integration of reactions within
 my blog posts. Thanks to the powerful combination of Neon and Vercel, I can implement this functionality in a *serverless*
 manner, eliminating the need to manage any databases on my own cloud server.
 
-[Neon Postgres](https://neon.tech) offers a fully-managed Postgres service (which is the company I'm currently working for... 🤪).
+[Neon Postgres](https://neon.tech) offers a fully-managed Postgres service (which is the company I’m currently working for... 🤪).
 Leveraging this service, I can seamlessly incorporate reactions into my blog without the hassle of setting up and
 maintaining my own database infrastructure.
 
@@ -143,11 +143,11 @@ The process takes only a matter of seconds.
 ![Neon Project Overview](neon.png)
 
 Since Vercel Edge Functions operate on a lightweight JavaScript runtime, establishing a direct TCP connection to
-Postgres isn't feasible. It only supports HTTP / WebSocket. Therefore, I incorporated the [Neon Serverless Driver](https://github.com/neondatabase/serverless)
+Postgres isn’t feasible. It only supports HTTP / WebSocket. Therefore, I incorporated the [Neon Serverless Driver](https://github.com/neondatabase/serverless)
 to connect to Neon, which establishes a WebSocket connection to the Postgres WebSocket proxy hosted by Neon.
 
 The Neon Serverless Driver acts as a drop-in replacement for the `pg` package, making it compatible with existing
-Postgres libraries. For instance, I'm utilizing the `Kysely` library for constructing queries. Here's an example of the
+Postgres libraries. For instance, I’m utilizing the `Kysely` library for constructing queries. Here’s an example of the
 code structure:
 
 ```typescript
