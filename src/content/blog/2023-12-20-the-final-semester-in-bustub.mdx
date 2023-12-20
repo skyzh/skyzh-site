@@ -127,7 +127,7 @@ As part of my optimizer research with Andy, I studied implementations of some op
 
 I plugged Calcite into [the query frontend](https://github.com/skyzh/calcite-bustub) of BusTub. BusTub starts with [an HTTP service](https://github.com/cmu-db/bustub/pull/628), listening for JSON query plans and serving the catalog. Calcite parses the SQL, generates the query plan on BusTub, and sends it to the BusTub HTTP service.
 
-<img src="bustub-calcite.png" alt="architecture of Calcite over BusTub"/>
+<img class="img-border" src="bustub-calcite.png" alt="architecture of Calcite over BusTub"/>
 <center><small>architecture of Calcite over BusTub</small></center>
 
 The Calcite frontend opens up a lot of opportunities for BusTub -- for example, students can implement semi join executors. With that, Calcite can unnest correlated subqueries and execute them on BusTub. We could have a semester focusing on execution (implementing a lot of different query executors) if we use Calcite as the frontend, and alternatively, a semester focusing on optimization (implementing a lot of rules in BusTub).
