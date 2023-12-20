@@ -15,6 +15,11 @@ heroImage: "/images/2023-12-20-the-final-semester-in-bustub-banner.png"
 
 It has been a busy semester and also my last semester at CMU. Finally, I retired from the 15-445/645 teaching assistant position. Thanks to the whole TA team and Andy/Jignesh, the BusTub project evolved a lot and saw exciting changes in the past semester. In this blog post, I will go over all these changes and the outlook for the BusTub project.
 
+This is a series of blog posts on the design choices and the design goals of the BusTub project during my time of being a TA for the Database Systems course. Previously, we had...
+
+* [A Year in BusTub](https://www.skyzh.dev/blog/2023-08-11-a-year-in-bustub/)
+* [Query Processing in BusTub](https://www.skyzh.dev/blog/2023-03-02-bustub-query-processing/)
+
 # Switching the Course Projects
 
 In the previous semesters, the course projects are composed of:
@@ -99,7 +104,16 @@ So, we have talked about how we designed the point distribution to make it easy 
 <img src="point-distribution.png" alt="workload distribution of the project"/>
 <center><small>workload distribution of the project</small></center>
 
-I see the MVCC project as a system design problem: we give the specifications/interfaces in the write-up and do minimal checks on internal structures (mostly behavioral tests using SQL), and students will need to make design choices by themselves in a variety of aspects.
+I see the MVCC project as a system design problem: we give the specifications/interfaces in the write-up and do minimal checks on internal structures (mostly behavioral tests using SQL), and students will need to make design choices by themselves in a variety of aspects. The design goals in my mind:
+
+* **Understand existing code.** Students will need to understand the structure of the current codebase and know the part of the code they can use to achieve a design goal.
+* **Understand design specifications.** Students will need to read the write-up and understand how HyPer MVCC works.
+* **Implement the MVCC algorithm.** Based on the code we have and the spec in the write-up, students will need to know how to leverage existing interfaces of the BusTub system to implement the spec.
+* **Design / Make design choices of some part of the MVCC algorithm.** Specifically, students will need to think of the edge cases and come up with a correct order of doing operations for index modifications, aborts, and serializable verification.
+* **Debug and fix system code.** We have some super hard concurrent behavioral SQL tests to ensure the system works correctly in a multi-threaded environment.
+* **Optimize for performance and efficiency.** As part of the leaderboard tasks.
+
+To achieve the design goals of the project, I applied a variety of strategies across different aspects of the project.
 
 **Write-up.** We explained all the edge cases for insertion, deletion, and updates without indexes in the writeup. But for concurrent part and the indexes operations, we only provided a general approach to modify the version chain. This creates a natural stair in the difficulty of the project. Students who fully understand how to interpret the version chain can easily pass all single-thread tests. And they will need to think about the race conditions by themselves when implementing later parts. I used a lot of figures to illustrate how to perform an operation step-by-step. If someone ever worked with me in some companies, you will find the write-up of the MVCC project is basically a Chi-style design doc...
 
