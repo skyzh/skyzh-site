@@ -130,15 +130,15 @@ We will use the example of Shared Arrangement in [Differential Dataflow][dd] (th
 
 ![intro of shared arrangement](shared-arrangement.png)
 
-Differential Dataflow uses Arrangements to maintain state. In simple terms, Arrangement is a key-value map data structure that supports MVCC. It stores the mapping of key to (value, time, diff). With Arrangement, you can:
+Differential Dataflow uses arrangements to maintain state. In simple terms, Arrangement is a key-value map data structure that supports MVCC. It stores the mapping of key to (value, time, diff). With Arrangement, you can:
 * Query the mapping relationship of key-value at a certain point in time using a handler.
 * Query the changes of a key during a certain period of time.
 * Specify the watermark for the query and merge or delete historical data that is no longer used in the background.
 
-In Differential Dataflow, most operators do not have states, and all states are stored in Arrangements. Arrangements can be generated using arrange operators or maintained by operators themselves (such as the reduce operator). In the computation graph of Differential Dataflow, there are two types of message passing:
+In Differential Dataflow, most operators do not have states, and all states are stored in arrangements. arrangements can be generated using arrange operators or maintained by operators themselves (such as the reduce operator). In the computation graph of Differential Dataflow, there are two types of message passing:
 
 * Changes in data at a certain moment in time `(data, time, diff)`. This type of data flow is called Collection.
-* Snapshots of data, which are handlers of Arrangements. This type of data flow is called Arranged.
+* Snapshots of data, which are handlers of arrangements. This type of data flow is called Arranged.
 
 Each operator in Differential Dataflow has certain requirements for its input and output, as shown in the following examples:
 * Map operator (corresponding to SQL's Projection) takes Collection as input and outputs Collection.
@@ -155,7 +155,7 @@ Materialize converts SQL queries input by users into the computation graph of Di
 
 ## State Storage of Join State
 
-The A Join B operation in SQL corresponds to three operators in Differential Dataflow: two Arranges and one JoinCore. The arrange operators persist the states of the two sources separately based on the join keys, storing them in Arrangements in the form of key-value pairs. After batching the inputs, the arrange operators send TraceHandles to the downstream JoinCore operator. The actual join logic takes place in the JoinCore operator, which does not store any states.
+The A Join B operation in SQL corresponds to three operators in Differential Dataflow: two Arranges and one JoinCore. The arrange operators persist the states of the two sources separately based on the join keys, storing them in arrangements in the form of key-value pairs. After batching the inputs, the arrange operators send TraceHandles to the downstream JoinCore operator. The actual join logic takes place in the JoinCore operator, which does not store any states.
 
 ![join state of differential dataflow](dd-state-join.png)
 
@@ -177,17 +177,21 @@ Since the operators that store states in Differential Dataflow are separate from
 
 For example, if a user wants to query `A JOIN B` and `B JOIN C` at the same time, in Differential Dataflow, a possible computation graph would generate three arrange operators and two JoinCore operators. Compared to stream processing systems that store complete states, we can avoid duplicating the state of B.
 
-Another example is a multi-way join, such as `SELECT * FROM A, B, C WHERE A.x = B.x and A.x = C.x`. In this example, if JoinCore operator is used to generate the computation graph, there is still a possibility of state duplication, requiring a total of four Arrangements.
+Another example is a multi-way join, such as `SELECT * FROM A, B, C WHERE A.x = B.x and A.x = C.x`. In this example, if JoinCore operator is used to generate the computation graph, there is still a possibility of state duplication, requiring a total of four arrangements.
 
-Besides being converted into the JoinCore operator in Differential Dataflow as described above, Materialize's SQL Join can also be converted into Delta Join. As shown in the figure, we only need to generate three Arrangements for A, B, and C respectively, and then use the lookup operator to query the rows in A that correspond to modifications in B and C (and vice versa). Finally, we perform a union to obtain the result of the join. Delta Join can make full use of existing Arrangements for calculation, greatly reducing the number of states required for Join.
+Besides being converted into the JoinCore operator in Differential Dataflow as described above, Materialize's SQL Join can also be converted into Delta Join. As shown in the figure, we only need to generate three arrangements for A, B, and C respectively, and then use the lookup operator to query the rows in A that correspond to modifications in B and C (and vice versa). Finally, we perform a union to obtain the result of the join. Delta Join can make full use of existing arrangements for calculation, greatly reducing the number of states required for Join.
 
-## Overheads of Remote Accessing State
+## Overheads of Shuffling States
 
-In a streaming system, it is often impossible to store all the data generated during computation on a single node. At the same time, there are also many degrees of parallelism in the nodes within the same execution plan. For example, in the example of a two-table join shown below, the Arrangements of two tables A and B may be generated on different nodes (Node 1, 2), and then each node performs the join operation on its respective data.
+In a streaming system, it is often impossible to store and compute all the data generated during computation on a single node. Therefore, the execution generally needs to be partitioned by some keys so that it can be distributed on multiple compute nodes. In the example of a two-table join shown below, the arrangements of two tables A and B may be generated on nodes different from the nodes performing the join operations. The join operation might be using a different arrange key or using different number of nodes (parallelism).
 
-![remote shuffle of differential dataflow](dd-remote-shuffle.png)
+![remote shuffle of differential dataflow](dd-remote-shuffle-2.png)
 
-In this case, remote access to Arrangements is inevitable in Differential Dataflow. Since operators have no internal states, the JoinCore operator needs to perform remote access for each row it processes to search for the data corresponding to the join key. Generally, arranging and computing on different nodes will greatly increase the computation delay, and arranging and computing on a single node cannot fully utilize the resources of distributed systems, which is a contradictory situation.
+In this case, shuffles on arrangements are inevitable in Differential Dataflow. We will need to store the fraction of keys required by a partition of joins on the compute node performing the join by creating new arrangements. Generally, arranging and computing on different nodes will greatly increase the computation delay, and arranging and computing on a single node cannot fully utilize the resources of distributed systems, which is a contradictory situation.
+
+As long as the system ensure that the distribution of keys and the parallelism are the same for the arrangements and joins, states can still be shared without being shuffled.
+
+_There was a mistake in this blog post explaining Differential Dataflow to use remote access for partitioned states, as pointed out in [GitHub Discussion](https://github.com/skyzh/skyzh-site/discussions/27#discussioncomment-7965243). We have fixed it._
 
 ## Summary
 
