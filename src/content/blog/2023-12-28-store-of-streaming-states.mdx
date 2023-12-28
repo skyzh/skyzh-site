@@ -135,7 +135,7 @@ Differential Dataflow uses Arrangements to maintain state. In simple terms, Arra
 * Query the changes of a key during a certain period of time.
 * Specify the watermark for the query and merge or delete historical data that is no longer used in the background.
 
-In Differential Dataflow, most operators do not have states, and all states are stored in Arrangements. Arrangements can be generated using Arrange operators or maintained by operators themselves (such as the Reduce operator). In the computation graph of Differential Dataflow, there are two types of message passing:
+In Differential Dataflow, most operators do not have states, and all states are stored in Arrangements. Arrangements can be generated using arrange operators or maintained by operators themselves (such as the reduce operator). In the computation graph of Differential Dataflow, there are two types of message passing:
 
 * Changes in data at a certain moment in time `(data, time, diff)`. This type of data flow is called Collection.
 * Snapshots of data, which are handlers of Arrangements. This type of data flow is called Arranged.
@@ -155,7 +155,7 @@ Materialize converts SQL queries input by users into the computation graph of Di
 
 ## State Storage of Join State
 
-The A Join B operation in SQL corresponds to three operators in Differential Dataflow: two Arranges and one JoinCore. The Arrange operators persist the states of the two sources separately based on the join keys, storing them in Arrangements in the form of key-value pairs. After batching the inputs, the Arrange operators send TraceHandles to the downstream JoinCore operator. The actual join logic takes place in the JoinCore operator, which does not store any states.
+The A Join B operation in SQL corresponds to three operators in Differential Dataflow: two Arranges and one JoinCore. The arrange operators persist the states of the two sources separately based on the join keys, storing them in Arrangements in the form of key-value pairs. After batching the inputs, the arrange operators send TraceHandles to the downstream JoinCore operator. The actual join logic takes place in the JoinCore operator, which does not store any states.
 
 ![join state of differential dataflow](dd-state-join.png)
 
@@ -163,11 +163,11 @@ As shown in the above figure, suppose a new update comes to the Visit side: Eve 
 
 ## State Storage of Reduce (Aggregation) State
 
-In Differential Dataflow, SQL aggregation operator corresponds to the Reduce operation. The Reduce operation includes two operators: Arrange and ReduceCore. The Arrange operator stores the input data based on the group key, and the ReduceCore operator maintains an Arrangement to store the aggregated results. Finally, the results are output as a collection using the `as_collection` operation.
+In Differential Dataflow, SQL aggregation operator corresponds to the reduce operation. The reduce operation includes two operators: Arrange and ReduceCore. The arrange operator stores the input data based on the group key, and the ReduceCore operator maintains an Arrangement to store the aggregated results. Finally, the results are output as a collection using the `as_collection` operation.
 
 ![aggregation state of differential dataflow](dd-state-agg.png)
 
-When the update from the Join operation arrives at the Reduce operator, it is first stored in Arrangement by the Arrange operator based on the group key. After receiving Trace C, the ReduceCore operator scans all the rows with `key = Vegetable` and calculates the maximum value. The maximum value is then updated in its own Arrangement. After passing through the `as_collection` operation, Trace D can be output as data updates, which can be processed by other operators.
+When the update from the Join operation arrives at the reduce operator, it is first stored in Arrangement by the arrange operator based on the group key. After receiving Trace C, the ReduceCore operator scans all the rows with `key = Vegetable` and calculates the maximum value. The maximum value is then updated in its own Arrangement. After passing through the `as_collection` operation, Trace D can be output as data updates, which can be processed by other operators.
 
 ## Convenient State Reuse for Operators
 
@@ -175,7 +175,7 @@ Since the operators that store states in Differential Dataflow are separate from
 
 ![3-way join of differential dataflow](dd-join-3-way.png)
 
-For example, if a user wants to query `A JOIN B` and `B JOIN C` at the same time, in Differential Dataflow, a possible computation graph would generate three Arrange operators and two JoinCore operators. Compared to stream processing systems that store complete states, we can avoid duplicating the state of B.
+For example, if a user wants to query `A JOIN B` and `B JOIN C` at the same time, in Differential Dataflow, a possible computation graph would generate three arrange operators and two JoinCore operators. Compared to stream processing systems that store complete states, we can avoid duplicating the state of B.
 
 Another example is a multi-way join, such as `SELECT * FROM A, B, C WHERE A.x = B.x and A.x = C.x`. In this example, if JoinCore operator is used to generate the computation graph, there is still a possibility of state duplication, requiring a total of four Arrangements.
 
@@ -200,13 +200,13 @@ In a shared state streaming system, the computation logic and storage logic of o
 
 In the Noria system introduced in [Noria (OSDI '18)][noria], computations are not triggered when data sources are updated, and streaming operators do not store complete information.
 
-For example, when a user executes the following query on a previously created view:
+For example, when a user creates a view (`CREATE VIEW result`), the system builds the dataflow but not compute anything. When a user executes the following query on a previously created view:
 
 ```
 SELECT * FROM result WHERE category = "Vegetable"
 ```
 
-The computation of the streaming system is triggered. During the computation, only the data related to `category = "Vegetable"` is processed and the relevant state is stored. Using this query as an example, we will explain Noria's computation method and state storage.
+The system then starts piping data on the dataflow. During the computation, only the data related to `category = "Vegetable"` is processed and the relevant state is stored. Using this query as an example, we will explain Noria's computation method and state storage.
 
 ## Upqueries
 
@@ -249,9 +249,9 @@ Finally, let's compare the characteristics of streaming state stores for differe
 
 ![comparison of streaming state stores](state-compare.png)
 
-* Full state storage (e.g. Flink): Data flows on the stream.
-* Shared state storage (e.g. Materialize / Differential Dataflow): Data and snapshots flow on the stream.
-* Partial state storage (e.g. Noria): Data flows on the stream, and messages flow bidirectionally on the stream.
+* Full state storage (e.g., Flink): Data flows on the stream.
+* Shared state storage (e.g., Materialize / Differential Dataflow): Data and snapshots flow on the stream.
+* Partial state storage (e.g., Noria): Data flows on the stream, and messages flow bidirectionally on the stream.
 
 # Reference
 
