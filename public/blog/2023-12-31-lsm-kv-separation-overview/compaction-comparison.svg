@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns:xl="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="http://www.w3.org/2000/svg" viewBox="-109 215 853 602" width="853" height="602">
+  <defs>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black">
+      <g>
+        <path d="M 8 0 L 0 -3 L 0 3 Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+  </defs>
+  <g id="compaction-comparison" stroke="none" fill-opacity="1" fill="none" stroke-opacity="1" stroke-dasharray="none">
+    <title>compaction-comparison</title>
+    <rect fill="white" x="-109" y="215" width="853" height="602"/>
+    <g id="compaction-comparison_Layer_1">
+      <title>Layer 1</title>
+      <g id="Graphic_243">
+        <rect x="527.5" y="602.018" width="215.5" height="134" fill="white"/>
+        <rect x="527.5" y="602.018" width="215.5" height="134" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_197">
+        <rect x="-108" y="384.3465" width="437.284" height="109.703" fill="white"/>
+        <rect x="-108" y="384.3465" width="437.284" height="109.703" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_196">
+        <rect x="-108" y="244.021" width="437.284" height="109.703" fill="white"/>
+        <rect x="-108" y="244.021" width="437.284" height="109.703" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_192">
+        <text transform="translate(-100.87234 267.104)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="6394885e-19" y="15">L2</tspan>
+        </text>
+      </g>
+      <g id="Graphic_191">
+        <text transform="translate(-100.87234 318.63)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="6394885e-19" y="15">Ln</tspan>
+        </text>
+      </g>
+      <g id="Graphic_186">
+        <rect x="-62.58034" y="255.578" width="36.708" height="41.5" fill="#3a8eed"/>
+        <rect x="-62.58034" y="255.578" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_185">
+        <rect x="-18.87234" y="255.578" width="36.708" height="41.5" fill="#3a8eed"/>
+        <rect x="-18.87234" y="255.578" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_184">
+        <rect x="24.20738" y="255.578" width="36.708" height="41.5" fill="#3a8eed"/>
+        <rect x="24.20738" y="255.578" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_183">
+        <rect x="67.2871" y="255.578" width="36.708" height="41.5" fill="white"/>
+        <rect x="67.2871" y="255.578" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_182">
+        <rect x="110.9951" y="255.578" width="36.708" height="41.5" fill="white"/>
+        <rect x="110.9951" y="255.578" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_181">
+        <rect x="154.07482" y="255.578" width="36.708" height="41.5" fill="white"/>
+        <rect x="154.07482" y="255.578" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_180">
+        <rect x="-62.58034" y="307.104" width="36.708" height="41.5" fill="white"/>
+        <rect x="-62.58034" y="307.104" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_179">
+        <rect x="-18.87234" y="307.104" width="36.708" height="41.5" fill="white"/>
+        <rect x="-18.87234" y="307.104" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_178">
+        <rect x="24.20738" y="307.104" width="36.708" height="41.5" fill="white"/>
+        <rect x="24.20738" y="307.104" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_177">
+        <rect x="67.2871" y="307.104" width="36.708" height="41.5" fill="white"/>
+        <rect x="67.2871" y="307.104" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_176">
+        <rect x="110.9951" y="307.104" width="36.708" height="41.5" fill="white"/>
+        <rect x="110.9951" y="307.104" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_175">
+        <rect x="154.07482" y="307.104" width="36.708" height="41.5" fill="white"/>
+        <rect x="154.07482" y="307.104" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_174">
+        <rect x="197.15454" y="307.104" width="36.708" height="41.5" fill="white"/>
+        <rect x="197.15454" y="307.104" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_173">
+        <rect x="240.86254" y="307.104" width="36.708" height="41.5" fill="white"/>
+        <rect x="240.86254" y="307.104" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_172">
+        <rect x="283.94226" y="307.104" width="36.708" height="41.5" fill="white"/>
+        <rect x="283.94226" y="307.104" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_168">
+        <text transform="translate(-100.66434 407.4295)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="6394885e-19" y="15">L2</tspan>
+        </text>
+      </g>
+      <g id="Graphic_167">
+        <text transform="translate(-100.66434 458.9555)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="6394885e-19" y="15">Ln</tspan>
+        </text>
+      </g>
+      <g id="Graphic_163">
+        <rect x="-62.37234" y="395.9035" width="36.708" height="41.5" fill="#68bc36"/>
+        <rect x="-62.37234" y="395.9035" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_162">
+        <rect x="-18.66434" y="395.9035" width="36.708" height="41.5" fill="#68bc36"/>
+        <rect x="-18.66434" y="395.9035" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_161">
+        <rect x="24.41538" y="395.9035" width="36.708" height="41.5" fill="#68bc36"/>
+        <rect x="24.41538" y="395.9035" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_160">
+        <rect x="67.4951" y="395.9035" width="36.708" height="41.5" fill="#68bc36"/>
+        <rect x="67.4951" y="395.9035" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_159">
+        <rect x="111.2031" y="395.9035" width="36.708" height="41.5" fill="white"/>
+        <rect x="111.2031" y="395.9035" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_158">
+        <rect x="154.28282" y="395.9035" width="36.708" height="41.5" fill="white"/>
+        <rect x="154.28282" y="395.9035" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_157">
+        <rect x="-62.37234" y="447.4295" width="36.708" height="41.5" fill="white"/>
+        <rect x="-62.37234" y="447.4295" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_156">
+        <rect x="-18.66434" y="447.4295" width="36.708" height="41.5" fill="white"/>
+        <rect x="-18.66434" y="447.4295" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_155">
+        <rect x="24.41538" y="447.4295" width="36.708" height="41.5" fill="white"/>
+        <rect x="24.41538" y="447.4295" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_154">
+        <rect x="67.4951" y="447.4295" width="36.708" height="41.5" fill="white"/>
+        <rect x="67.4951" y="447.4295" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_153">
+        <rect x="111.2031" y="447.4295" width="36.708" height="41.5" fill="white"/>
+        <rect x="111.2031" y="447.4295" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_152">
+        <rect x="154.28282" y="447.4295" width="36.708" height="41.5" fill="white"/>
+        <rect x="154.28282" y="447.4295" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_151">
+        <rect x="197.36254" y="447.4295" width="36.708" height="41.5" fill="white"/>
+        <rect x="197.36254" y="447.4295" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_150">
+        <rect x="241.07054" y="447.4295" width="36.708" height="41.5" fill="white"/>
+        <rect x="241.07054" y="447.4295" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_149">
+        <rect x="284.15026" y="447.4295" width="36.708" height="41.5" fill="white"/>
+        <rect x="284.15026" y="447.4295" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_148">
+        <rect x="197.15454" y="395.9035" width="36.708" height="41.5" fill="white"/>
+        <rect x="197.15454" y="395.9035" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_140">
+        <rect x="363" y="335" width="49.22144" height="24.078003" fill="white"/>
+        <rect x="363" y="335" width="49.22144" height="24.078003" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(368 337.815)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="5.97872" y="15">Key</tspan>
+        </text>
+      </g>
+      <g id="Graphic_139">
+        <rect x="412.22144" y="335" width="234.1396" height="24.078003" fill="white"/>
+        <rect x="412.22144" y="335" width="234.1396" height="24.078003" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(417.22144 337.815)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="70.5098" y="15">Large Value</tspan>
+        </text>
+      </g>
+      <g id="Line_136">
+        <path d="M 60.91538 275.43476 C 108.1419 273.43326 235.6465 269.94285 314.12766 286.026 C 364.66328 296.38227 382.58713 312.33683 388.11173 325.33367" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+      </g>
+      <g id="Line_198">
+        <path d="M 387.72826 359.078 C 384.5761 371.2551 370.3525 390.00607 316.5 402.4295 C 254.33288 416.77107 160.61286 417.77635 114.10277 417.2574" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+      </g>
+      <g id="Graphic_239">
+        <rect x="-108" y="706.3255" width="437.284" height="109.703" fill="white"/>
+        <rect x="-108" y="706.3255" width="437.284" height="109.703" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_238">
+        <rect x="-108" y="566" width="437.284" height="109.703" fill="white"/>
+        <rect x="-108" y="566" width="437.284" height="109.703" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_237">
+        <text transform="translate(-100.87234 589.083)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="6394885e-19" y="15">L2</tspan>
+        </text>
+      </g>
+      <g id="Graphic_236">
+        <text transform="translate(-100.87234 640.609)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="6394885e-19" y="15">Ln</tspan>
+        </text>
+      </g>
+      <g id="Graphic_235">
+        <rect x="-62.58034" y="577.557" width="36.708" height="41.5" fill="#3a8eed"/>
+        <rect x="-62.58034" y="577.557" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_234">
+        <rect x="-18.87234" y="577.557" width="36.708" height="41.5" fill="#3a8eed"/>
+        <rect x="-18.87234" y="577.557" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_233">
+        <rect x="24.20738" y="577.557" width="36.708" height="41.5" fill="#3a8eed"/>
+        <rect x="24.20738" y="577.557" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_232">
+        <rect x="67.2871" y="577.557" width="36.708" height="41.5" fill="white"/>
+        <rect x="67.2871" y="577.557" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_231">
+        <rect x="110.9951" y="577.557" width="36.708" height="41.5" fill="white"/>
+        <rect x="110.9951" y="577.557" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_230">
+        <rect x="154.07482" y="577.557" width="36.708" height="41.5" fill="white"/>
+        <rect x="154.07482" y="577.557" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_229">
+        <rect x="-62.58034" y="629.083" width="36.708" height="41.5" fill="white"/>
+        <rect x="-62.58034" y="629.083" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_228">
+        <rect x="-18.87234" y="629.083" width="36.708" height="41.5" fill="white"/>
+        <rect x="-18.87234" y="629.083" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_227">
+        <rect x="24.20738" y="629.083" width="36.708" height="41.5" fill="white"/>
+        <rect x="24.20738" y="629.083" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_226">
+        <rect x="67.2871" y="629.083" width="36.708" height="41.5" fill="white"/>
+        <rect x="67.2871" y="629.083" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_225">
+        <rect x="110.9951" y="629.083" width="36.708" height="41.5" fill="white"/>
+        <rect x="110.9951" y="629.083" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_224">
+        <rect x="154.07482" y="629.083" width="36.708" height="41.5" fill="white"/>
+        <rect x="154.07482" y="629.083" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_223">
+        <rect x="197.15454" y="629.083" width="36.708" height="41.5" fill="white"/>
+        <rect x="197.15454" y="629.083" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_222">
+        <rect x="240.86254" y="629.083" width="36.708" height="41.5" fill="white"/>
+        <rect x="240.86254" y="629.083" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_221">
+        <rect x="283.94226" y="629.083" width="36.708" height="41.5" fill="white"/>
+        <rect x="283.94226" y="629.083" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_220">
+        <text transform="translate(-100.66434 729.4085)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="6394885e-19" y="15">L2</tspan>
+        </text>
+      </g>
+      <g id="Graphic_219">
+        <text transform="translate(-100.66434 780.9345)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="6394885e-19" y="15">Ln</tspan>
+        </text>
+      </g>
+      <g id="Graphic_218">
+        <rect x="-62.37234" y="717.8825" width="36.708" height="41.5" fill="#68bc36"/>
+        <rect x="-62.37234" y="717.8825" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_217">
+        <rect x="-18.66434" y="717.8825" width="36.708" height="41.5" fill="#68bc36"/>
+        <rect x="-18.66434" y="717.8825" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_216">
+        <rect x="24.41538" y="717.8825" width="36.708" height="41.5" fill="#68bc36"/>
+        <rect x="24.41538" y="717.8825" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_215">
+        <rect x="67.4951" y="717.8825" width="36.708" height="41.5" fill="#68bc36"/>
+        <rect x="67.4951" y="717.8825" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_214">
+        <rect x="111.2031" y="717.8825" width="36.708" height="41.5" fill="white"/>
+        <rect x="111.2031" y="717.8825" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_213">
+        <rect x="154.28282" y="717.8825" width="36.708" height="41.5" fill="white"/>
+        <rect x="154.28282" y="717.8825" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_212">
+        <rect x="-62.37234" y="769.4085" width="36.708" height="41.5" fill="white"/>
+        <rect x="-62.37234" y="769.4085" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_211">
+        <rect x="-18.66434" y="769.4085" width="36.708" height="41.5" fill="white"/>
+        <rect x="-18.66434" y="769.4085" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_210">
+        <rect x="24.41538" y="769.4085" width="36.708" height="41.5" fill="white"/>
+        <rect x="24.41538" y="769.4085" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_209">
+        <rect x="67.4951" y="769.4085" width="36.708" height="41.5" fill="white"/>
+        <rect x="67.4951" y="769.4085" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_208">
+        <rect x="111.2031" y="769.4085" width="36.708" height="41.5" fill="white"/>
+        <rect x="111.2031" y="769.4085" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_207">
+        <rect x="154.28282" y="769.4085" width="36.708" height="41.5" fill="white"/>
+        <rect x="154.28282" y="769.4085" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_206">
+        <rect x="197.36254" y="769.4085" width="36.708" height="41.5" fill="white"/>
+        <rect x="197.36254" y="769.4085" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_205">
+        <rect x="241.07054" y="769.4085" width="36.708" height="41.5" fill="white"/>
+        <rect x="241.07054" y="769.4085" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_204">
+        <rect x="284.15026" y="769.4085" width="36.708" height="41.5" fill="white"/>
+        <rect x="284.15026" y="769.4085" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_203">
+        <rect x="197.15454" y="717.8825" width="36.708" height="41.5" fill="white"/>
+        <rect x="197.15454" y="717.8825" width="36.708" height="41.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_202">
+        <rect x="363" y="656.979" width="49.22144" height="24.078003" fill="white"/>
+        <rect x="363" y="656.979" width="49.22144" height="24.078003" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(368 659.794)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="5.97872" y="15">Key</tspan>
+        </text>
+      </g>
+      <g id="Graphic_201">
+        <rect x="412.22144" y="656.979" width="72.77856" height="24.078003" fill="white"/>
+        <rect x="412.22144" y="656.979" width="72.77856" height="24.078003" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(417.22144 658.018)" fill="black">
+          <tspan font-family="PingFang SC" font-size="16" fill="black" x="17.08528" y="17">vptr</tspan>
+        </text>
+      </g>
+      <g id="Line_200">
+        <path d="M 60.91538 597.41376 C 108.1419 595.41226 235.6465 591.92185 314.12766 608.005 C 364.66328 618.3613 382.58713 634.3158 388.11173 647.3127" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+      </g>
+      <g id="Line_199">
+        <path d="M 387.72826 681.057 C 384.5761 693.2341 370.3525 711.9851 316.5 724.4085 C 254.33288 738.7501 160.61286 739.75535 114.10277 739.2364" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+      </g>
+      <g id="Graphic_240">
+        <text transform="translate(-103 220.573)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">without key-value separation</tspan>
+        </text>
+      </g>
+      <g id="Graphic_242">
+        <rect x="536" y="620.101" width="199.5" height="24.078003" fill="white"/>
+        <rect x="536" y="620.101" width="199.5" height="24.078003" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(541 622.916)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="53.19" y="15">Large Value</tspan>
+        </text>
+      </g>
+      <g id="Graphic_244">
+        <rect x="536" y="644.179" width="199.5" height="24.078003" fill="white"/>
+        <rect x="536" y="644.179" width="199.5" height="24.078003" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(541 646.994)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="53.19" y="15">Large Value</tspan>
+        </text>
+      </g>
+      <g id="Graphic_245">
+        <rect x="536" y="668.179" width="199.5" height="24.078003" fill="white"/>
+        <rect x="536" y="668.179" width="199.5" height="24.078003" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(541 670.994)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="53.19" y="15">Large Value</tspan>
+        </text>
+      </g>
+      <g id="Graphic_246">
+        <rect x="536" y="692.179" width="199.5" height="24.078003" fill="white"/>
+        <rect x="536" y="692.179" width="199.5" height="24.078003" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(541 694.994)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="53.19" y="15">Large Value</tspan>
+        </text>
+      </g>
+      <g id="Line_247">
+        <path d="M 485 668.4706 C 492.2136 667.4876 500.7989 666.06726 511 664.057 C 534.1763 659.48985 560.92894 652.8165 583.7023 646.7512" marker-end="url(#FilledArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4.0,4.0" stroke-width="1"/>
+      </g>
+      <g id="Graphic_248">
+        <text transform="translate(-103 544.083)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">with key-value separation</tspan>
+        </text>
+      </g>
+    </g>
+  </g>
+</svg>
