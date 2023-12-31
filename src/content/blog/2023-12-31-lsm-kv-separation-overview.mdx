@@ -13,7 +13,7 @@ heroImage: "/images/2023-12-31-lsm-kv-separation-overview-banner.png"
 
 # Introduction
 
-General LSM storage engines, such as LevelDB and RocksDB, store a set of user-written key-value pairs together in an ordered SST (Sorted String Table). During the compaction process, the engine merges the upper level SSTs with the lower level SSTs to generate a new SST file. In this process, both the keys and values inside the SST are rewritten, resulting in significant write amplification. If the size of the values is much larger than the keys, the write amplification caused by compaction can introduce substantial overhead.
+General-purpose LSM storage engines, such as LevelDB and RocksDB, store a set of user-written key-value pairs together in an ordered SST (Sorted String Table). During the compaction process, the engine merges the upper level SSTs with the lower level SSTs to generate a new SST file. In this process, both the keys and values inside the SST are rewritten, resulting in significant write amplification. If the size of the values is much larger than the keys, the write amplification caused by compaction can introduce substantial overhead.
 
 In WiscKey (FAST '16), the authors proposed an SSD-friendly design for LSM tree-based storage engines. It reduces write amplification by separating keys and values.
 Key-value separation involves storing large values elsewhere and storing a value pointer (vptr) in the LSM tree pointing to the location of the value. In WiscKey, this place where the value is stored is called the Value Log (vLog). Consequently, during LSM tree compaction, there is no need to rewrite the values, only the organization of the key indexes needs to be rearranged. This greatly reduces write amplification and mitigates SSD wear out.
