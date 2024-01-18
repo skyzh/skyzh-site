@@ -11,7 +11,8 @@ export default defineConfig({
     redirects: true
   },
   redirects: {
-    '/pages/about': '/about'
+    '/pages/about': '/about',
+    '/join/discord': 'https://discord.gg/ZgXzxpua3H'
   },
   site: 'https://www.skyzh.dev',
   integrations: [mdx(), sitemap(), react()],
