@@ -1,4 +1,5 @@
 User-agent: *
+Disallow: /api/
 Allow: /
 
 Sitemap: https://www.skyzh.dev/sitemap-index.xml
