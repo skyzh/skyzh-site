@@ -33,6 +33,15 @@ KV 分离的思路听起来非常简单，但在实际实现时，还需要考�
 
 </div>
 
+<p></p>
+
+<div style={{ "border": "1px solid", "padding": "0.5em" }}>
+
+本人在 2023 年年底将这篇文章翻译成了英文，并且加入了 RocksDB BlobDB 组件相关的内容。您可以在[我的英文博客](https://www.skyzh.dev/blog/2023-12-31-lsm-kv-separation-overview/)阅读更新版本的文章。
+
+</div>
+
+
 ## 写入流程与数据存储 
 
 在本文中，如无特殊说明，我们都假设存储引擎开启 WAL，且 LSM 树使用 Leveled Compaction。
