@@ -31,6 +31,12 @@ Now, it has been seven years since the publication of the WiscKey paper. In the 
 * [Titan](https://github.com/tikv/titan) is a storage engine provided as a RocksDB plugin, compatible with all interfaces of RocksDB 6.x, developed mainly by PingCAP. Titan is currently available for use in TiKV.
 * [BlobDB](https://github.com/facebook/rocksdb/tree/main/db/blob) is a component inside RocksDB that supports separating large values into a separate BlobDB.
 
+<div style={{ "border": "1px solid", "padding": "0.5em" }}>
+
+If you are reading this blog post, you might also be interested in [mini-lsm](https://github.com/skyzh/mini-lsm), a tutorial on building an LSM-tree storage engine written by me, based on my previous experience with RocksDB and other key-value storage engines.
+
+</div>
+
 # Write Path and Storage Layout
 
 In this article, unless otherwise stated, we assume that the storage engine has enabled Write-Ahead Logging (WAL) and uses leveled compaction for LSM trees.

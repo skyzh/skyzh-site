@@ -27,6 +27,12 @@ KV 分离的思路听起来非常简单，但在实际实现时，还需要考�
 * [TerarkDB](https://github.com/bytedance/terarkdb) 是由 Terark (现已被字节跳动收购) 开发的存储引擎，基于 RocksDB 5.x 开发。TerarkDB 目前已经在字节跳动内部投入使用。
 * [Titan](https://github.com/tikv/titan) 是作为 RocksDB 插件提供的存储引擎，兼容 RocksDB 6.x 的所有接口，由 PingCAP 主导开发。Titan 目前已经可以在 TiKV 中使用。
 
+<div style={{ "border": "1px solid", "padding": "0.5em" }}>
+
+如果您对这篇文章感兴趣，您或许也会喜欢我编写的 [mini-lsm](https://github.com/skyzh/mini-lsm) 教程。在这个教程中，您将可以学习如何从零开始编写一个基于 LSM 树的 key-value 存储引擎。
+
+</div>
+
 ## 写入流程与数据存储 
 
 在本文中，如无特殊说明，我们都假设存储引擎开启 WAL，且 LSM 树使用 Leveled Compaction。
