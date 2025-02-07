@@ -616,10 +616,10 @@ impl Join {
 }
 ```
 
-We can make such interpretations generic among `RelNode`, `BindRelNode`, and `MemoRelNode` so that a single `impl` can interpret all of them. In the following posts of this series of Lessons Learned from Writing a Query Optimizer, we will explore more about this plan representation and Cascades/Volcano.
+We can make such interpretations generic among `RelNode`, `BindRelNode`, and `MemoRelNode` so that a single `impl` can interpret all of them. In the following posts of this series of Lessons Learned from Writing a Query Optimizer, we will explore more about this plan representation and the Cascades/Volcano query optimization framework.
 
 <div style={{ "border": "1px solid", "padding": "0.5em" }}>
-**Key Takeaways:** Plan representation is a key decision for a query optimizer. A good plan representation should be straightforward for the optimizer framework to manipulate and easy for the user to use. We proposed a new plan representation that allows easy access to the optimizer framework while allowing users to easily extend the framework (rules, plan nodes, etc.).
+**Takeaways:** Plan representation is a key decision for a query optimizer. A good plan representation should be straightforward for the optimizer framework to manipulate and easy for the user to use. We proposed a new plan representation that allows easy access to the optimizer framework while allowing users to easily extend the framework (rules, plan nodes, etc.).
 </div>
 
 Do you think the proposed plan representation is a better alternative than the Apache Calcite representation? Feel free to comment and share your thoughts on the corresponding [GitHub Discussion](https://github.com/skyzh/skyzh-site/discussions/29) for this blog post.
