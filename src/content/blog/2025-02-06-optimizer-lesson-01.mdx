@@ -479,7 +479,7 @@ pub fn add_binding_to_memo(memo: &mut Memo, group: GroupId, node: Arc<BindRelNod
 }
 ```
 
-It seems like we are creating chunks of unmaintainable code -- every time the user needs to add a new plan node into the system, they need to modify a lot of places:
+It seems like we are creating chunks of unmaintainable code -- every time the user adds a new plan node into the system, they have to modify a lot of places:
 
 1. We need an alternative plan representation for the new plan node's memo table representation (`MemoXXX`) and rule-matching binding (`BindXXX`). Therefore, the user has to define the same plan node in 3 different structures.
 2. Users must implement `children` and `clone_with_children` for this new plan node so the optimizer can get/modify its children.
