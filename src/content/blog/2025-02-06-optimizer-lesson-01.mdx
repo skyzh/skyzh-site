@@ -17,6 +17,8 @@ heroImage: "/images/2025-02-10-optimizer-lesson-01-banner.png"
 This is the first part of my blog post series, "Lessons Learned from Building a Query Optimizer". I worked on optd when I was at CMU. [optd](https://github.com/cmu-db/optd-original) is an extensible query optimizer framework that can be a drop-in replacement for Apache Datafusion's optimizer. In this blog post series, I will share my experience building a bottom-up cost-based query optimizer (a cascades optimizer) in Rust and the lessons I learned from it.
 
 This series is not a tutorial on how to build a query optimizer. Instead, it is a collection of design decisions and trade-offs I made when building the optimizer. We will cover some basics of bottom-up query optimization, but mostly, it will be about the design of the optimizer framework and the lessons I learned from it.
+
+You can find the code for this blog post at [skyzh/optimizer-lessons](https://github.com/skyzh/optimizer-lessons/tree/main/lesson-1).
 </div>
 
 Now, we are going to write a SQL query optimizer. The first thing we will need to decide is how to store the plan in memory -- the representation of the plan.
@@ -53,6 +55,8 @@ fn get_plan() -> RelNode {
 How do we define `RelNode`, and what do we put at `...` to construct the plan? This is a big question that we want to answer.
 
 # A Simple IR: One Big Enum
+
+[[code for this section]](https://github.com/skyzh/optimizer-lessons/blob/main/lesson-1/src/s01_define_the_ir.rs)
 
 One thing people can quickly come up with is to have a structure representing each of the plan nodes, where each structure has multiple named fields to store the children and properties of the plan node. For example,
 
@@ -121,6 +125,8 @@ Everything sounds so good, right (for now)?
 
 # A Simple Transformation: Join Commutativity
 
+[[code for this section]](https://github.com/skyzh/optimizer-lessons/blob/main/lesson-1/src/s02_create_a_plan.rs)
+
 We stored the plan in memory, and the optimizer kicks in and does its work. The job of a query optimizer is to rewrite the plan into another plan that is (potentially) more efficient to execute. An example rewrite is to apply the commutativity of join operators. "A inner join B" should yield the same result as "B inner join A". Let's do this transformation.  <small><sup>^2</sup></small>
 
 ```rust
@@ -143,6 +149,8 @@ Such transformations can be defined in a more generic form called rules. A rule 
 So now we have a plan representation, some plan nodes, and a rule. We can start building a query optimizer!
 
 # A Heuristics Optimizer Framework
+
+[[code for this section]](https://github.com/skyzh/optimizer-lessons/blob/main/lesson-1/src/s03_heuristics.rs)
 
 We have defined a rule. Rules only apply to a single plan node, but a plan is a tree -- we can't apply a rule only to the root; we need to apply the rule recursively to the plan tree. Take the original query as an example. The join plan node is the child of the filter plan node. We must start from the root of the plan, go down recursively, and apply that rule.
 
@@ -250,6 +258,8 @@ fn apply_rule_bottom_up(
 
 # A Bottom-Up Cost-Based Optimizer Framework
 
+[[code for this section]](https://github.com/skyzh/optimizer-lessons/blob/main/lesson-1/src/s04_memo.rs)
+
 With the heuristics optimizer framework, we can rewrite the query plan with rules that we believe will produce a better plan. However, some rules, like the join reordering rule, do not always improve the plan. For example, we can have a set of rules to reorder the joins in the following query,
 
 ```
@@ -351,6 +361,8 @@ pub fn memorize_rel(memo: &mut Memo, rel: Arc<RelNode>) -> GroupId {
 We have covered how to find the winner from the memo table and populate it with the initial plan tree. But how do we apply transformations to the memo table to get multiple expressions in each group?
 
 # Apply the Rules Again: Transformations in the Memo Table
+
+[[code for this section]](https://github.com/skyzh/optimizer-lessons/blob/main/lesson-1/src/s05_apply_rule_again.rs)
 
 So, we initially have a memo table populated with the initial plan with exactly one expression per group. We can apply transformations to each memo table expression to create more equivalent expressions in the same group.
 
@@ -478,6 +490,8 @@ From the users' point of view, they don't care about and shouldn't care about ho
 Is it possible to design a new plan representation that makes users' lives easier?
 
 # A New Plan Representation
+
+[[code for this section]](https://github.com/skyzh/optimizer-lessons/blob/main/lesson-1/src/s06_new_repr.rs)
 
 The plan representation we saw before is widely used in many query optimizers, especially those written in object-oriented programming languages like Java (e.g., Apache Calcite). However, using the exact representation in Rust is much harder because we do not have the same level of polymorphism in Java. If we want to adapt it in Rust, we need to have a separate structure for each representation of the plan node (e.g., `RelNode`, `BindRelNode`, and `MemoRelNode`).
 
@@ -608,4 +622,4 @@ We can make such interpretations generic among `RelNode`, `BindRelNode`, and `Me
 **Key Takeaways:** Plan representation is a key decision for a query optimizer. A good plan representation should be straightforward for the optimizer framework to manipulate and easy for the user to use. We proposed a new plan representation that allows easy access to the optimizer framework while allowing users to easily extend the framework (rules, plan nodes, etc.).
 </div>
 
-Feel free to comment and share your thoughts on the corresponding [GitHub Discussion](https://github.com/skyzh/skyzh-site/discussions/29) for this blog post.
+Do you think the proposed plan representation is a better alternative than the Apache Calcite representation? Feel free to comment and share your thoughts on the corresponding [GitHub Discussion](https://github.com/skyzh/skyzh-site/discussions/29) for this blog post.
