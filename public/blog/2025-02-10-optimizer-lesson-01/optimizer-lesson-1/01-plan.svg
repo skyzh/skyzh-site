@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" version="1.1" viewBox="45 100 624 226" width="624" height="226">
+  <defs/>
+  <g id="01-plan" stroke-opacity="1" stroke-dasharray="none" fill-opacity="1" stroke="none" fill="none">
+    <title>01-plan</title>
+    <rect fill="white" x="45" y="100" width="624" height="226"/>
+    <g id="01-plan_Layer_1">
+      <title>Layer 1</title>
+      <g id="Graphic_2">
+        <rect x="115" y="100.5" width="107.5" height="51" fill="white"/>
+        <rect x="115" y="100.5" width="107.5" height="51" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(120 109.09995)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="30.222" y="16" xml:space="preserve">Filter</tspan>
+          <tspan font-family="Helvetica Neue" font-size="12" fill="black" x="35.142" y="30.46411" xml:space="preserve">#2=3</tspan>
+        </text>
+      </g>
+      <g id="Graphic_4">
+        <rect x="115" y="183.71484" width="107.5" height="51" fill="white"/>
+        <rect x="115" y="183.71484" width="107.5" height="51" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(120 192.3148)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="33.19" y="16" xml:space="preserve">Join</tspan>
+          <tspan font-family="Helvetica Neue" font-size="12" fill="black" x="31.806" y="30.46411" xml:space="preserve">#1=#3</tspan>
+        </text>
+      </g>
+      <g id="Graphic_5">
+        <rect x="45.503906" y="273.85156" width="107.5" height="51" fill="white"/>
+        <rect x="45.503906" y="273.85156" width="107.5" height="51" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(50.503906 282.4515)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="30.078" y="16" xml:space="preserve">Scan</tspan>
+          <tspan font-family="Helvetica Neue" font-size="12" fill="black" x="43.524" y="30.46411" xml:space="preserve">t1</tspan>
+        </text>
+      </g>
+      <g id="Graphic_6">
+        <rect x="188.53125" y="273.85156" width="107.5" height="51" fill="white"/>
+        <rect x="188.53125" y="273.85156" width="107.5" height="51" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(193.53125 282.4515)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="30.078" y="16" xml:space="preserve">Scan</tspan>
+          <tspan font-family="Helvetica Neue" font-size="12" fill="black" x="43.524" y="30.46411" xml:space="preserve">t2</tspan>
+        </text>
+      </g>
+      <g id="Line_7">
+        <line x1="168.75" y1="183.71484" x2="168.75" y2="151.5" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_8">
+        <line x1="118.9146" y1="273.85156" x2="149.0893" y2="234.71484" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_9">
+        <line x1="221.479" y1="273.85156" x2="189.55225" y2="234.71484" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_15">
+        <rect x="487.16797" y="183.71484" width="107.5" height="51" fill="white"/>
+        <rect x="487.16797" y="183.71484" width="107.5" height="51" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(492.16797 192.3148)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="33.19" y="16" xml:space="preserve">Join</tspan>
+          <tspan font-family="Helvetica Neue" font-size="12" fill="black" x="31.806" y="30.46411" xml:space="preserve">#1=#3</tspan>
+        </text>
+      </g>
+      <g id="Graphic_14">
+        <rect x="417.67188" y="273.85156" width="107.5" height="51" fill="white"/>
+        <rect x="417.67188" y="273.85156" width="107.5" height="51" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(422.6719 282.4515)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="30.078" y="16" xml:space="preserve">Scan</tspan>
+          <tspan font-family="Helvetica Neue" font-size="12" fill="black" x="43.524" y="30.46411" xml:space="preserve">t2</tspan>
+        </text>
+      </g>
+      <g id="Graphic_13">
+        <rect x="560.6992" y="273.85156" width="107.5" height="51" fill="white"/>
+        <rect x="560.6992" y="273.85156" width="107.5" height="51" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(565.6992 282.4515)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="30.078" y="16" xml:space="preserve">Scan</tspan>
+          <tspan font-family="Helvetica Neue" font-size="12" fill="black" x="43.524" y="30.46411" xml:space="preserve">t1</tspan>
+        </text>
+      </g>
+      <g id="Line_11">
+        <line x1="491.08257" y1="273.85156" x2="521.2573" y2="234.71484" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Line_10">
+        <line x1="593.647" y1="273.85156" x2="561.7202" y2="234.71484" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+      <g id="Graphic_17">
+        <text transform="translate(246.5016 116.776)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15" xml:space="preserve">Doesn’t match!</tspan>
+        </text>
+      </g>
+      <g id="Graphic_18">
+        <text transform="translate(246.5016 199.99084)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15" xml:space="preserve">Matches the join node</tspan>
+        </text>
+      </g>
+      <g id="Graphic_19">
+        <path d="M 417.67188 221.96484 L 417.67188 196.46484 L 448.1719 196.46484 L 448.1719 183.71484 L 464.1719 209.21484 L 448.1719 234.71484 L 448.1719 221.96484 Z" fill="white"/>
+        <path d="M 417.67188 221.96484 L 417.67188 196.46484 L 448.1719 196.46484 L 448.1719 183.71484 L 464.1719 209.21484 L 448.1719 234.71484 L 448.1719 221.96484 Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+      </g>
+    </g>
+  </g>
+</svg>
