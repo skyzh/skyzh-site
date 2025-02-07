@@ -14,9 +14,9 @@ heroImage: "/images/2025-02-06-optimizer-lesson-01-banner.png"
 # Introduction
 
 <div style={{ "border": "1px solid", "padding": "0.5em" }}>
-This is the first part of my blog post series, "Lessons Learned from Building a Query Optimizer". I worked on optd when I was at CMU. [optd](https://github.com/cmu-db/optd-original) is an extensible query optimizer framework that can be a drop-in replacement for Apache Datafusion's optimizer. In this blog post series, I will share my experience building a bottom-up cost-based query optimizer (a cascades optimizer) in Rust and the lessons I learned from it.
+This is the first part of my blog post series, "Lessons Learned from Building a Query Optimizer". I worked on optd when I was at CMU. [optd](https://github.com/cmu-db/optd-original) is an extensible query optimizer framework that can be a drop-in replacement for Apache Datafusion's optimizer. In this blog post series, I will share my experience building a cost-based query optimizer (a cascades optimizer) in Rust and the lessons I learned from it.
 
-This series is not a tutorial on how to build a query optimizer. Instead, it is a collection of design decisions and trade-offs I made when building the optimizer. We will cover some basics of bottom-up query optimization, but mostly, it will be about the design of the optimizer framework and the lessons I learned from it.
+This series is not a tutorial on how to build a query optimizer. Instead, it is a collection of design decisions and trade-offs I made when building the optimizer. We will cover some basics of query optimization, but mostly, it will be about the design of the optimizer framework and the lessons I learned from it.
 
 You can find the code for this blog post at [skyzh/optimizer-lessons](https://github.com/skyzh/optimizer-lessons/tree/main/lesson-1).
 </div>
@@ -256,7 +256,7 @@ fn apply_rule_bottom_up(
 }
 ```
 
-# A Bottom-Up Cost-Based Optimizer Framework
+# A Cost-Based Optimizer Framework
 
 [[code for this section]](https://github.com/skyzh/optimizer-lessons/blob/main/lesson-1/src/s04_memo.rs)
 
@@ -293,13 +293,13 @@ t1 join (t3 join t2)
 
 We have a total of 12 possible plans in the plan space. We can fire the cost model on each plan and pick the best one out of them. However, there seem to be a lot of duplicated computations, such as we will need to compute the cost of `(t1 join t2)` multiple times in two different plans. Plus, `(t1 join t2)` produces the same result as `(t2 join t1)`, so if we know `(t1 join t2)` is a better join order than `(t2 join t1)`, we can prune all plans that contains the joins between t1 and t2 but not using the best join order. There is a way to optimize it: we can save the intermediate cost and the winner for an equivalent set of plans for use later.
 
-So here comes the most critical structure in a bottom-up cost-based optimizer: the memo table. The memo table _memorizes_ the equivalences of the plan subtrees.
+So here comes the most critical structure in a cost-based optimizer: the memo table. The memo table _memorizes_ the equivalences of the plan subtrees.
 
 ![the memo table of the 3-way join](optimizer-lesson-1/03-memo-table-expand.svg)
 
 * Each equivalence set is a memo table *group*.
 * Each group contains multiple memo table *expressions*. A memo table expression only contains the plan node with links to the children's groups. For example, if we want to store `(t1 join t2)` into the memo table, it will have 3 groups: group 1 containing `scan t1`, group 2 containing `scan t2`, and group 3 containing `join group1 group2`. Note how these plan nodes get flattened into the memo table.
-* Each memo table group can have one *winner* expression. We recursively decide the winner of each group from leaves to roots (i.e., from the scan nodes to the join nodes), and that's why we call such an optimization process a *bottom-up* process.
+* Each memo table group can have one *winner* expression. We recursively decide the winner of each group from leaves to roots (i.e., from the scan nodes to the join nodes).
 
 Let's see how we find the best plan from the memo table. The cost model prefers a smaller table at the left side of the join operator. The estimated number of output rows of join operators is min(left, right). We start from the leaves. As the groups containing scans only have one expression, they are the only winners.
 
