@@ -1,35 +1,35 @@
-import Layout from '../layouts/BlogPost.astro';
+import Layout from '../layouts/BlogPost.astro'
 
 <Layout
 	title="About Me"
 	description="About Me"
-	updatedDate={new Date('2024-02-12T17:00:00-05:00')}
+	updatedDate={new Date('2025-05-15T17:00:00-05:00')}
 	slug="page-about"
 >
 
-I obtained my bachelor’s degree in computer science from [Shanghai Jiao Tong University][sjtu] and my master’s degree at [Carnegie Mellon University][cmu]. Currently, I work as a Systems Software Engineer at [Neon][neon].
+I earned my bachelor’s degree in computer science from [Shanghai Jiao Tong University][sjtu] and a master’s degree from [Carnegie Mellon University][cmu]. Currently, I am a Systems Software Engineer at [Neon][neon] (acquired by Databricks).
 
-[sjtu]: http://en.sjtu.edu.cn/
-[cmu]: https://www.cs.cmu.edu/
+[sjtu]: http://en.sjtu.edu.cn/  
+[cmu]: https://www.cs.cmu.edu/  
 
-I can be referred to as any combination of *Alex*, *Chi* and *Zhang*. For example, Alex Chi, Chi Zhang, Alex Chi Z., or Chi (Alex) Zhang.
+I go by any combination of *Alex*, *Chi*, and *Zhang*. You can call me Alex Chi, Chi Zhang, Alex Chi Z., Chi (Alex) Zhang, or simply Chi.
 
-I focused on building system software, especially database systems, during my undergraduate and graduate study. I built [AgateDB][agatedb] during my internship in PingCAP, worked on [TerarkDB][terarkdb] for Zoned Namespace SSDs at ByteDance, and participated in the early stage development of [RisingWave][risingwave] at RisingWave Labs (formerly known as Singularity Data). In summer 2023, I worked at [Neon][neon], which provides fully managed Postgres service.
+During my undergraduate and graduate studies, I specialized in building system software, with a particular focus on database systems. I developed [AgateDB][agatedb] during my internship at PingCAP, worked on [TerarkDB][terarkdb] for Zoned Namespace SSDs at ByteDance, and contributed to the early development of [RisingWave][risingwave] at RisingWave Labs (formerly Singularity Data) as a founding member of the company. In the summer of 2023, I interned at [Neon][neon], which offers fully managed Postgres services, and have continued working there as a full-time engineer after graduation.
 
-[agatedb]: https://github.com/tikv/agatedb
-[terarkdb]: https://github.com/bytedance/terarkdb
+[agatedb]: https://github.com/tikv/agatedb    
+[terarkdb]: https://github.com/bytedance/terarkdb  
 
-I love becoming part of the open-source community. I’m currently the [TiKV project’s][tikv] maintainer. In addition, I maintain several widely-used projects like SJTUG mirror and SJTUThesis in the [SJTUG community][sjtug]. Furthermore, to enable more students to learn about database systems, I built an educational OLAP database called [RisingLight][risinglight] with my friends. The SQL layer of RisingLight was then ported to [BusTub](https://github.com/cmu-db/bustub), the course project for CMU 15-445/645 Database Systems, which made BusTub become a real SQL database system.
+I’m passionate about engaging with the open-source community. Currently, I’m a maintainer for the [TiKV project][tikv] and also manage several widely used projects such as SJTUG mirror and SJTUThesis in the [SJTUG community][sjtug]. To help more students learn about database systems, I co-developed an educational OLAP database called [RisingLight][risinglight]. The SQL layer of RisingLight was later integrated into [BusTub](https://github.com/cmu-db/bustub), the course project for CMU’s 15-445/645 Database Systems class, transforming BusTub into a functional SQL database system.
 
-[tikv]: https://tikv.org
-[sjtug]: https://github.com/sjtug
-[risinglight]: https://github.com/risinglightdb/risinglight
-[risingwave]: https://github.com/singularity-data/risingwave
-[neon]: https://neon.tech
+[tikv]: https://tikv.org  
+[sjtug]: https://github.com/sjtug  
+[risinglight]: https://github.com/risinglightdb/risinglight      
+[risingwave]: https://github.com/singularity-data/risingwave  
+[neon]: https://neon.tech  
 
-I'm interested in crafting educational materials in database systems. I have two tutorials on using the Rust programming language in data-intensive applications: [type-exercise-in-rust](https://github.com/skyzh/type-exercise-in-rust) is a tutorial for building a vectorized expression evaluation framework in database systems, and in [mini-lsm](https://github.com/skyzh/mini-lsm), you will learn how to build a LSM-tree storage engine. I worked as a teaching assistant for CMU-DB's BusTub database system for three semesters, during which I designed the SQL query frontend of the [query processing project](https://15445.courses.cs.cmu.edu/fall2022/project3/), as well as the [MVCC project](https://15445.courses.cs.cmu.edu/fall2023/project4/) based on HyPer. With my experience with the BusTub system, I wrote the [write-you-a-vector-db](https://github.com/skyzh/write-you-a-vector-db) tutorial where students can add vector capabilities to a relational database system.
+I’m also interested in developing educational resources on database systems. I have created two tutorials for using Rust in data-intensive applications: [type-exercise-in-rust](https://github.com/skyzh/type-exercise-in-rust) teaches how to build a vectorized expression evaluation framework within database systems, while [mini-lsm](https://github.com/skyzh/mini-lsm) provides guidance on building an LSM-tree storage engine. I served as a teaching assistant for CMU-DB’s BusTub database system for three semesters, where I designed the SQL query frontend for the [query processing project](https://15445.courses.cs.cmu.edu/fall2022/project3/) and the [MVCC project](https://15445.courses.cs.cmu.edu/fall2023/project4/) based on HyPer. With my experience with the BusTub system, I authored the [write-you-a-vector-db](https://github.com/skyzh/write-you-a-vector-db) tutorial on adding vector capabilities to a relational database system. Recently, I developed a course on building an LLM serving infrastructure called [tiny-llm](https://github.com/skyzh/tiny-llm).
 
-For the future, I am constantly seeking opportunities to build things that excite me and impact people.
+Looking ahead, I am always seeking opportunities to build reliable and efficient systems that excite me and inspire people.
 
 </Layout>
 
