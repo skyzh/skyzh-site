@@ -12,7 +12,7 @@ export default defineConfig({
   },
   redirects: {
     '/pages/about': '/about',
-    '/join/discord': 'https://discord.gg/ZgXzxpua3H'
+    '/join/discord': 'https://discord.gg/XY5tFAYqYh'
   },
   site: 'https://www.skyzh.dev',
   integrations: [mdx(), sitemap(), react()],
