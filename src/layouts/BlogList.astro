@@ -1,75 +1,110 @@
 ---
-import BaseHead from "../components/BaseHead.astro";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
-import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+import type { CollectionEntry } from "astro:content";
 import { getCollection } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
 import BlogItem from "../components/BlogItem.astro";
+import Container from "../components/Container.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 
 const { tag } = Astro.params;
 
-let posts = (await getCollection("blog")).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+const allPosts = (await getCollection("blog")).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
-if (tag) {
-	posts = posts.filter((x) => x.data.tags?.map((t) => t.toLowerCase()).includes(tag));
+const posts = tag
+	? allPosts.filter((post) => post.data.tags?.some((value) => value.toLowerCase() === tag))
+	: allPosts.filter((post) => post.data.lang !== "zh-cn");
+
+const chinesePosts = tag ? [] : allPosts.filter((post) => post.data.lang === "zh-cn");
+
+function groupByYear(entries: CollectionEntry<"blog">[]) {
+	return entries.reduce<Record<string, CollectionEntry<"blog">[]>>((groups, post) => {
+		const year = post.data.pubDate.getFullYear().toString();
+		(groups[year] ??= []).push(post);
+		return groups;
+	}, {});
 }
+
+const groupedPosts = groupByYear(posts);
+const years = Object.keys(groupedPosts).sort((a, b) => Number(b) - Number(a));
+const groupedChinesePosts = groupByYear(chinesePosts);
+const chineseYears = Object.keys(groupedChinesePosts).sort((a, b) => Number(b) - Number(a));
+const title = tag ? `#${tag}` : "Blog";
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-		<style>
-			ul {
-				list-style-type: none;
-				padding: unset;
-			}
-			ul li {
-				display: flex;
-			}
-			ul li :global(time) {
-				flex: 0 0 130px;
-				font-style: italic;
-				color: #595959;
-			}
-			ul li a:visited {
-				color: #8e32dc;
-			}
-		</style>
+		<BaseHead title={`${title} | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
 	</head>
 	<body>
 		<Header />
-		{tag && <h2>{tag}</h2>}
 		<main>
-			<section>
-				<ul>
+			<Container>
+				<div class="blog-list animate">
+					<h1 class="page-heading">{title}</h1>
 					{
-						posts
-							.filter((post) => tag || post.data.lang != "zh-cn")
-							.map((post) => <BlogItem post={post} />)
+						years.map((year) => (
+							<section>
+								<h2>{year}</h2>
+								<ul>
+									{groupedPosts[year].map((post) => <BlogItem post={post} />)}
+								</ul>
+							</section>
+						))
 					}
-				</ul>
-			</section>
-			{
-				!tag && (
-					<>
-						<p style="margin-bottom: 3em" />
-						<section>
-							Previous blog posts in Chinese:
-							<ul>
-								{posts
-									.filter((post) => post.data.lang == "zh-cn")
-									.map((post) => (
-										<BlogItem post={post} />
-									))}
-							</ul>
-						</section>
-					</>
-				)
-			}
+					{
+						chineseYears.length > 0 && (
+							<section class="previous-posts">
+								<h2>Previous posts in Chinese</h2>
+								{chineseYears.map((year) => (
+									<div class="year-group">
+										<h3>{year}</h3>
+										<ul>
+											{groupedChinesePosts[year].map((post) => <BlogItem post={post} />)}
+										</ul>
+									</div>
+								))}
+							</section>
+						)
+					}
+				</div>
+			</Container>
 		</main>
 		<Footer />
 	</body>
 </html>
+
+<style>
+	.blog-list {
+		display: flex;
+		flex-direction: column;
+		gap: 2.75rem;
+	}
+	section,
+	.year-group {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+	h2,
+	h3 {
+		margin: 0;
+		font-size: 1rem;
+	}
+	ul {
+		display: flex;
+		margin: 0;
+		padding: 0;
+		flex-direction: column;
+		gap: 0.9rem;
+		list-style: none;
+	}
+	.previous-posts {
+		padding-top: 2.75rem;
+		border-top: 1px solid var(--border);
+	}
+</style>

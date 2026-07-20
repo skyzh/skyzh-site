@@ -1,11 +1,13 @@
 import { getCollection } from 'astro:content';
 
-export async function get(ctx) {
+export async function GET() {
 	const posts = await getCollection('blog');
 	const json = new Response(JSON.stringify({
 		items: posts.map((post) => ({
-			slug: post.slug,
+			slug: post.id,
 		})),
-	}, null, 2))
+	}, null, 2), {
+		headers: { 'Content-Type': 'application/json; charset=utf-8' },
+	})
 	return json
 }

@@ -3,24 +3,19 @@ name: Test
 on:
   pull_request:
     branches:
-      - master  # Set a branch to deploy
+      - main
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
-          submodules: true
-          fetch-depth: 0
+          node-version: 24
+          cache: npm
 
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
-        with:
-          hugo-version: 'latest'
-
-      - name: Build
-        run: hugo
-
-      # - name: Post Build
-      #   run: cp CNAME ./public/
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build

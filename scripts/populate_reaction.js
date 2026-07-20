@@ -1,7 +1,7 @@
 import pg from 'pg';
 const { Pool } = pg;
 import { Kysely, PostgresDialect } from 'kysely';
-import DATA from '../dist/posts.json' assert { type: 'json' };
+import DATA from '../dist/posts.json' with { type: 'json' };
 
 import 'dotenv/config'
 

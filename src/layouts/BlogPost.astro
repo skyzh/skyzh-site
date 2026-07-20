@@ -1,9 +1,10 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import BaseHead from "../components/BaseHead.astro";
-import Header from "../components/Header.astro";
+import Container from "../components/Container.astro";
 import Footer from "../components/Footer.astro";
 import FormattedDate from "../components/FormattedDate.astro";
+import Header from "../components/Header.astro";
 import Reaction from "../components/Reaction";
 
 type Props = CollectionEntry<"blog">["data"] & { slug: string };
@@ -19,8 +20,11 @@ const {
 	slug,
 	tags,
 } = Astro.props;
+
+const isPage = slug.startsWith("page-");
 ---
 
+<!doctype html>
 <html lang="en">
 	<head>
 		<BaseHead
@@ -29,57 +33,86 @@ const {
 			enable_katex={enable_katex}
 			image={socialImage}
 		/>
-		<style>
-			.title {
-				font-size: 2em;
-				margin: 0.25em 0 0;
-			}
-			hr {
-				border-top: 1px solid #ddd;
-				margin: 1rem 0;
-			}
-			.last-updated-on {
-				margin-top: 1em;
-				font-style: italic;
-			}
-		</style>
 	</head>
-
 	<body>
 		<Header />
 		<main>
-			<article>
-				{
-					heroImage && (
-						<img width={720} height={360} src={heroImage} alt="" />
-					)
-				}
-				<h1 class="title">{title}</h1>
-				{pubDate && <FormattedDate date={pubDate} />}
-				<hr />
-				<slot />
-				{
-					updatedDate && (
-						<div class="last-updated-on">
+			<Container>
+				<article class="post animate">
+					{!isPage && <a class="back-link" href="/blog/">← Back to blog</a>}
+					<header class="post-header">
+						{pubDate && (
+							<div class="post-meta">
+								<FormattedDate date={pubDate} />
+							</div>
+						)}
+						<h1 class="page-heading">{title}</h1>
+					</header>
+					{heroImage && <img class="hero-image" src={heroImage} alt="" />}
+					<div class="prose">
+						<slot />
+					</div>
+					{updatedDate && (
+						<div class="last-updated">
 							Last updated on <FormattedDate date={updatedDate} />
 						</div>
-					)
-				}
-			</article>
+					)}
+					{tags && tags.length > 0 && (
+						<ul class="tags" aria-label="Tags">
+							{tags.map((tag) => (
+								<li><a href={`/tags/${tag.toLowerCase()}/`}>#{tag}</a></li>
+							))}
+						</ul>
+					)}
+					<div class="reactions">
+						<Reaction slug={slug} client:load />
+					</div>
+				</article>
+			</Container>
 		</main>
-		<div style={{ marginTop: "1em" }}>
-			{
-				tags &&
-					tags.map((tag) => (
-						<small style={{ marginRight: "0.5em" }}>
-							<a href={`/tags/${tag.toLowerCase()}/`}>#{tag}</a>
-						</small>
-					))
-			}
-		</div>
-		<div style={{ marginTop: "1em" }}>
-			<Reaction slug={slug} client:load />
-		</div>
 		<Footer />
 	</body>
 </html>
+
+<style>
+	.post {
+		display: flex;
+		min-width: 0;
+		flex-direction: column;
+	}
+	.back-link {
+		margin-bottom: 2.5rem;
+		font-size: 0.875rem;
+	}
+	.post-header {
+		margin-bottom: 2.5rem;
+	}
+	.post-meta {
+		margin-bottom: 0.35rem;
+	}
+	.hero-image {
+		width: 100%;
+		margin: 0 0 2.5rem;
+		border-radius: 0.65rem;
+	}
+	.last-updated {
+		margin-top: 2rem;
+		color: var(--text-muted);
+		font-size: 0.875rem;
+		font-style: italic;
+	}
+	.tags {
+		display: flex;
+		margin: 2rem 0 0;
+		padding: 0;
+		flex-wrap: wrap;
+		gap: 0.55rem;
+		list-style: none;
+		font-size: 0.83rem;
+	}
+	.reactions {
+		margin-top: 2rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid var(--border);
+	}
+</style>

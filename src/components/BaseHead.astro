@@ -2,6 +2,10 @@
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
 import "../styles/global.css";
+import "@fontsource/inter/400.css";
+import "@fontsource/inter/600.css";
+import "@fontsource/lora/400.css";
+import "@fontsource/lora/600.css";
 
 export interface Props {
 	title: string;
@@ -19,7 +23,7 @@ const {
 	image,
 } = Astro.props;
 
-import { DEAFULT_SOCIAL_IMAGE } from "../consts";
+import { DEFAULT_SOCIAL_IMAGE, SITE_TITLE } from "../consts";
 ---
 
 <!-- Global Metadata -->
@@ -42,17 +46,28 @@ import { DEAFULT_SOCIAL_IMAGE } from "../consts";
 <meta property="twitter:url" content={Astro.url} />
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
-<meta property="twitter:image" content={new URL(image || DEAFULT_SOCIAL_IMAGE, Astro.url)} />
+<meta property="twitter:image" content={new URL(image || DEFAULT_SOCIAL_IMAGE, Astro.site)} />
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content={Astro.url} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-<meta property="og:image" content={new URL(image || DEAFULT_SOCIAL_IMAGE, Astro.url)} />
+<meta property="og:image" content={new URL(image || DEFAULT_SOCIAL_IMAGE, Astro.site)} />
 
 <!-- sitemap -->
 <link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href="/rss.xml" />
+
+<script is:inline>
+	(() => {
+		const preference = localStorage.getItem("theme") || "system";
+		const dark = preference === "dark" ||
+			(preference === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+		document.documentElement.classList.toggle("dark", dark);
+		document.documentElement.dataset.theme = preference;
+	})();
+</script>
 
 {
 	enable_katex && (
