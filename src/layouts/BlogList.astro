@@ -44,8 +44,8 @@ const title = tag ? `#${tag}` : "Blog";
 		<Header />
 		<main>
 			<Container>
-				<div class="blog-list animate">
-					<h1 class="page-heading">{title}</h1>
+				<div class="blog-list">
+					<h1 class="blog-heading">{title}</h1>
 					{
 						years.map((year) => (
 							<section>
@@ -84,6 +84,10 @@ const title = tag ? `#${tag}` : "Blog";
 		flex-direction: column;
 		gap: 2.75rem;
 	}
+	.blog-heading {
+		margin: 0;
+		font-weight: 600;
+	}
 	section,
 	.year-group {
 		display: flex;
@@ -93,7 +97,6 @@ const title = tag ? `#${tag}` : "Blog";
 	h2,
 	h3 {
 		margin: 0;
-		font-size: 1rem;
 	}
 	ul {
 		display: flex;

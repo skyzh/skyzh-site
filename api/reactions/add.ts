@@ -1,5 +1,6 @@
 import { Pool } from '@neondatabase/serverless';
 import { Kysely, PostgresDialect } from 'kysely';
+import type { PostgresPool } from 'kysely';
 import type { DB, Reaction } from '../../schema';
 
 const EMOJI_LIMIT_PER_REQUEST = 100;
@@ -18,20 +19,22 @@ export default async (req: Request, ctx: any) => {
 
 
         const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-        const db = new Kysely<DB>({ dialect: new PostgresDialect({ pool }) });
+        const db = new Kysely<DB>({
+            dialect: new PostgresDialect({ pool: pool as unknown as PostgresPool }),
+        });
 
         const query = db
             .updateTable('reaction')
             .where('name', '=', body.name)
-            .set(({ bxp }) => ({
-                'emoji_1': bxp('emoji_1', '+', body.emoji_1 || 0),
-                'emoji_2': bxp('emoji_2', '+', body.emoji_2 || 0),
-                'emoji_3': bxp('emoji_3', '+', body.emoji_3 || 0),
-                'emoji_4': bxp('emoji_4', '+', body.emoji_4 || 0),
-                'emoji_5': bxp('emoji_5', '+', body.emoji_5 || 0),
-                'emoji_6': bxp('emoji_6', '+', body.emoji_6 || 0),
-                'emoji_7': bxp('emoji_7', '+', body.emoji_7 || 0),
-                'emoji_8': bxp('emoji_8', '+', body.emoji_8 || 0),
+            .set((eb) => ({
+                'emoji_1': eb('emoji_1', '+', body.emoji_1 || 0),
+                'emoji_2': eb('emoji_2', '+', body.emoji_2 || 0),
+                'emoji_3': eb('emoji_3', '+', body.emoji_3 || 0),
+                'emoji_4': eb('emoji_4', '+', body.emoji_4 || 0),
+                'emoji_5': eb('emoji_5', '+', body.emoji_5 || 0),
+                'emoji_6': eb('emoji_6', '+', body.emoji_6 || 0),
+                'emoji_7': eb('emoji_7', '+', body.emoji_7 || 0),
+                'emoji_8': eb('emoji_8', '+', body.emoji_8 || 0),
             }))
 
         const reactions = await query.executeTakeFirst();

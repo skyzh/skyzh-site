@@ -9,6 +9,8 @@ const year = new Date().getFullYear();
 		<div class="footer-inner">
 			<div>&copy; {year} <span aria-hidden="true">|</span> Alex Chi Z.</div>
 			<div class="footer-actions">
+				{/* Theme controls are disabled for now. Restore these buttons with
+				    the commented theme code below and in BaseHead.astro.
 				<button class="theme-button" data-theme-choice="light" aria-label="Use light theme" title="Light theme">
 					<svg viewBox="0 0 24 24" aria-hidden="true">
 						<circle cx="12" cy="12" r="4"></circle>
@@ -26,6 +28,7 @@ const year = new Date().getFullYear();
 						<path d="M8 21h8M12 17v4"></path>
 					</svg>
 				</button>
+				*/}
 				<button class="theme-button" id="back-to-top" aria-label="Back to top" title="Back to top">
 					<svg viewBox="0 0 24 24" aria-hidden="true">
 						<path d="m18 15-6-6-6 6"></path>
@@ -37,6 +40,8 @@ const year = new Date().getFullYear();
 </footer>
 
 <script is:inline>
+	/* Theme selection is disabled for now. Restore this block with the
+	 * commented controls above and the preference code in BaseHead.astro.
 	const applyTheme = (preference) => {
 		const dark = preference === "dark" ||
 			(preference === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
@@ -57,6 +62,7 @@ const year = new Date().getFullYear();
 			applyTheme("system");
 		}
 	});
+	*/
 
 	document.getElementById("back-to-top")?.addEventListener("click", () => {
 		window.scrollTo({ top: 0, behavior: "smooth" });

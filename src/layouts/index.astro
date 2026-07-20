@@ -16,11 +16,19 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 		<Header title={SITE_TITLE} />
 		<main>
 			<Container>
-				<article class="prose animate">
+				<div class="home-page">
 					<slot />
-				</article>
+				</div>
 			</Container>
 		</main>
 		<Footer />
 	</body>
 </html>
+
+<style>
+	.home-page {
+		display: flex;
+		flex-direction: column;
+		gap: 3rem;
+	}
+</style>

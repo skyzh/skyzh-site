@@ -38,7 +38,7 @@ const isPage = slug.startsWith("page-");
 		<Header />
 		<main>
 			<Container>
-				<article class="post animate">
+				<article class="post">
 					{!isPage && <a class="back-link" href="/blog/">← Back to blog</a>}
 					<header class="post-header">
 						{pubDate && (
@@ -108,7 +108,7 @@ const isPage = slug.startsWith("page-");
 		flex-wrap: wrap;
 		gap: 0.55rem;
 		list-style: none;
-		font-size: 0.83rem;
+		font-size: 0.875rem;
 	}
 	.reactions {
 		margin-top: 2rem;

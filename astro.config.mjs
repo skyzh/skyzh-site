@@ -11,7 +11,8 @@ import remarkPublicImages from "./src/plugins/remark-public-images.mjs";
 // https://astro.build/config
 export default defineConfig({
   redirects: {
-    "/pages/about": "/about",
+    "/about": "/",
+    "/pages/about": "/",
     "/join/discord": "https://discord.gg/XY5tFAYqYh",
   },
   site: "https://www.skyzh.dev",

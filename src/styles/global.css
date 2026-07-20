@@ -1,10 +1,10 @@
 :root {
 	color-scheme: light;
-	--background: #f5f5f4;
-	--surface: #fafaf9;
+	--background: #ffffff;
+	--surface: #fafafa;
 	--surface-hover: rgba(28, 25, 23, 0.055);
-	--text: rgba(28, 25, 23, 0.68);
-	--text-muted: rgba(28, 25, 23, 0.52);
+	--text: #44403c;
+	--text-muted: #78716c;
 	--text-strong: #1c1917;
 	--border: rgba(28, 25, 23, 0.14);
 	--border-strong: rgba(28, 25, 23, 0.28);
@@ -48,9 +48,15 @@ body {
 	-webkit-font-smoothing: antialiased;
 }
 
+ul,
+ol,
+li {
+	margin-block: 0;
+}
+
 main {
 	flex: 1;
-	padding: 8.5rem 0 5rem;
+	padding: 8.5rem 0 3rem;
 }
 
 .container {
@@ -90,6 +96,25 @@ h5,
 h6 {
 	line-height: 1.25;
 	letter-spacing: -0.02em;
+	font-weight: 600;
+}
+
+h1 {
+	font-size: 1.5rem;
+}
+
+h2 {
+	font-size: 1.25rem;
+}
+
+h3 {
+	font-size: 1.125rem;
+}
+
+h4,
+h5,
+h6 {
+	font-size: 1rem;
 }
 
 .prose {
@@ -102,12 +127,6 @@ h6 {
 
 .prose > :last-child {
 	margin-bottom: 0;
-}
-
-.prose p,
-.prose li,
-.prose blockquote {
-	font-family: "Lora", ui-serif, Georgia, serif;
 }
 
 .prose a {
@@ -123,24 +142,17 @@ h6 {
 	margin-block: 1.25rem;
 }
 
+.prose li > ul,
+.prose li > ol {
+	margin-block: 0;
+}
+
 .prose h1,
 .prose h2,
 .prose h3,
 .prose h4 {
 	margin-top: 2.4rem;
 	margin-bottom: 0.8rem;
-}
-
-.prose h1 {
-	font-size: 1.75rem;
-}
-
-.prose h2 {
-	font-size: 1.35rem;
-}
-
-.prose h3 {
-	font-size: 1.1rem;
 }
 
 .prose img {
@@ -168,7 +180,7 @@ h6 {
 	border-radius: 0.25rem;
 	background: var(--code-background);
 	color: var(--text-strong);
-	font-size: 0.9em;
+	font-size: 0.85em;
 }
 
 .prose pre {
@@ -176,6 +188,8 @@ h6 {
 	padding: 1rem;
 	border: 1px solid var(--border);
 	border-radius: 0.5rem;
+	font-size: 0.82rem;
+	line-height: 1.6;
 }
 
 .prose blockquote {
@@ -184,6 +198,24 @@ h6 {
 	border-left: 2px solid var(--border-strong);
 	color: var(--text-muted);
 	font-style: italic;
+}
+
+.prose .article-note {
+	padding: 0.5rem 0.75rem;
+	border: 1px solid var(--border-strong);
+	border-radius: 0.35rem;
+}
+
+.prose .article-note > :first-child {
+	margin-top: 0;
+}
+
+.prose .article-note > :last-child {
+	margin-bottom: 0;
+}
+
+.prose .article-note > p {
+	margin-block: 0.5rem;
 }
 
 .img-border {
@@ -200,7 +232,6 @@ h6 {
 
 .page-heading {
 	margin: 0;
-	font-size: 1.7rem;
 }
 
 .page-kicker,
@@ -211,8 +242,6 @@ h6 {
 
 .section-heading {
 	margin: 0 0 1.5rem;
-	font-size: 1rem;
-	font-weight: 600;
 }
 
 .stack {
@@ -241,7 +270,7 @@ h6 {
 	color: var(--text);
 	cursor: pointer;
 	font: inherit;
-	font-size: 0.85rem;
+	font-size: 0.875rem;
 	transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
 }
 
@@ -251,27 +280,9 @@ h6 {
 	color: var(--text-strong);
 }
 
-.animate {
-	animation: rise-in 600ms ease-out both;
-}
-
-@keyframes rise-in {
-	from {
-		opacity: 0;
-		transform: translateY(0.65rem);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-
 @media (prefers-reduced-motion: reduce) {
 	html {
 		scroll-behavior: auto;
-	}
-	.animate {
-		animation: none;
 	}
 }
 
