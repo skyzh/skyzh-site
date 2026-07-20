@@ -2,6 +2,12 @@
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
 import "../styles/global.css";
+import "@fontsource/inter/latin-400.css";
+import "@fontsource/inter/latin-500.css";
+import "@fontsource/inter/latin-600.css";
+import inter400 from "@fontsource/inter/files/inter-latin-400-normal.woff2";
+import inter500 from "@fontsource/inter/files/inter-latin-500-normal.woff2";
+import inter600 from "@fontsource/inter/files/inter-latin-600-normal.woff2";
 
 export interface Props {
 	title: string;
@@ -19,7 +25,7 @@ const {
 	image,
 } = Astro.props;
 
-import { DEAFULT_SOCIAL_IMAGE } from "../consts";
+import { DEFAULT_SOCIAL_IMAGE, SITE_TITLE } from "../consts";
 ---
 
 <!-- Global Metadata -->
@@ -27,6 +33,11 @@ import { DEAFULT_SOCIAL_IMAGE } from "../consts";
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="icon" href="/favicon.ico" />
 <meta name="generator" content={Astro.generator} />
+
+<!-- Astro Nano font preloads -->
+<link rel="preload" href={inter400} as="font" type="font/woff2" crossorigin />
+<link rel="preload" href={inter500} as="font" type="font/woff2" crossorigin />
+<link rel="preload" href={inter600} as="font" type="font/woff2" crossorigin />
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
@@ -42,17 +53,34 @@ import { DEAFULT_SOCIAL_IMAGE } from "../consts";
 <meta property="twitter:url" content={Astro.url} />
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
-<meta property="twitter:image" content={new URL(image || DEAFULT_SOCIAL_IMAGE, Astro.url)} />
+<meta property="twitter:image" content={new URL(image || DEFAULT_SOCIAL_IMAGE, Astro.site)} />
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content={Astro.url} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-<meta property="og:image" content={new URL(image || DEAFULT_SOCIAL_IMAGE, Astro.url)} />
+<meta property="og:image" content={new URL(image || DEFAULT_SOCIAL_IMAGE, Astro.site)} />
 
 <!-- sitemap -->
 <link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href="/rss.xml" />
+
+<script is:inline>
+	(() => {
+		document.documentElement.classList.remove("dark");
+		document.documentElement.dataset.theme = "light";
+
+		/* Theme preferences are disabled for now. Restore this block with the
+		 * controls in Footer.astro to re-enable light/dark/system selection.
+		const preference = localStorage.getItem("theme") || "system";
+		const dark = preference === "dark" ||
+			(preference === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+		document.documentElement.classList.toggle("dark", dark);
+		document.documentElement.dataset.theme = preference;
+		*/
+	})();
+</script>
 
 {
 	enable_katex && (
@@ -76,4 +104,4 @@ import { DEAFULT_SOCIAL_IMAGE } from "../consts";
   gtag('config', 'G-812BQ96S8Q');
 </script> -->
 
-<script async src="https://analytics.umami.is/script.js" data-website-id="b7635e6c-8c66-456d-92fa-b8fed556bde7"></script>
+<script is:inline async src="https://analytics.umami.is/script.js" data-website-id="b7635e6c-8c66-456d-92fa-b8fed556bde7"></script>

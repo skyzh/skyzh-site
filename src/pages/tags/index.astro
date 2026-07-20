@@ -6,11 +6,10 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../../consts";
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 
-const tags_ = (await getCollection("blog"))
-    .map((x: CollectionEntry<"blog">) => x.data.tags)
-    .filter(x => x)
-    .flat();
-var tags = [...new Set(tags_)].sort();
+const tags = [...new Set(
+    (await getCollection("blog"))
+        .flatMap((entry: CollectionEntry<"blog">) => entry.data.tags ?? []),
+)].sort();
 ---
 
 <!DOCTYPE html>

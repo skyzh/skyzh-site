@@ -23,16 +23,18 @@ function OneReaction({ slug, eid, emoji, count }: { slug: string, eid: string, e
             body: JSON.stringify(req)
         }).then()
     }
-    return <button style={{ "marginRight": "1em" }} onClick={updateReaction}>{emoji} {(count || 0) + clicked}</button>
+    return <button type="button" className="reaction-button" aria-label={`React with ${emoji}`} onClick={updateReaction}>{emoji} {(count || 0) + clicked}</button>
 }
 
 function Reactions({ slug, reaction }: { slug: string, reaction: Reaction }) {
-    return <div>
-        <OneReaction slug={slug} eid="emoji_1" emoji="❤️" count={reaction.emoji_1} />
-        <OneReaction slug={slug} eid="emoji_2" emoji="👍" count={reaction.emoji_2} />
-        <OneReaction slug={slug} eid="emoji_3" emoji="😅" count={reaction.emoji_3} />
-        <OneReaction slug={slug} eid="emoji_4" emoji="💩" count={reaction.emoji_4} />
-        <small>Reactions powered by <a href="https://neon.tech/" target="_blank">Neon</a> + <a href="https://vercel.com/" target="_blank">Vercel</a></small>
+    return <div className="reaction-bar">
+        <div className="reaction-buttons">
+            <OneReaction slug={slug} eid="emoji_1" emoji="❤️" count={reaction.emoji_1} />
+            <OneReaction slug={slug} eid="emoji_2" emoji="👍" count={reaction.emoji_2} />
+            <OneReaction slug={slug} eid="emoji_3" emoji="😅" count={reaction.emoji_3} />
+            <OneReaction slug={slug} eid="emoji_4" emoji="💩" count={reaction.emoji_4} />
+        </div>
+        <small>Reactions powered by <a href="https://neon.tech/" target="_blank" rel="noreferrer">Neon</a> + <a href="https://vercel.com/" target="_blank" rel="noreferrer">Vercel</a></small>
     </div>
 }
 
@@ -59,6 +61,6 @@ export default function ({ slug }: { slug: string }) {
         } else {
             tryFetch().then(() => { })
         }
-    }, [])
+    }, [slug])
     return reaction ? <Reactions slug={slug} reaction={reaction} /> : <div></div>
 }

@@ -13,7 +13,7 @@ heroImage: "/images/2025-02-06-optimizer-lesson-01-banner.png"
 
 # Introduction
 
-<div style={{ "border": "1px solid", "padding": "0.5em" }}>
+<div class="article-note">
 This is the first part of my blog post series, "Lessons Learned from Building a Query Optimizer". I worked on optd when I was at CMU. [optd](https://github.com/cmu-db/optd-original) is an extensible query optimizer framework that can be a drop-in replacement for Apache Datafusion's optimizer. In this blog post series, I will share my experience building a cost-based query optimizer (a cascades optimizer) in Rust and the lessons I learned from it.
 
 This series is not a tutorial on how to build a query optimizer. Instead, it is a collection of design decisions and trade-offs I made when building the optimizer. We will cover some basics of query optimization, but mostly, it will be about the design of the optimizer framework and the lessons I learned from it.
@@ -618,7 +618,7 @@ impl Join {
 
 We can make such interpretations generic among `RelNode`, `BindRelNode`, and `MemoRelNode` so that a single `impl` can interpret all of them. In the following posts of this series of Lessons Learned from Writing a Query Optimizer, we will explore more about this plan representation and the Cascades/Volcano query optimization framework.
 
-<div style={{ "border": "1px solid", "padding": "0.5em" }}>
+<div class="article-note">
 **Takeaways:** Plan representation is a key decision for a query optimizer. A good plan representation should be straightforward for the optimizer framework to manipulate and easy for the user to use. We proposed a new plan representation that allows easy access to the optimizer framework while allowing users to easily extend the framework (rules, plan nodes, etc.).
 </div>
 

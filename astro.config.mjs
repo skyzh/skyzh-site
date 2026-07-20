@@ -1,39 +1,42 @@
-import { defineConfig } from 'astro/config';
-import mdx from '@astrojs/mdx';
-import sitemap from '@astrojs/sitemap';
-import remarkToc from 'remark-toc';
+import { defineConfig } from "astro/config";
+import { unified, rehypeHeadingIds } from "@astrojs/markdown-remark";
+import mdx from "@astrojs/mdx";
 import react from "@astrojs/react";
-import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+import sitemap from "@astrojs/sitemap";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
+import remarkToc from "remark-toc";
+import remarkPublicImages from "./src/plugins/remark-public-images.mjs";
 
 // https://astro.build/config
 export default defineConfig({
-  experimental: {
-    redirects: true
-  },
   redirects: {
-    '/pages/about': '/about',
-    '/join/discord': 'https://discord.gg/XY5tFAYqYh'
+    "/about": "/",
+    "/pages/about": "/",
+    "/join/discord": "https://discord.gg/XY5tFAYqYh",
   },
-  site: 'https://www.skyzh.dev',
+  site: "https://www.skyzh.dev",
   integrations: [mdx(), sitemap(), react()],
-  output: 'static',
+  output: "static",
+  trailingSlash: "always",
+  compressHTML: true,
   markdown: {
-    remarkPlugins: ['remark-math'],
-    rehypePlugins: [['rehype-katex', {
-      // Katex plugin options
-    }]]
-  },
-  trailingSlash: 'always',
-  markdown: {
-    // Applied to .md and .mdx files
-    remarkPlugins: [
-      [remarkToc, { tight: true }]
-    ],
-    rehypePlugins: [
-      rehypeHeadingIds,
-    ],
+    processor: unified({
+      remarkPlugins: [
+        remarkPublicImages,
+        remarkMath,
+        [remarkToc, { tight: true }],
+      ],
+      rehypePlugins: [
+        rehypeHeadingIds,
+        rehypeKatex,
+      ],
+    }),
     shikiConfig: {
-      theme: 'github-light',
+      themes: {
+        light: "github-light",
+        dark: "github-dark",
+      },
     },
   },
 });

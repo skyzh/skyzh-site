@@ -2,19 +2,15 @@
 layout: ../layouts/index.astro
 ---
 
-import { CV_URL } from '../consts';
+import HomeConnect from '../components/HomeConnect.astro';
+import HomeIntro from '../components/HomeIntro.astro';
+import HomePosts from '../components/HomePosts.astro';
+import WorkList from '../components/WorkList.astro';
 
-# Hi, I'm Chi!
+<HomeIntro />
 
-Member of Technical Staff at the [Lakebase](https://neon.tech) team in Databricks.
+<HomeConnect />
 
-* [About Me](/about/)
-* <a href={CV_URL}>Curriculum Vitae</a>
-* [Blog](/blog/)
+<HomePosts />
 
-## Find me on
-
-* Email: `iskyzh at gmail dot com`
-* [GitHub](https://github.com/skyzh)
-* [LinkedIn](https://www.linkedin.com/in/alex-chi-skyzh/)
-* [Twitter](https://twitter.com/iskyzh)
+<WorkList homepage />

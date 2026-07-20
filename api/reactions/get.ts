@@ -1,14 +1,17 @@
 import { Pool } from '@neondatabase/serverless';
-import { Kysely, PostgresDialect, sql } from 'kysely';
+import { Kysely, PostgresDialect } from 'kysely';
+import type { PostgresPool } from 'kysely';
 import type { DB } from '../../schema';
 
 export default async (req: Request, ctx: any) => {
-  const url = await new URL(req.url);
+  const url = new URL(req.url);
   const slug = url.searchParams.get('slug');
 
   if (slug) {
     const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    const db = new Kysely<DB>({ dialect: new PostgresDialect({ pool }) });
+    const db = new Kysely<DB>({
+      dialect: new PostgresDialect({ pool: pool as unknown as PostgresPool }),
+    });
 
 
     const query = db

@@ -1,24 +1,59 @@
 ---
 import HeaderLink from './HeaderLink.astro';
+import Container from './Container.astro';
 import { CV_URL, SITE_TITLE } from '../consts';
 ---
 
 <header>
-	<h2>
-		{SITE_TITLE}
-	</h2>
-	<nav>
-		<HeaderLink href="/">Home</HeaderLink>
-		<HeaderLink href="/blog/">Blog</HeaderLink>
-		<HeaderLink href="/about/">About</HeaderLink>
-		<HeaderLink href={CV_URL}>CV</HeaderLink>
-	</nav>
+	<Container>
+		<div class="header-inner">
+			<a class="site-name" href="/">{SITE_TITLE}</a>
+			<nav aria-label="Primary navigation">
+				<HeaderLink href="/blog/">blog</HeaderLink>
+				<span aria-hidden="true">/</span>
+				<HeaderLink href="/work/">work</HeaderLink>
+				<span aria-hidden="true">/</span>
+				<HeaderLink href={CV_URL}>cv</HeaderLink>
+			</nav>
+		</div>
+	</Container>
 </header>
 <style>
 	header {
-		margin: 0em 0 2em;
+		position: fixed;
+		z-index: 10;
+		top: 0;
+		left: 0;
+		right: 0;
+		padding: 1.25rem 0;
+		background: color-mix(in srgb, var(--background) 78%, transparent);
+		backdrop-filter: blur(12px) saturate(160%);
 	}
-	h2 {
-		margin: 0.5em 0;
+	.header-inner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+	.site-name {
+		font-weight: 600;
+		color: var(--text-strong);
+		text-decoration: none;
+	}
+	nav {
+		display: flex;
+		align-items: center;
+		gap: 0.35rem;
+		white-space: nowrap;
+	}
+	@media (max-width: 420px) {
+		header {
+			padding: 1rem 0;
+		}
+		.header-inner {
+			align-items: flex-start;
+			flex-direction: column;
+			gap: 0.4rem;
+		}
 	}
 </style>

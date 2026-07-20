@@ -1,13 +1,122 @@
 ---
-const today = new Date();
+import Container from "./Container.astro";
+
+const year = new Date().getFullYear();
 ---
 
 <footer>
-	&copy; {today.getFullYear()} Alex Chi Z. All rights reserved.
+	<Container>
+		<div class="footer-inner">
+			<div>&copy; {year} <span aria-hidden="true">|</span> Alex Chi Z.</div>
+			<div class="footer-actions">
+				{/* Theme controls are disabled for now. Restore these buttons with
+				    the commented theme code below and in BaseHead.astro.
+				<button class="theme-button" data-theme-choice="light" aria-label="Use light theme" title="Light theme">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<circle cx="12" cy="12" r="4"></circle>
+						<path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"></path>
+					</svg>
+				</button>
+				<button class="theme-button" data-theme-choice="dark" aria-label="Use dark theme" title="Dark theme">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"></path>
+					</svg>
+				</button>
+				<button class="theme-button" data-theme-choice="system" aria-label="Use system theme" title="System theme">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<rect x="3" y="4" width="18" height="13" rx="2"></rect>
+						<path d="M8 21h8M12 17v4"></path>
+					</svg>
+				</button>
+				*/}
+				<button class="theme-button" id="back-to-top" aria-label="Back to top" title="Back to top">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path d="m18 15-6-6-6 6"></path>
+					</svg>
+				</button>
+			</div>
+		</div>
+	</Container>
 </footer>
+
+<script is:inline>
+	/* Theme selection is disabled for now. Restore this block with the
+	 * commented controls above and the preference code in BaseHead.astro.
+	const applyTheme = (preference) => {
+		const dark = preference === "dark" ||
+			(preference === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+		document.documentElement.classList.toggle("dark", dark);
+		document.documentElement.dataset.theme = preference;
+	};
+
+	document.querySelectorAll("[data-theme-choice]").forEach((button) => {
+		button.addEventListener("click", () => {
+			const preference = button.dataset.themeChoice;
+			localStorage.setItem("theme", preference);
+			applyTheme(preference);
+		});
+	});
+
+	window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+		if ((localStorage.getItem("theme") || "system") === "system") {
+			applyTheme("system");
+		}
+	});
+	*/
+
+	document.getElementById("back-to-top")?.addEventListener("click", () => {
+		window.scrollTo({ top: 0, behavior: "smooth" });
+	});
+</script>
+
 <style>
 	footer {
-		padding: 25px;
-		text-align: center;
+		padding: 1.25rem 0 2rem;
+		font-size: 0.875rem;
+	}
+	.footer-inner,
+	.footer-actions {
+		display: flex;
+		align-items: center;
+	}
+	.footer-inner {
+		justify-content: space-between;
+		gap: 1rem;
+	}
+	.footer-actions {
+		gap: 0.2rem;
+	}
+	.theme-button {
+		display: grid;
+		width: 2rem;
+		height: 2rem;
+		padding: 0;
+		place-items: center;
+		border: 0;
+		border-radius: 999px;
+		background: transparent;
+		color: var(--text);
+		cursor: pointer;
+		transition: color 180ms ease, background-color 180ms ease;
+	}
+	.theme-button:hover,
+	.theme-button:focus-visible {
+		background: var(--surface-hover);
+		color: var(--text-strong);
+	}
+	.theme-button svg {
+		width: 1.15rem;
+		height: 1.15rem;
+		fill: none;
+		stroke: currentColor;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		stroke-width: 1.5;
+	}
+	@media (max-width: 420px) {
+		.footer-inner {
+			align-items: flex-start;
+			flex-direction: column;
+		}
 	}
 </style>
