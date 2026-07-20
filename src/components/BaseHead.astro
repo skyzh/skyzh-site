@@ -2,10 +2,14 @@
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
 import "../styles/global.css";
-import "@fontsource/inter/400.css";
-import "@fontsource/inter/600.css";
+import "@fontsource/inter/latin-400.css";
+import "@fontsource/inter/latin-600.css";
 import "@fontsource/lora/400.css";
 import "@fontsource/lora/600.css";
+import inter400 from "@fontsource/inter/files/inter-latin-400-normal.woff2";
+import inter600 from "@fontsource/inter/files/inter-latin-600-normal.woff2";
+import lora400 from "@fontsource/lora/files/lora-latin-400-normal.woff2";
+import lora600 from "@fontsource/lora/files/lora-latin-600-normal.woff2";
 
 export interface Props {
 	title: string;
@@ -31,6 +35,12 @@ import { DEFAULT_SOCIAL_IMAGE, SITE_TITLE } from "../consts";
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="icon" href="/favicon.ico" />
 <meta name="generator" content={Astro.generator} />
+
+<!-- Astro Nano font preloads -->
+<link rel="preload" href={inter400} as="font" type="font/woff2" crossorigin />
+<link rel="preload" href={inter600} as="font" type="font/woff2" crossorigin />
+<link rel="preload" href={lora400} as="font" type="font/woff2" crossorigin />
+<link rel="preload" href={lora600} as="font" type="font/woff2" crossorigin />
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />

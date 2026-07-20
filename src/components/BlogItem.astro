@@ -4,13 +4,14 @@ import FormattedDate from "./FormattedDate.astro";
 
 export interface Props {
 	post: CollectionEntry<"blog">;
+	compact?: boolean;
 }
 
-const { post } = Astro.props;
+const { post, compact = false } = Astro.props;
 ---
 
-<li class="post-row">
-	<FormattedDate date={post.data.pubDate} />
+<li class:list={["post-row", { compact }]}>
+	{!compact && <FormattedDate date={post.data.pubDate} />}
 	<a class="post-card" href={`/blog/${post.id}/`}>
 		<span class="post-copy">
 			<strong>
@@ -45,6 +46,7 @@ const { post } = Astro.props;
 		gap: 0.75rem;
 		border: 1px solid var(--border);
 		border-radius: 0.55rem;
+		font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
 		text-decoration: none;
 		transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
 	}
@@ -85,6 +87,9 @@ const { post } = Astro.props;
 	}
 	.post-card:hover svg {
 		transform: translateX(0.18rem);
+	}
+	.post-row.compact {
+		grid-template-columns: minmax(0, 1fr);
 	}
 	@media (max-width: 560px) {
 		.post-row {

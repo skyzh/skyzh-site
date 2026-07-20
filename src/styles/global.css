@@ -110,6 +110,10 @@ h6 {
 	font-family: "Lora", ui-serif, Georgia, serif;
 }
 
+.prose a {
+	font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
 .prose p,
 .prose ul,
 .prose ol,
