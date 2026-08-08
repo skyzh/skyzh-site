@@ -43,7 +43,7 @@ This post works through the failures one stage at a time, using the code in the 
 
 The crate's `s01_shallow_merge` module shows what happens with the simplest merge. Redirect one group to another, but do not rewrite any expressions:
 
-```rust
+
 An illustrative sketch of the shallow merge (the real code uses
 `merge_group_shallow(merge_into, merge_from)` and redirects
 `merge_from -> merge_into`):
@@ -66,7 +66,7 @@ A redirect map makes representative lookup possible. It does not re-express stor
 # Stage 2: Rewriting Children Changes Identity
 
 The fix rewrites every expression that directly references the losing group.
-`s02_rewrite_children` demonstrates this. `merge_group_rewrite_only` scans every stored expression, selects those whose children contain `merge_from`, and rewrites those child IDs to `merge_to`.
+`s02_rewrite_children` demonstrates this. `merge_group_rewrite_only` scans every stored expression, selects those whose children contain `merge_from`, and rewrites those child IDs to `merge_into`.
 
 But the test `rewriting_children_can_create_duplicate_expressions` reveals a new problem: two expressions that used to be different can become identical after rewriting. When that happens, their groups must also be merged, or the memo violates:
 
