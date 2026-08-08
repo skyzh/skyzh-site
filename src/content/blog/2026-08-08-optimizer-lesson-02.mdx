@@ -28,12 +28,11 @@ You can find the code for this post at [skyzh/optimizer-lessons](https://github.
 In Lesson 1, we introduced a memo table indexed by group ID. Each expression is stored under a group. The optimizer's job is to explore equivalent expressions within a group. Two operations matter here: `add_expr` (which Lesson 1 implemented) and `merge_group` (which it left as a stub).
 
 ```rust
-/// Insert an expression into the memo, returning its group ID.
-fn add_expr(&mut self, expr: Expr) -> GroupId;
+/// Insert an expression into the memo.
+fn add_expr(&mut self, expr: MemoExpr) -> (GroupId, ExprId);
 
 /// Declare that two groups are equivalent.
-/// Lesson 2 implements this.
-fn merge_group(&mut self, a: GroupId, b: GroupId);
+fn merge_group(&mut self, a: GroupId, b: GroupId) -> GroupId;
 ```
 
 The problem is that a group does not just contain expressions. The memo and its indexes materialize an equivalence relation across many data structures: stored expressions that reference child group IDs, redirect maps that point from merged groups to their representatives, hash tables that locate a group by its expression key, and state like winners and costs. When two groups become equivalent, every index that saw them as distinct must be reconciled.
@@ -45,12 +44,15 @@ This post works through the failures one stage at a time, using the code in the 
 The crate's `s01_shallow_merge` module shows what happens with the simplest merge. Redirect one group to another, but do not rewrite any expressions:
 
 ```rust
-/// Illustrative — the actual crate uses `move_group` and
-/// redirect maps. See `s01_shallow_merge.rs` for the real code.
-fn merge_group(&mut self, a: GroupId, b: GroupId) {
-    self.group_redirect.insert(a, b);
-    // Nothing else — no expression rewriting
+An illustrative sketch of the shallow merge (the real code uses
+`merge_group_shallow`, returns `GroupId`, and merges `from` into `to`):
+
+```rust
+fn merge_group_shallow(&mut self, from: GroupId, to: GroupId) -> GroupId {
+    self.group_redirect.insert(from, to);
+    to
 }
+```
 ```
 
 The test `shallow_merge_leaves_stale_children` demonstrates the failure. Two expressions are created in different groups. After merging the groups, a new expression that should be structurally equivalent to an existing one ends up in a different group because the existing expression still references stale child IDs. The memo now has two groups representing expressions that should have been deduplicated.
@@ -84,7 +86,7 @@ After a merge rewrites children and produces new collisions, those new merges ma
 
 `s03_cascading_merge` demonstrates this with the test `expression_collisions_cascade_to_parent_groups`. A two-level chain of expressions is set up so that merging two leaf groups causes their parents' expressions to collide, which in turn cascades upward. The fix requires either a worklist of pending merges or recursive merging that continues until no new pairs are found.
 
-The mechanism is not a single algorithm. The published code uses an explicit worklist that canonicalizes each discovered pair when processed and continues until the queue is empty. A union-find with a hash-key repair loop is an alternative. The invariant is the same: after a fixed point, no two expressions with the same key belong to different groups. Finding all affected expressions requires tracking which expressions reference each group — backlinks avoid scanning the full expression set, but they do not make the overall merge local or linear.
+The published code uses an explicit worklist that canonicalizes each discovered pair when processed and continues until the worklist is empty. A union-find with a hash-key repair loop is an alternative. Finding all affected expressions requires tracking which expressions reference each group — backlinks avoid scanning every expression for each individual merge, while a cascade can still touch a large part of the memo.
 
 # Stage 4: Parent Backlinks
 
@@ -105,7 +107,7 @@ Other query optimizers have encountered this problem:
 
 The Cascades paper identifies cross-group duplicates and discusses merging pattern memories. It does not specify how to find affected parents, repair hash-table keys, detect cascading collisions, or handle stale winners and state. Those details become the implementation.
 
-In my own optimizer work, the public `optd-original` code uses redirect maps to resolve merged groups and notes that union-find could optimize them. Current optd uses append-only handles; its join-ordering pass recurses per group and memoizes by `GroupId` to avoid repeated DP work on the same relation subset.
+In my own optimizer work, the public `optd-original` code uses redirect maps to resolve merged groups and notes that union-find could optimize them. Current optd uses append-only handles; its join-ordering pass builds a hypergraph per join-group root and uses a DP table keyed by `NodeSet`; this is a different design from the older per-`GroupId` memoization path.
 
 # What We Learned
 
@@ -115,7 +117,7 @@ Group merging in a memo table is a structural reconciliation that touches stored
 
 2. **Congruence closure:** rewriting children can make previously distinct expressions identical, producing new group equivalences that must also be merged.
 
-3. **Cascading reach:** a single merge can trigger a cascade of new equivalences, requiring a fixed-point traversal. The mechanism (worklist, recursive merge, or union-find with hash repair) must converge.
+3. **Cascading reach:** a single merge can trigger a cascade of new equivalences, requiring a fixed-point traversal. The published implementation uses an explicit canonicalizing fixed-point worklist; union-find with hash-key repair is an alternative design.
 
 4. **Parent indexing:** finding affected expressions without scanning the entire memo requires reverse indexes from groups to their parent expressions. These indexes are themselves a new invariant.
 
