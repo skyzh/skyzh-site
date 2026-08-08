@@ -66,13 +66,7 @@ A redirect map makes representative lookup possible. It does not re-express stor
 # Stage 2: Rewriting Children Changes Identity
 
 The fix rewrites every expression that directly references the losing group.
-`s02_rewrite_children` demonstrates this. An illustrative sketch:
-
-```rust
-/// Illustrative — see `s02_rewrite_children.rs` for the real
-/// implementation which traverses expressions by group and
-/// replaces children using the redirect map.
-```
+`s02_rewrite_children` demonstrates this.
 
 But the test `rewriting_children_can_create_duplicate_expressions` reveals a new problem: two expressions that used to be different can become identical after rewriting. When that happens, their groups must also be merged, or the memo violates:
 
