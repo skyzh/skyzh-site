@@ -84,7 +84,7 @@ After a merge rewrites children and produces new collisions, those new merges ma
 
 `s03_cascading_merge` demonstrates this with the test `expression_collisions_cascade_to_parent_groups`. A two-level chain of expressions is set up so that merging two leaf groups causes their parents' expressions to collide, which in turn cascades upward. The fix requires either a worklist of pending merges or recursive merging that continues until no new pairs are found.
 
-The mechanism is not a single algorithm. The published code uses a `pending_group_merges` vector and a recursive call that drains it. A union-find with a hash-key repair loop is an alternative. The invariant is the same: after a fixed point, no two expressions with the same key belong to different groups. Finding all affected expressions requires tracking which expressions reference each group — one full scan per merge is linear in memo size, but repeated scans across a cascade can become quadratic.
+The mechanism is not a single algorithm. The published code uses an explicit worklist that canonicalizes each discovered pair when processed and continues until the queue is empty. A union-find with a hash-key repair loop is an alternative. The invariant is the same: after a fixed point, no two expressions with the same key belong to different groups. Finding all affected expressions requires tracking which expressions reference each group — backlinks avoid scanning the full expression set, but they do not make the overall merge local or linear.
 
 # Stage 4: Parent Backlinks
 
