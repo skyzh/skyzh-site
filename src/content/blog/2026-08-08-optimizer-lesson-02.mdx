@@ -1,0 +1,230 @@
+---
+title: "Memo Mayhem: #2 Lessons Learned from Building an Optimizer"
+pubDate: "2026-08-08T12:00:00-05:00"
+tags: ["optimizer-lesson", "optimizer", "Rust", "query optimization", "cascades"]
+description: "Group merging looks local. It is not. Four escalating failures and what they teach about memo-table design."
+socialImage: "/images/2026-08-08-optimizer-lesson-02-social.png"
+heroImage: "/images/2026-08-08-optimizer-lesson-02-banner.png"
+---
+
+import { Image } from "astro:assets";
+
+# Table of Contents
+
+---
+
+# Introduction
+
+<div style={{"border": "1px solid", "padding": "0.5em"}}>
+
+This is the second part of my blog post series, "Lessons Learned from Building a Query Optimizer". In [Lesson 1](/blog/2025-02-06-optimizer-lesson-01/), we built a generic plan representation with group IDs and left `merge_group` as an unimplemented stub. Today we finish that function. The result is not a single patch. It is four escalating failures, each exposing a structural truth about memo tables that I did not understand until the code forced me to.
+
+You can find the code for this post at [skyzh/optimizer-lessons](https://github.com/skyzh/optimizer-lessons), branch `skyzh/lesson-2-memo-table`.
+
+Let me be clear about scope. Group merging is a narrow problem: when two group IDs become equivalent, reconcile every piece of state that depends on them. This post is about the _structure_ of that reconciliation, not about cost models, cardinality estimation, or the search algorithm. Those matter, but they sit on top of a memo that must first be correct.
+
+</div>
+
+# The Setup
+
+In Lesson 1, we introduced a memo table indexed by group ID. Each expression is stored under a group, and the optimizer's job is to explore equivalent expressions within a group. The API looked like this:
+
+```rust
+/// Find or create a group for the given expression.
+fn find_or_insert_group(expr: Expr) -> GroupId;
+
+/// Merge two groups, making them equivalent.
+fn merge_group(a: GroupId, b: GroupId);
+```
+
+`find_or_insert_group` was straightforward. `merge_group` was not.
+
+The problem is that a group does not just contain expressions. It materializes an equivalence relation across many data structures: stored expressions that reference child group IDs, hash tables that let us find a group by its expression key, reverse indexes that point from children back to their parents, and optimizer state like winners and costs. When two groups become equivalent, every index that saw them as distinct must be reconciled.
+
+This post works through the failures one at a time, using the test cases in `lesson-2`. Each test is a minimal program that reveals one missing invariant.
+
+# Failure 1: The Shallow Merge
+
+Let us start with the simplest thing that could work. `merge_group(a, b)` sets one group's representative to the other using union-find:
+
+```rust
+fn merge_group(&mut self, a: GroupId, b: GroupId) {
+    let root_a = self.uf.find(a);
+    let root_b = self.uf.find(b);
+    if root_a == root_b { return; }
+    self.uf.union(root_a, root_b); // root_a now points to root_b
+}
+```
+
+Union-find makes representative lookup cheap. If someone asks for the group of an expression whose group was merged, `find` returns the surviving representative. But union-find does not rewrite the stored expressions. A `Join { left: a, right: c }` still contains `a` as a literal child ID. When the optimizer later reads that child and calls `find(a)`, it gets `b`, so the plan is still structurally reachable. What breaks?
+
+The test `s01_shallow_merge` answers this. Create two distinct expressions and merge their groups:
+
+```rust
+// Expression 1: Join(Scan(t1), Scan(t2))
+// Expression 2: Scan(t1) — a different group
+let join_id = memo.find_or_insert_group(join_expr);
+let scan_id = memo.find_or_insert_group(scan_expr);
+
+// Merge: join_id and scan_id are now the same group
+memo.merge_group(join_id, scan_id);
+
+// Later: insert another Join(Scan(t1), Scan(t2))
+// This expression already exists in the merged group.
+// But find_or_insert_group can't find it because
+// the stored Join still references join_id directly,
+// not the surviving representative.
+```
+
+The failure is in the hash key. `find_or_insert_group` hashes the expression including its raw child IDs. After the merge, the old expression at `join_id` still carries the original child IDs. A new expression with the same structure but resolved to the post-merge representative produces a different hash key, so the lookup misses. The memo now contains two copies of the same expression in the same equivalence group.
+
+The invariant we broke is:
+
+> **Key invariance:** If two expressions are structurally identical after resolving their child groups to canonical representatives, they must share a group.
+
+Union-find gives us a `find` operation. We did not use it when computing expression keys.
+
+# Failure 2: Rewriting Children Changes Identity
+
+The fix seems obvious: when we merge groups, rewrite every stored expression's children to use the canonical representative.
+
+```rust
+fn merge_group(&mut self, a: GroupId, b: GroupId) {
+    let root = self.uf.union(a, b);
+    // Rewrite all stored expressions to use canonical child IDs
+    for expr in self.expressions_of(root_a).chain(self.expressions_of(root_b)) {
+        expr.children_mut().for_each(|c| *c = self.uf.find(*c));
+    }
+}
+```
+
+This works for the shallow case. But it introduces a new problem, demonstrated in `s02_rewrite_children`.
+
+Two expressions that were different before the merge can become textually identical after rewriting:
+
+```rust
+// Group 1: Join(Scan(t1), Scan(t2))
+// Group 2: Join(Scan(t1), Scan(t3))
+// Group 3: Scan(t2) — merged with Group 4
+// Group 4: Scan(t3)
+
+memo.merge_group(group3, group4); // t2 and t3 are now the same group
+// After rewriting:
+// Group 1: Join(Scan(t1), Scan(tX))  where X = find(t2) = find(t3)
+// Group 2: Join(Scan(t1), Scan(tX))
+// These are identical!
+```
+
+Two previously distinct expressions just became identical. That means their groups are now equivalent — but we did not merge them. We broke a deeper invariant:
+
+> **Congruence closure:** If `key(e1) == key(e2)`, then `find(owner(e1)) == find(owner(e2))`.
+
+Rewriting child IDs inside an expression changes its key. If the new key collides with another expression, the owning groups must be merged. But finding those collisions means checking every expression whose key might have changed — which, after a merge, could be far more than the two groups we started with.
+
+# Failure 3: Cascading Merges
+
+After a merge rewrites children, we must check for new duplicate expressions and merge their groups. Those merges may rewrite more children, producing more duplicates. The process continues until no new collisions appear: a fixed-point computation.
+
+The test `s03_cascading_merge` constructs a chain that triggers exactly this:
+
+```rust
+// Create a chain where each merge creates one new collision
+// Group A: expr X
+// Group B: expr Y (references A)
+// Group C: expr Z (references B)
+// Merge groups so that X and Y become equivalent,
+// then the rewritten Z collides with something else...
+```
+
+The fix requires a worklist algorithm:
+
+```rust
+fn merge_group(&mut self, a: GroupId, b: GroupId) {
+    let mut worklist = vec![(a, b)];
+    while let Some((g1, g2)) = worklist.pop() {
+        let root = self.uf.union(g1, g2);
+        // Rewrite children in all affected expressions
+        let affected = self.expressions_referencing(g1)
+            .chain(self.expressions_referencing(g2));
+        for expr in affected {
+            let old_key = self.key_of(expr);
+            expr.children_mut().for_each(|c| *c = self.uf.find(*c));
+            let new_key = self.key_of(expr);
+            if old_key != new_key {
+                // This expression's key changed. Check for collision.
+                if let Some(other) = self.hash_table.get(&new_key) {
+                    let other_owner = self.uf.find(other.owner);
+                    if other_owner != root {
+                        worklist.push((root, other_owner));
+                    }
+                }
+                // Update hash table entry
+                self.hash_table.remove(&old_key);
+                self.hash_table.insert(new_key, expr);
+            }
+        }
+    }
+}
+```
+
+This is the heart of the problem. A local operation triggers global reconciliation, and the scope of that reconciliation is unbounded in the worst case: one merge can cascade through the entire memo. The union-find makes representative lookup fast, but it did not solve the hash-key repair or the fixed-point search.
+
+# Failure 4: Finding Parents Efficiently
+
+The worklist algorithm above has a hidden cost: `expressions_referencing(g)`. How do we find all expressions whose children include a particular group? Scanning the entire memo is correct but quadratic.
+
+The answer is to maintain a reverse index from each group to the expressions that reference it — parent backlinks. This is what `s04_parent_backlinks` tests:
+
+```rust
+struct Memo {
+    // ... existing fields ...
+    /// For each group, the set of expression IDs whose children include this group.
+    parent_links: HashMap<GroupId, HashSet<ExprId>>,
+}
+```
+
+When an expression is inserted, we add its ID to the parent-link set of each child group. When a group is merged, the surviving group inherits the parent-link sets of both inputs. The worklist then iterates over exactly the affected expressions — linear in the number of direct parents, not the size of the memo.
+
+But parent backlinks are themselves a new invariant. They must stay consistent with the stored expressions at all times: a backlink must exist if and only if a child reference exists. And they do not solve the remaining problems: when a winner or cost is attached to a merged group, which value survives? When a task is scheduled against a group that no longer exists, does it run against the representative? What about statistics, property envelopes, or rule application state?
+
+These are the questions the `merge_state_tests` suite begins to probe, and they are what separates our demo from a production memo. The lesson is not that backlinks make merging cheap. It is that every index that materializes the same equivalence relation adds a reconciliation obligation, and the cross-product of those obligations grows with each new piece of optimizer state.
+
+# The Bigger Picture
+
+I was not the first person to encounter this. The Columbia query optimizer — a public Cascades-derived system — has a `MergeGroups` method. In its default build, that method is stubbed with an `assert(false)`. It was never fully implemented.
+
+This is not evidence that the original Cascades implementation was buggy. It is evidence that the Cascades _paper_ abstracts group merging away. The paper tells you that when two groups are found to be equivalent, you merge them. It tells you to merge pattern memories and re-check rules. It does not tell you how to find the parents that need rewriting, how to detect cascading collisions, how to repair hash-table keys, or how to handle stale winners, tasks, and statistics. Those details become the implementation, and the implementation is where the difficulty lives.
+
+Modern query optimizers take different approaches to this problem:
+
+- **Apache Calcite** (Volcano) eagerly rewrites with parent backlinks and a recursive set merge that repairs costs and metadata.
+- **Doris Nereids** has the most complete merge in open-source Cascades: it merges costs, properties, rule masks, winners, statistics, and DPhyp state explicitly.
+- **Greenplum ORCA** marks duplicates during search and performs a global rehash at a quiescent phase boundary rather than merging eagerly.
+- **CockroachDB** constrains insertion so that distinct semantic groups never collide, avoiding the general merge problem.
+- **egg** rebuilds parent indexes from scratch during each merge, giving a clean structural algorithm at the cost of recomputation. Application-specific state (e.g., analysis data) still needs its own join policy.
+
+In my own optimizer work, the 2025 version of optd used union-find with a global write lock and tried to merge eagerly. Finding all the stale edges — tasks, required properties, optimization state — proved brittle. The current optd codebase avoids a general memo entirely: it uses append-only expression handles and runs DPhyp per relation subset, which sidesteps the need for group equivalence at the memo level.
+
+# What We Learned
+
+Group merging in a memo table is not a vector append. It is a structural reconciliation that touches stored expressions, hash keys, parent links, winners, costs, tasks, statistics, and application state. Four specific invariants fell out of the escalating test cases:
+
+1. **Expression-key invariance:** after a merge, two structurally identical expressions (with children resolved to canonical representatives) must be in the same group. Union-find alone does not guarantee this — you must rewrite stored child IDs and re-key the hash table.
+
+2. **Congruence closure:** rewriting children can make previously distinct expressions identical, producing new group equivalences. Detecting them requires checking for hash-key collisions after every rewrite, not just in the originally merged groups.
+
+3. **Cascading reach:** a single merge can trigger a cascade of new equivalences, requiring a fixed-point worklist. The worst-case scope is the entire memo.
+
+4. **Parent indexing:** finding the expressions affected by a merge requires reverse indexes from groups to their parent expressions. These indexes are themselves a new invariant to maintain.
+
+The implementation is in the `lesson-2` crate under four test stages: `s01_shallow_merge`, `s02_rewrite_children`, `s03_cascading_merge`, and `s04_parent_backlinks`, plus a `merge_state_tests` module that begins to probe the winner/task/statistics surface. Run them:
+
+```bash
+cargo test -p lesson-2
+```
+
+If you are building a Cascades optimizer, do not leave `merge_group` as a stub. Work through the test cases in order. The structural lessons apply regardless of whether you use union-find, a worklist, parent backlinks, or a specialized data structure. The invariant is the same: equivalence is global even when the API call looks local, and every materialized index must agree on the answer.
+
+---
+
+*Thanks to the optimizer-lessons team for code review and test design. The Lesson 2 implementation is by Forge; this post was drafted by Sentinel and reviewed by the editorial lane.*
