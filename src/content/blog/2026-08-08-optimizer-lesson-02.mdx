@@ -45,14 +45,14 @@ The crate's `s01_shallow_merge` module shows what happens with the simplest merg
 
 ```rust
 An illustrative sketch of the shallow merge (the real code uses
-`merge_group_shallow`, returns `GroupId`, and merges `from` into `to`):
+`merge_group_shallow(merge_into, merge_from)` and redirects
+`merge_from -> merge_into`):
 
 ```rust
-fn merge_group_shallow(&mut self, from: GroupId, to: GroupId) -> GroupId {
-    self.group_redirect.insert(from, to);
-    to
+fn merge_group_shallow(&mut self, merge_into: GroupId, merge_from: GroupId) -> GroupId {
+    self.group_redirect.insert(merge_from, merge_into);
+    merge_into
 }
-```
 ```
 
 The test `shallow_merge_leaves_stale_children` demonstrates the failure. Two expressions are created in different groups. After merging the groups, a new expression that should be structurally equivalent to an existing one ends up in a different group because the existing expression still references stale child IDs. The memo now has two groups representing expressions that should have been deduplicated.
@@ -66,7 +66,7 @@ A redirect map makes representative lookup possible. It does not re-express stor
 # Stage 2: Rewriting Children Changes Identity
 
 The fix rewrites every expression that directly references the losing group.
-`s02_rewrite_children` demonstrates this.
+`s02_rewrite_children` demonstrates this. `merge_group_rewrite_only` scans every stored expression, selects those whose children contain `merge_from`, and rewrites those child IDs to `merge_to`.
 
 But the test `rewriting_children_can_create_duplicate_expressions` reveals a new problem: two expressions that used to be different can become identical after rewriting. When that happens, their groups must also be merged, or the memo violates:
 
@@ -78,7 +78,7 @@ After rewriting, the code must check whether any rewritten expression now collid
 
 After a merge rewrites children and produces new collisions, those new merges may rewrite more children and produce more collisions. The process repeats until no new merges appear: a fixed-point computation.
 
-`s03_cascading_merge` demonstrates this with the test `expression_collisions_cascade_to_parent_groups`. A two-level chain of expressions is set up so that merging two leaf groups causes their parents' expressions to collide, which in turn cascades upward. The fix requires either a worklist of pending merges or recursive merging that continues until no new pairs are found.
+`s03_cascading_merge` demonstrates this with the test `expression_collisions_cascade_to_parent_groups`. A two-level chain of expressions is set up so that merging two leaf groups causes their parents' expressions to collide, which in turn cascades upward. The fix resolves collisions until no new merges appear.
 
 The published code uses an explicit worklist that canonicalizes each discovered pair when processed and continues until the worklist is empty. A union-find with a hash-key repair loop is an alternative. Finding all affected expressions requires tracking which expressions reference each group — backlinks avoid scanning every expression for each individual merge, while a cascade can still touch a large part of the memo.
 
