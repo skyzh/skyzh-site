@@ -98,7 +98,7 @@ Other query optimizers have encountered this problem:
 
 - The public **Columbia** source does not implement `MergeGroups` under its `UNIQ` configuration.
 - **Apache Calcite** eagerly rewrites with parent backlinks and merges costs and metadata during a recursive set merge.
-- **Doris Nereids** merges costs, properties, rule masks, winners, statistics, and DPhyp state during group consolidation.
+- **Doris Nereids** transfers parent links, enforcers, logical and physical expressions, lowest-cost and property entries, and conditionally copies statistics; duplicate `GroupExpression` merge combines property-cost tables and rule masks.
 - **Greenplum ORCA** marks duplicates during search and performs a global rehash at a quiescent phase boundary.
 - **CockroachDB** interns immutable expressions and adds explored alternatives to an explicit target group, so it exposes no general group-merge operation.
 - **egg** tracks parent e-nodes, queues affected parents on union, restores congruence lazily in `rebuild`, and merges analysis data under a separate policy.
