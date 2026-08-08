@@ -41,17 +41,11 @@ This post works through the failures one stage at a time, using the code in the 
 
 # Stage 1: The Shallow Merge
 
-The crate's `s01_shallow_merge` module shows what happens with the simplest merge. Redirect one group to another, but do not rewrite any expressions:
-
-
-An illustrative sketch of the shallow merge (the real code uses
-`merge_group_shallow(merge_into, merge_from)` and redirects
-`merge_from -> merge_into`):
+The crate's `s01_shallow_merge` module shows what happens with the simplest merge. Redirect one group to another, but do not rewrite any expressions. The real shallow merge delegates to `move_group`:
 
 ```rust
 fn merge_group_shallow(&mut self, merge_into: GroupId, merge_from: GroupId) -> GroupId {
-    self.group_redirect.insert(merge_from, merge_into);
-    merge_into
+    self.move_group(merge_into, merge_from)
 }
 ```
 
@@ -80,7 +74,7 @@ After a merge rewrites children and produces new collisions, those new merges ma
 
 `s03_cascading_merge` demonstrates this with the test `expression_collisions_cascade_to_parent_groups`. A two-level chain of expressions is set up so that merging two leaf groups causes their parents' expressions to collide, which in turn cascades upward. The fix resolves collisions until no new merges appear.
 
-The published code uses an explicit worklist that canonicalizes each discovered pair when processed and continues until the worklist is empty. A union-find with a hash-key repair loop is an alternative. Finding all affected expressions requires tracking which expressions reference each group — backlinks avoid scanning every expression for each individual merge, while a cascade can still touch a large part of the memo.
+The published code uses an explicit LIFO worklist, canonicalizes each pair when processed, and reverses newly discovered pairs to preserve recursive depth-first order. A union-find with a hash-key repair loop is an alternative. Finding all affected expressions requires tracking which expressions reference each group — backlinks avoid scanning every expression for each individual merge, while a cascade can still touch a large part of the memo.
 
 # Stage 4: Parent Backlinks
 
@@ -93,7 +87,7 @@ To avoid scanning the entire memo for affected expressions, the code maintains a
 Other query optimizers have encountered this problem:
 
 - The public **Columbia** source does not implement `MergeGroups` under its `UNIQ` configuration.
-- **Apache Calcite** eagerly rewrites with parent backlinks and merges costs and metadata during a recursive set merge.
+- **Apache Calcite** uses parent backlinks to rename affected parents, recursively merges sets exposed by renaming, and propagates best-cost changes.
 - **Doris Nereids** transfers parent links, enforcers, logical and physical expressions, lowest-cost and property entries, and conditionally copies statistics; duplicate `GroupExpression` merge combines property-cost tables and rule masks.
 - **Greenplum ORCA** marks duplicates during search and performs a global rehash at a quiescent phase boundary.
 - **CockroachDB** interns immutable expressions and adds explored alternatives to an explicit target group, so it exposes no general group-merge operation.
