@@ -3,8 +3,6 @@ title: "A Good Memo Table Is Hard to Build"
 pubDate: "2026-08-08T12:00:00-05:00"
 tags: ["optimizer-lesson", "optimizer", "Rust", "query optimization", "cascades"]
 description: "Group merging looks local. It is not. Four escalating failures and what they teach about memo-table design."
-socialImage: "/images/2026-08-08-optimizer-lesson-02-social.png"
-heroImage: "/images/2026-08-08-optimizer-lesson-02-banner.png"
 ---
 
 # Table of Contents
@@ -47,6 +45,8 @@ This post works through the failures one stage at a time, using the code in the 
 The crate's `s01_shallow_merge` module shows what happens with the simplest merge. Redirect one group to another, but do not rewrite any expressions:
 
 ```rust
+/// Illustrative — the actual crate uses `move_group` and
+/// redirect maps. See `s01_shallow_merge.rs` for the real code.
 fn merge_group(&mut self, a: GroupId, b: GroupId) {
     self.group_redirect.insert(a, b);
     // Nothing else — no expression rewriting
@@ -63,20 +63,16 @@ A redirect map makes representative lookup possible. It does not re-express stor
 
 # Stage 2: Rewriting Children Changes Identity
 
-The obvious fix is to rewrite every expression that directly references the losing group, replacing child IDs with the surviving representative. `s02_rewrite_children` shows this:
+The fix rewrites every expression that directly references the losing group.
+`s02_rewrite_children` demonstrates this. An illustrative sketch:
 
 ```rust
-fn merge_group(&mut self, a: GroupId, b: GroupId) {
-    self.group_redirect.insert(a, b);
-    for &expr_id in &self.expressions_referencing(a) {
-        self.rewrite_children(expr_id, |child| {
-            if child == a { b } else { child }
-        });
-    }
-}
+/// Illustrative — see `s02_rewrite_children.rs` for the real
+/// implementation which traverses expressions by group and
+/// replaces children using the redirect map.
 ```
 
-This fixes the shallow case. But the tests `expression_collisions_can_merge_groups` and `merged_groups_collapse_to_one` reveal a new problem: two expressions that used to be different can become identical after rewriting. When that happens, their groups must also be merged, or the memo violates:
+But the tests `rewriting_children_can_create_duplicate_expressions` and `merged_groups_collapse_to_one` reveal a new problem: two expressions that used to be different can become identical after rewriting. When that happens, their groups must also be merged, or the memo violates:
 
 > **Congruence closure:** If `key(e1) == key(e2)`, the groups containing `e1` and `e2` must be merged.
 
@@ -109,7 +105,7 @@ Other query optimizers have encountered this problem:
 
 The Cascades paper identifies cross-group duplicates and discusses merging pattern memories. It does not specify how to find affected parents, repair hash-table keys, detect cascading collisions, or handle stale winners and state. Those details become the implementation.
 
-In my own optimizer work, the public `optd-original` code uses redirect maps to resolve merged groups and notes that union-find could optimize them. Current optd uses append-only handles; its join-ordering pass runs DPhyp separately for each join group, with DP entries keyed by relation subsets.
+In my own optimizer work, the public `optd-original` code uses redirect maps to resolve merged groups and notes that union-find could optimize them. Current optd uses append-only handles; its join-ordering pass recurses per group and memoizes by `GroupId` to avoid repeated DP work on the same relation subset.
 
 # What We Learned
 
