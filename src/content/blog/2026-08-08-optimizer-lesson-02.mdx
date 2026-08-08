@@ -72,7 +72,7 @@ The fix rewrites every expression that directly references the losing group.
 /// replaces children using the redirect map.
 ```
 
-But the tests `rewriting_children_can_create_duplicate_expressions` and `merged_groups_collapse_to_one` reveal a new problem: two expressions that used to be different can become identical after rewriting. When that happens, their groups must also be merged, or the memo violates:
+But the test `rewriting_children_can_create_duplicate_expressions` reveals a new problem: two expressions that used to be different can become identical after rewriting. When that happens, their groups must also be merged, or the memo violates:
 
 > **Congruence closure:** If `key(e1) == key(e2)`, the groups containing `e1` and `e2` must be merged.
 
