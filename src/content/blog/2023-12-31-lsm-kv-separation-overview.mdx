@@ -233,7 +233,7 @@ With key-value separation, the read path gains an out-of-line value lookup.
 
 </div>
 
-Badger checks the memtables and every LSM level for the highest visible version. It then decodes the vptr and reads the value directly from the vLog.
+Badger checks candidates through the memtables and LSM levels for the highest visible version. It then decodes the vptr and reads the value directly from the vLog.
 
 Reading a separated value always adds one extra indirection. Badger's scan-specific drawback is different: values are appended in write order, so nearby keys can point to distant locations in the vLog, weakening spatial locality. Badger mitigates this with configurable value prefetch, which defaults to 100 values; scan performance still depends on the workload and write order.
 
