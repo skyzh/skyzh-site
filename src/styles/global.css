@@ -230,6 +230,16 @@ h6 {
 	width: max-content;
 }
 
+.wide-write-path-figure {
+	overflow-x: auto;
+}
+
+@media (max-width: 767px) {
+	.prose .wide-write-path-figure img {
+		max-width: none;
+	}
+}
+
 .page-heading {
 	margin: 0;
 }

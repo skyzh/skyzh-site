@@ -223,9 +223,9 @@
         </text>
       </g>
       <g id="Graphic_55">
-        <rect x="281.124" y="558.052" width="62.81032" height="28.447998" fill="white"/>
-        <rect x="281.124" y="558.052" width="62.81032" height="28.447998" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        <text transform="translate(286.124 563.052)" fill="black">
+        <rect x="337.68968" y="558.052" width="62.81032" height="28.447998" fill="white"/>
+        <rect x="337.68968" y="558.052" width="62.81032" height="28.447998" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(342.68968 563.052)" fill="black">
           <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="4.893159" y="15" xml:space="preserve">Offset</tspan>
         </text>
       </g>
@@ -237,9 +237,9 @@
         </text>
       </g>
       <g id="Graphic_57">
-        <rect x="343.9343" y="558.052" width="56.56568" height="28.447998" fill="white"/>
-        <rect x="343.9343" y="558.052" width="56.56568" height="28.447998" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        <text transform="translate(348.9343 563.052)" fill="black">
+        <rect x="281.124" y="558.052" width="56.56568" height="28.447998" fill="white"/>
+        <rect x="281.124" y="558.052" width="56.56568" height="28.447998" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+        <text transform="translate(286.124 563.052)" fill="black">
           <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="10.090841" y="15" xml:space="preserve">Len</tspan>
         </text>
       </g>

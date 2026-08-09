@@ -57,7 +57,11 @@ Moving data through every level while an LSM tree is still small would introduce
 
 BadgerDB writes large values directly to its value log (vLog), as shown below.
 
+<div class="wide-write-path-figure">
+
 ![Writing to Badger](write-badger.svg)
+
+</div>
 
 When a user writes a key-value pair to Badger, values below a configurable threshold stay inline in the LSM tree. For a value at or above the threshold, the write path is as follows:
 
@@ -76,7 +80,11 @@ Because a v-SST uses SST format, its large values are sorted by key and can use 
 
 ## Titan and BlobDB
 
+<div class="wide-write-path-figure">
+
 ![Writing to Titan / BlobDB](write-titan.svg)
+
+</div>
 
 Titan is a RocksDB plugin, so its foreground path follows RocksDB. Its background path resembles TerarkDB's, but it stores large values in blob files. A blob file contains key-value records in key order and compresses each record individually. For a separated value, Titan stores `<key, <fileno, offset, size>>` in the LSM tree.
 

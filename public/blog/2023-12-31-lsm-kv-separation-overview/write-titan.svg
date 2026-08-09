@@ -187,7 +187,7 @@
       <g id="Graphic_48">
         <text transform="translate(249.894 285.716)" fill="black">
           <tspan font-family="Helvetica Neue" font-size="14" fill="black" x="0" y="13" xml:space="preserve">3. Flush memtables to disk as SSTs + Blob files (background)</tspan>
-          <tspan font-family="Helvetica Neue" font-size="14" fill="black" x="0" y="29.392" xml:space="preserve">Store file number + length + offset in SSTs.</tspan>
+          <tspan font-family="Helvetica Neue" font-size="14" fill="black" x="0" y="29.392" xml:space="preserve">Store file number + offset + length in SSTs.</tspan>
         </text>
       </g>
       <g id="Graphic_49">
