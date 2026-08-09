@@ -1,6 +1,7 @@
 ---
 title: "Key-Value Separation in LSM Storage Engines"
 pubDate: "2023-12-31T18:00:00+08:00"
+updatedDate: "2026-08-09T00:00:00-07:00"
 tags: ["LSM", "Log-Structured", "Storage Engine", "Key-Value Separation"]
 description: "In this blog post, we walk through several different implementations of key-value separation in LSM storage engines."
 socialImage: "/images/2023-12-31-lsm-kv-separation-overview-social.png"
@@ -116,7 +117,7 @@ Once large values live outside the LSM tree, the engine needs a separate way to 
 
 ![Garbage collection in Badger](gc-badger.svg)
 
-Badger estimates reclaimable space when LSM compaction drops an obsolete entry whose value is stored in the vLog. At that point, it adds the referenced value's byte length to the discard statistic for that vLog file. Badger v3 and later persist these statistics in the `DISCARD` file; Badger v2 used an internal LSM key instead.
+Badger estimates reclaimable space when LSM compaction drops an obsolete entry whose value is stored in the vLog. At that point, it adds the referenced value's byte length to the discard statistic for that vLog file. Badger persists these statistics in the `DISCARD` file.
 
 Applications decide when to call `RunValueLogGC(discardRatio)`. The discard statistics guide selection of at most one candidate file per call; they do not trigger a rewrite automatically. During a rewrite, Badger checks each record's exact internal key/version and current LSM value pointer. It skips records that have been deleted, superseded, or no longer point to that location. Live values are appended to a new vLog file, and their updated pointers are written back to the LSM tree.
 
@@ -191,9 +192,7 @@ With key-value separation, the read path gains an out-of-line value lookup.
 
 Badger generally searches the memtables and LSM levels for the newest version at or below the read timestamp; an exact requested timestamp can end the search early. It then decodes the vptr and reads an out-of-line value directly from the vLog.
 
-Badger's iterator walks keys in sorted order, while values above the configured threshold occupy write-order offsets in the vLog. If write order and key order differ, a range scan that materializes those values can lose spatial locality. Badger mitigates this with configurable value prefetch: the checked v4.9.6 defaults fetch a window of 100 iterator values concurrently, while key-only or sparse scans can disable prefetch and fetch selected values on demand. This is a workload-dependent tradeoff, not proof that every Badger range scan is slow; insertion order, value size and threshold, cache state, scan length, compression, prefetch settings, and the storage device all affect the result.
-
-Historically, Badger's 2017 launch benchmark found value-materializing range iteration slower than RocksDB on one AWS i3.large setup despite prefetch, and left the shortfall as an open optimization problem. WiscKey's FAST '16 results were also conditional: with a randomly loaded database, tiny values lost to LevelDB on a long scan, while larger values won. These measurements explain the concern but do not establish a current cross-engine ranking.
+Badger's iterator returns keys in sorted order, but large values sit at write-order offsets in the vLog. When write order is random relative to key order, a range scan can lose locality and perform poorly. Badger mitigates this with configurable value prefetch, which defaults to 100 values; results still depend on the workload and write order.
 
 ## TerarkDB
 
