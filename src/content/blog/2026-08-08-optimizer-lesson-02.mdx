@@ -19,20 +19,70 @@ The runnable code is in [skyzh/optimizer-lessons](https://github.com/skyzh/optim
 
 </div>
 
-Suppose an optimizer has already inserted these two expressions:
+In Lesson 1, we established a way to look up expressions in the memo table. An expression's lookup key contains its operator, its private data, and the group IDs of its children. Before inserting an expression, the memo looks up that key. If the key already exists, we reuse its group; otherwise, we create a new group.
+
+This contract is simple as long as group IDs never change meaning. Now consider a memo with two always-true filters above a scan:
 
 ```
-Project[x](!G1)  in G3
-Project[x](!G2)  in G4
+G1: Filter[true](!G2)
+G2: Filter[true](!G3)
+G3: Scan(t1)
 ```
 
-Later, a rule proves that `G1` and `G2` are equivalent. The tempting implementation moves the expressions from `G2` into `G1`, records `G2 -> G1`, and returns. The API call looks finished.
+Here, `G1:` means that the expression to its right belongs to group `G1`, and `!G2` means that the expression uses any plan from `G2` as its child.
 
-Then the optimizer inserts `Project[x](!G1)` again. Instead of finding the existing expression, the memo creates another group. A task created before the merge still holds `G4`. A winner may still name an expression that was removed as a duplicate. One local call has left several data structures with different answers to the same question: which group does this expression belong to?
+Suppose we apply the rule `Filter[true](child) -> child` to both filters. The rule says that each filter and its child produce the same result, so the memo records the child group as another alternative:
 
-That is the motivating failure. A group merge is not a vector append. It changes an equivalence relation that the memo has materialized in expression keys, child IDs, reverse indexes, parent links, stale handles, and optimization state. Each copy of that fact must be reconciled, and one repair can reveal another merge.
+```
+G1: !G2, Filter[true](!G2)
+G2: !G3, Filter[true](!G3)
+G3: Scan(t1)
+```
 
-This post develops the implementation in four stages. Each stage fixes the smallest visible bug, exposes the next invariant, and carries the same example one level farther.
+The first rewrite tells us that `G1 == G2`. The second tells us that `G2 == G3`. By transitivity, `G1 == G2 == G3`.
+
+This is already a mess. `Scan(t1)` is now reachable through three group IDs even though a group is supposed to be the single home for a set of equivalent plans. A first attempt might choose `G1` as the surviving group, move every expression into it, and delete `G2` and `G3`:
+
+```
+G1: Filter[true](!G2), Filter[true](!G3), Scan(t1)
+```
+
+But collecting group members is not enough. The two filter expressions still refer to `G2` and `G3`. If those groups now redirect to `G1`, the stored expressions must be repaired as well:
+
+```
+G1: Filter[true](!G1), Filter[true](!G1), Scan(t1)
+```
+
+The two filters now have the same lookup key, so only one of them should remain. Future lookup requests need the same treatment. Looking up `Filter[true](!G3)` must first turn its child into the surviving `G1`; otherwise, the memo will miss `Filter[true](!G1)` and insert a duplicate.
+
+The repair also reaches expressions outside the three groups. Suppose another group contains a projection over `G3`:
+
+```
+G4: Project[col A](!G3)
+```
+
+The projection still belongs to `G4`, but its stored child must change to `G1`:
+
+```
+G4: Project[col A](!G1)
+```
+
+The memo must update both the expression and the lookup entry built from it. It must also canonicalize an incoming query for `Project[col A](!G3)` to `Project[col A](!G1)` so that old group handles and new lookups find the same expression.
+
+One repaired parent can force another group merge. Extend the example with two equivalent projections and their parents:
+
+```
+G4: Project[col A](!G3)
+G5: Project[col A](!G2)
+G6: Limit[10](!G4)
+G7: Limit[10](!G5)
+```
+
+After `G2` and `G3` redirect to `G1`, both projection keys become `Project[col A](!G1)`. That collision tells us that `G4 == G5`. Once those groups merge, both limit keys become `Limit[10](!G4)`, which tells us that `G6 == G7`. A merge at the scan has cascaded upward through two levels of parents.
+
+This is why `merge_group` is not a vector append. The memo needs a way to find expressions that refer to a losing group, canonicalize stored expressions and incoming lookup keys, resolve duplicate keys, and keep processing the new group equivalences it discovers. The rest of this post asks how to perform that repair until every view of the memo agrees again.
+
+We will repeat the same rhythm: implement the locally obvious fix, break it with the smallest counterexample, name the missing invariant, and strengthen the implementation.
 
 # A Concrete Memo Model
 
@@ -83,7 +133,7 @@ The demo also stores one winner per group. It deliberately does not model tasks,
 
 # The Running Example
 
-We will carry one two-level expression graph through all four stages:
+The filter chain exposed the problem. To trace the repair without self-referential filters, we will carry one acyclic, two-level expression graph through all four implementation stages:
 
 | Group | Expression |
 | --- | --- |
@@ -125,6 +175,8 @@ The missing invariant is:
 > Every child ID stored in a live memo expression is already its canonical group representative.
 
 A union-find or redirect map can make `find(G2)` cheap. It still cannot change a key already stored in a hash table. The entry must be removed under its old key, rewritten, and inserted under its new key.
+
+This correctness-first repair needs exclusive access to the memo while an expression's old key is removed and its new key is installed. During that short interval, the expression store and its indexes intentionally disagree. Without an inverse index from a child group to its parent expressions, finding every row affected by the update also requires a scan of the memo.
 
 # Stage 2: Rewriting a Key Can Create a Collision
 
@@ -181,6 +233,8 @@ To find affected expressions without scanning the whole memo, `s04_parent_backli
 parent_exprs: HashMap<GroupId, BTreeSet<ExprId>>
 ```
 
+The backlink stores expression IDs rather than owner group IDs because expressions are the objects whose children and hash keys must be rewritten. Two expressions in one owner group may refer to the same child independently.
+
 When an expression is inserted, its ID is added to the parent set of each child group. Before redirecting a losing group, `merge_group` clones that group's parent set. Those are the only expressions whose hash keys can change because of this individual merge.
 
 For every affected expression, the implementation performs the same careful sequence:
@@ -195,7 +249,7 @@ The order matters. If the code redirects `G2` before capturing `parent_exprs[G2]
 
 `backlinks_track_direct_parent_expressions` also checks the set semantics: an expression that uses one group twice is still one parent expression, not two. `backlinks_are_repaired_through_cascading_merges` verifies the reverse index after both the `G2 -> G1` and `G4 -> G3` repairs.
 
-Backlinks improve the starting point of each rewrite. They do not make a cascading merge globally local or linear. A leaf merge can still expose collisions through a large part of the memo, and the backlink index is itself another invariant that every insertion, rewrite, collision, and deletion must maintain.
+Backlinks change parent discovery for one merge from scanning all memo expressions to visiting the losing group's direct parents. They do not make a cascading merge globally local or linear. A leaf merge can still expose collisions through a large part of the memo, and the backlink index is itself another invariant that every insertion, rewrite, collision, and deletion must maintain.
 
 # Stale Handles and Winners Are Part of the Contract
 
@@ -239,9 +293,20 @@ Other optimizer designs draw the boundary in different places:
 - **CockroachDB** interns immutable expressions and adds explored alternatives to an explicit target group, so it exposes no general group-merge operation.
 - **egg** tracks parent e-nodes, queues affected parents on union, restores congruence lazily in `rebuild`, and merges analysis data under a separate policy.
 
+These designs choose different places to pay for the same reconciliation:
+
+| Strategy | Parent discovery | Repair timing | Main cost |
+| --- | --- | --- | --- |
+| Full rewrite | Scan the memo | Immediate | Global work and exclusive mutation |
+| Parent backlinks | Inverse-edge index | Immediate | More indexes and mutation invariants |
+| Deferred rehash | Scan and rebuild globally | Quiescent phase | Stop-the-world work and phase constraints |
+| Constrained grouping | Avoid arbitrary union | During controlled rule insertion | Duplicate semantic groups and missed sharing |
+
 The Cascades paper identifies cross-group duplicates and discusses merging pattern memories. It does not prescribe a concrete contract for finding affected parents, repairing hash keys, processing cascading collisions, or reconciling stale handles and optimizer state. Those choices belong to the implementation.
 
-In my own optimizer work, the public `optd-original` code uses redirect maps to resolve merged groups and notes that union-find could optimize representative lookup. Current optd takes a different path for join ordering: it builds a hypergraph for each join-group root and runs dynamic programming over `NodeSet` keys. It should not be described as a newer version of the general memo merge shown here.
+In my own optimizer work, `optd-original` learned these invariants one bug at a time. Merge ordering could make source expressions disappear before migration. Replacement collisions then required merging their owner groups. Union-find made representative lookup cheaper but still left stored children stale. The correctness-first rewrite canonicalized every expression and recursively handled collisions; later fixes routed winner updates through representatives and retained the cheaper winner. Each locally reasonable repair exposed another materialized view of the equivalence relation.
+
+Current optd takes a different path for join ordering: it builds a hypergraph for each join-group root and runs dynamic programming over `NodeSet` keys. It should not be described as a newer version of the general memo merge shown here.
 
 The comparison is not “which optimizer found the one correct data structure?” The useful question is which states can become equivalent after insertion, which indexes materialize that equivalence, and when the system repairs them. A specialized dynamic program or constrained insertion API can remove the need for a general `merge_group`; a general memo must pay the reconciliation cost somewhere.
 
