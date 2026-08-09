@@ -87,6 +87,8 @@ During a background flush, TerarkDB separates entries according to value size. S
 
 Because a v-SST uses SST format, its large values are sorted by key and can use RocksDB's block-level compression.
 
+The pinned TerarkDB source defaults to a 512 B separation threshold. Its key-sorted, indexed v-SSTs can use block compression, which helps explain why separating smaller values is a reasonable design choice here. This is not a universal optimum: lowering the threshold moves more values out of the LSM tree, changing compaction work, compression opportunity, cache behavior, and read and scan I/O.
+
 ## Titan and BlobDB
 
 <div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Writing to Titan and BlobDB diagram">
@@ -103,13 +105,14 @@ BlobDB has a similar write path and also stores ordered values with per-record c
 
 <div class="table-container">
 
-| Storage Engine | BadgerDB | TerarkDB | Titan / BlobDB |
-| --- | --- | --- | --- |
-| Foreground writing of large values <br/> (affects write amplification) | Written directly to vLog | Written to WAL, then flushed to v-SST | Written to WAL, then flushed to blob file |
-| Value pointer contents | `<fid, len, offset>` | `<fileno>` | Titan: `<fileno, offset, size>`<br/>BlobDB: `<type, fileno, offset, size, compression>` |
-| Out-of-line value order <br/> (one input to key-range locality) | Write order | Key order | Key order |
-| Compression granularity <br/> (affects space amplification) | Per record | Per block | Per record |
-| Out-of-line storage includes an index | No | Yes | No |
+| Storage Engine | BadgerDB | TerarkDB | Titan | BlobDB |
+| --- | --- | --- | --- | --- |
+| Foreground writing of large values <br/> (affects write amplification) | Written directly to vLog | Written to WAL, then flushed to v-SST | Written to WAL, then flushed to blob file | Written to WAL, then flushed to blob file |
+| Value pointer contents | `<fid, len, offset>` | `<fileno>` | `<fileno, offset, size>` | `<type, fileno, offset, size, compression>` |
+| Out-of-line value order <br/> (one input to key-range locality) | Write order | Key order | Key order | Key order |
+| Out-of-line value compression | None in vLog | Per block when enabled | Per record when enabled (default none) | Per record when enabled (default none) |
+| Separation-threshold context | v2.2007.3: 1 KiB; v4.9.6: 1 MiB; configurable | 512 B; configurable | 4 KiB; configurable | 0 when blob files are enabled; configurable; blob files default off |
+| Out-of-line storage includes an index | No | Yes | No | No |
 
 </div>
 
@@ -145,7 +148,7 @@ Because those replacement pointers use the normal LSM write path, GC adds write 
 
 </div>
 
-As shown in the above figure, a deletion at version 10 can coexist with a GC pointer update for the older value at version 9. Badger keeps the deletion visible while the rewrite is active, and its version ordering makes the deletion the newest visible entry. Moving the older value therefore does not make the deleted key visible again.
+As shown in the above figure, a deletion at version 10 can coexist with a GC rewrite of the older value at version 9. Unlike an ordinary LSM lookup that can return after the first matching key in the newest SSTs, Badger searches the memtables and LSM levels for the highest visible version. The version-10 deletion therefore remains visible over the rewritten version-9 entry. While the rewrite is active, Badger also prevents compaction from discarding a newer tombstone.
 
 ## Compaction and Garbage Collection in TerarkDB
 
@@ -230,7 +233,7 @@ With key-value separation, the read path gains an out-of-line value lookup.
 
 </div>
 
-Badger finds the newest visible entry in the LSM tree, decodes its vptr, and reads the value directly from the vLog.
+Badger checks the memtables and every LSM level for the highest visible version. It then decodes the vptr and reads the value directly from the vLog.
 
 Reading a separated value always adds one extra indirection. Badger's scan-specific drawback is different: values are appended in write order, so nearby keys can point to distant locations in the vLog, weakening spatial locality. Badger mitigates this with configurable value prefetch, which defaults to 100 values; scan performance still depends on the workload and write order.
 
@@ -286,14 +289,14 @@ Key-value separation can reduce LSM-tree write amplification, but it introduces 
 ## References
 
 * [WiscKey: Separating Keys from Values in SSD-conscious Storage](https://www.usenix.org/conference/fast16/technical-sessions/presentation/lu)
-* [BadgerDB source](https://github.com/dgraph-io/badger)
+* [BadgerDB source](https://github.com/dgraph-io/badger), including [v2.2007.3 options](https://github.com/dgraph-io/badger/blob/v2.2007.3/options.go), [v2.2007.3 value-log encoding](https://github.com/dgraph-io/badger/blob/v2.2007.3/value.go), [v4.9.6 options](https://github.com/dgraph-io/badger/blob/v4.9.6/options.go), and [v4.9.6 value-log encoding](https://github.com/dgraph-io/badger/blob/v4.9.6/value.go)
 * [Badger value-pointer layout](https://github.com/dgraph-io/badger/blob/fbd8d2eefad8be8757249767255faf989945b599/structs.go#L15-L18), [discard accounting](https://github.com/dgraph-io/badger/blob/fbd8d2eefad8be8757249767255faf989945b599/levels.go#L702-L715), and [value-log GC API](https://github.com/dgraph-io/badger/blob/fbd8d2eefad8be8757249767255faf989945b599/db.go#L1261-L1306)
 * [Badger iterator and prefetch implementation](https://github.com/dgraph-io/badger/blob/fbd8d2eefad8be8757249767255faf989945b599/iterator.go)
-* [TerarkDB source](https://github.com/bytedance/terarkdb/tree/110bbecf61f3e4ef194e81cad1786f899c730752)
+* [TerarkDB source](https://github.com/bytedance/terarkdb/tree/110bbecf61f3e4ef194e81cad1786f899c730752), [options](https://github.com/bytedance/terarkdb/blob/110bbecf61f3e4ef194e81cad1786f899c730752/options/options.cc), and [v-SST table builder](https://github.com/bytedance/terarkdb/blob/110bbecf61f3e4ef194e81cad1786f899c730752/db/compaction_job.cc)
 * [Titan: a RocksDB plugin for key-value separation](https://github.com/tikv/titan)
-* [Titan blob-index format](https://github.com/tikv/titan/blob/b21afb5d7a50f960fbf47a19c103ebc6c43636a3/src/blob_format.h#L134-L167) and [Level Merge option](https://github.com/tikv/titan/blob/b21afb5d7a50f960fbf47a19c103ebc6c43636a3/include/titan/options.h)
+* [Titan blob-index format](https://github.com/tikv/titan/blob/b21afb5d7a50f960fbf47a19c103ebc6c43636a3/src/blob_format.h#L134-L167), [blob-record encoding](https://github.com/tikv/titan/blob/b21afb5d7a50f960fbf47a19c103ebc6c43636a3/src/blob_format.cc), and [threshold, compression, and Level Merge options](https://github.com/tikv/titan/blob/b21afb5d7a50f960fbf47a19c103ebc6c43636a3/include/titan/options.h)
 * [Design and Implementation of Titan](https://www.pingcap.com/blog/titan-storage-engine-design-and-implementation/)
-* [RocksDB BlobDB index format](https://github.com/facebook/rocksdb/blob/1dfa7297933df05237ac11376d6cb69d32591b1d/db/blob/blob_index.h#L24-L45), [options](https://github.com/facebook/rocksdb/blob/1dfa7297933df05237ac11376d6cb69d32591b1d/include/rocksdb/advanced_options.h#L1082-L1162), and [integrated BlobDB design](https://github.com/facebook/rocksdb/blob/1dfa7297933df05237ac11376d6cb69d32591b1d/docs/_posts/2021-05-26-integrated-blob-db.markdown)
+* [RocksDB BlobDB index format](https://github.com/facebook/rocksdb/blob/1dfa7297933df05237ac11376d6cb69d32591b1d/db/blob/blob_index.h#L24-L45), [options](https://github.com/facebook/rocksdb/blob/1dfa7297933df05237ac11376d6cb69d32591b1d/include/rocksdb/advanced_options.h#L1082-L1162), [blob-record builder](https://github.com/facebook/rocksdb/blob/1dfa7297933df05237ac11376d6cb69d32591b1d/db/blob/blob_file_builder.cc), and [integrated BlobDB design](https://github.com/facebook/rocksdb/blob/1dfa7297933df05237ac11376d6cb69d32591b1d/docs/_posts/2021-05-26-integrated-blob-db.markdown)
 * [Neon page-server storage](https://github.com/neondatabase/neon/blob/8f60b04da47ffefe0e52bda2440134b42874eb75/docs/pageserver-storage.md) and [compaction](https://github.com/neondatabase/neon/blob/8f60b04da47ffefe0e52bda2440134b42874eb75/docs/pageserver-compaction.md)
 
 This blog post was originally published in Simplified Chinese on [August 7, 2021](https://www.skyzh.dev/blog/2021-08-07-lsm-kv-separation-overview/). The English version was translated with ChatGPT and adds material on RocksDB's BlobDB and Neon's page server.
