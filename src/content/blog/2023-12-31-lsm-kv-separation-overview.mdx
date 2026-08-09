@@ -192,7 +192,7 @@ With key-value separation, the read path gains an out-of-line value lookup.
 
 Badger generally searches the memtables and LSM levels for the newest version at or below the read timestamp; an exact requested timestamp can end the search early. It then decodes the vptr and reads an out-of-line value directly from the vLog.
 
-Badger's iterator returns keys in sorted order, but large values sit at write-order offsets in the vLog. When write order is random relative to key order, a range scan can lose locality and perform poorly. Badger mitigates this with configurable value prefetch, which defaults to 100 values; results still depend on the workload and write order.
+All key-value-separated designs add an out-of-line value lookup. Badger's range-scan risk is not that indirection itself: its append-oriented vLog places large values in write order while its iterator returns keys in key order. When those orders differ, a scan can lose spatial locality and perform poorly. Badger mitigates this with configurable value prefetch, which defaults to 100 values; results still depend on the workload and write order.
 
 ## TerarkDB
 
