@@ -31,7 +31,7 @@ CREATE TABLE t2(y INT);
 SELECT * FROM t1, t2 WHERE t1.y = t2.y AND t1.z = 3;
 ```
 
-We will likely get a query plan like this: <small><sup>^1</sup></small>
+This gives us a query plan: <small><sup>^1</sup></small>
 
 ```
 Filter #2 (t1.z) = 3
@@ -41,7 +41,7 @@ Filter #2 (t1.z) = 3
 ```
 
 <small>
-^1: Note that we assumed that the column references in the plan predicates are the indexes of the columns of the output. For example, join will merge the 3-column left table (x,y,z) and the 1-column right table (y) in their original column order to create a 4-column output (t1.x,t1.y,t1.z,t2.y). So t1.y is #1, and t2.y is #3. We will revisit this later!
+^1: We assume that column references in plan predicates are indexes into the output columns. The join preserves the original column order when it combines the three-column left table `(x, y, z)` with the one-column right table `(y)`, producing `(t1.x, t1.y, t1.z, t2.y)`. Therefore, `t1.y` is `#1` and `t2.y` is `#3`. We will revisit this convention later.
 </small>
 
 How do we store such query plans in Rust? I mean, if we need to write a function like this:
@@ -121,13 +121,13 @@ pub fn plan() -> RelNode {
 }
 ```
 
-Everything sounds so good, right (for now)?
+This works well for a first pass. But it has a problem we will see shortly.
 
 # A Simple Transformation: Join Commutativity
 
 [[code for this section]](https://github.com/skyzh/optimizer-lessons/blob/main/lesson-1/src/s02_create_a_plan.rs)
 
-We stored the plan in memory, and the optimizer kicks in and does its work. The job of a query optimizer is to rewrite the plan into another plan that is (potentially) more efficient to execute. An example rewrite is to apply the commutativity of join operators. "A inner join B" should yield the same result as "B inner join A". Let's do this transformation.  <small><sup>^2</sup></small>
+We stored the plan in memory, and the optimizer kicks in and does its work. The job of a query optimizer is to rewrite the plan into another plan that is (potentially) more efficient to execute. An example rewrite is to apply the commutativity of join operators. `A INNER JOIN B` should yield the same result as `B INNER JOIN A`. Let's do this transformation.  <small><sup>^2</sup></small>
 
 ```rust
 pub fn join_commute(node: Arc<RelNode>) -> Option<Arc<RelNode>> {
@@ -156,9 +156,9 @@ We have defined a rule. Rules only apply to a single plan node, but a plan is a 
 
 ![the original query plan](optimizer-lesson-1/01-plan.svg)
 
-A heuristics optimizer applies rules on plan nodes using a specified order. Users usually provide rules known to improve the quality of a query plan in ordinary cases to the heuristics optimizer, who will apply the rules whenever possible. For example, in 99% of the cases, turning a nested loop join with an equal join condition into a hash join would be a good choice, and pushing filters down will reduce the amount of computation performed. On the contrary, a cost-based optimizer will use the cost model to determine whether it's good or not to apply a rule that allows users to define transformations that are not always good.
+A heuristics optimizer applies rules on plan nodes using a specified order. Users usually provide rules known to improve the quality of a query plan in ordinary cases, which the heuristics optimizer applies whenever possible. For example, turning a nested loop join with an equality condition into a hash join is usually a good choice, and pushing filters down can reduce the amount of computation. A cost-based optimizer instead uses a cost model, so users can also define transformations that are not always improvements.
 
-Generally, there are two applying orders for each rule: top-down and bottom-up. It's easier to explain them by code:
+Generally, there are two application orders for each rule: top-down and bottom-up. The following functions are illustrative; [`s03_heuristics.rs`](https://github.com/skyzh/optimizer-lessons/blob/main/lesson-1/src/s03_heuristics.rs) contains the runnable bottom-up implementation using `clone_with_children`.
 
 ```rust
 fn apply_rule_bottom_up(
@@ -198,9 +198,9 @@ The order of application does not matter for the join commutativity rule -- we w
 
 As in the figure above, applying the filter-projection rule in a top-down order will push the filter down to the scan node, while applying it in a bottom-up order will only push it one level down.
 
-In a heuristics optimizer, despite the order of applying a rule on the plan nodes, we also need to determine which rule to apply first (the order of invocation) and how many times we need to apply a rule (we can apply a rule multiple times). We will cover them in later blog posts.
+In a heuristics optimizer, besides choosing where to start in the plan tree, we also need to decide which rule to invoke first and how many times to apply it.
 
-Back to the topic of plan representation. Can we implement a generic function `apply_rule_bottom_up` that takes a rule and a plan node and produces an optimized plan? Now, here's the challenge. We need to get all children of the plan nodes and clone the plan nodes with a new set of children. We need a trait on all the plan nodes or a function on the `RelNode` enum to retrieve/modify such information.
+With these two traversal orders, we can write a generic `apply_rule_bottom_up`. But notice the representation problem: the traversal must retrieve every node's children and clone each node with a new child list. We need a trait on every plan node or methods on the `RelNode` enum to expose those operations.
 
 ```rust
 impl Join {
@@ -256,6 +256,8 @@ fn apply_rule_bottom_up(
 }
 ```
 
+Later posts will return to rule invocation order and repeated application.
+
 # A Cost-Based Optimizer Framework
 
 [[code for this section]](https://github.com/skyzh/optimizer-lessons/blob/main/lesson-1/src/s04_memo.rs)
@@ -291,9 +293,11 @@ t1 join (t3 join t2)
 ^3: Let's keep things simple now. Filters are always part of the join conditions and won't be a standalone filter operator. We don't care about column orders, so there are no projection nodes. We also don't consider the join implementations (hash join versus nested loop join); otherwise, we will get even more plans.
 </small>
 
-We have a total of 12 possible plans in the plan space. We can fire the cost model on each plan and pick the best one out of them. However, there seem to be a lot of duplicated computations, such as we will need to compute the cost of `(t1 join t2)` multiple times in two different plans. Plus, `(t1 join t2)` produces the same result as `(t2 join t1)`, so if we know `(t1 join t2)` is a better join order than `(t2 join t1)`, we can prune all plans that contains the joins between t1 and t2 but not using the best join order. There is a way to optimize it: we can save the intermediate cost and the winner for an equivalent set of plans for use later.
+We have a total of 12 possible plans in the plan space. We can run the cost model on each plan and pick the best one, but that repeats work: for example, we compute the cost of `(t1 join t2)` in more than one plan.
 
-So here comes the most critical structure in a cost-based optimizer: the memo table. The memo table _memorizes_ the equivalences of the plan subtrees.
+Also, `(t1 join t2)` produces the same result as `(t2 join t1)`. If we know which order is cheaper, we can reuse that result while costing larger plans. We need a structure that saves the intermediate cost and winner for each equivalent set of plans.
+
+This is where the most critical structure in a cost-based optimizer appears: the memo table. The memo table stores groups of equivalent plan subtrees.
 
 ![the memo table of the 3-way join](optimizer-lesson-1/03-memo-table-expand.svg)
 
@@ -376,7 +380,7 @@ Join associativity transformation seems more complex. We must match on a pattern
 
 ![apply join associativity](optimizer-lesson-1/04-memo-transform-2.svg)
 
-Note how bindings differ from the original plan tree: In this plan structure, we will have group IDs as leaves. This leads to an unfortunate fact: we need yet another plan representation for rule match bindings.
+Note how bindings differ from the original plan tree: in this plan structure, group IDs appear as leaves. We therefore need a third plan representation for rule-match bindings.
 
 ```rust
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
@@ -503,7 +507,7 @@ Let's revisit all the problems we had before again, but from the optimizer frame
 
 Can we have a plan representation that is friendly for the optimizer framework to manipulate and pleasant for the user?
 
-Here, I propose to use this new plan representation in the system:
+Here, I propose to use a new plan representation. The next snippets show the stage-6 representation from [`s06_new_repr.rs`](https://github.com/skyzh/optimizer-lessons/blob/main/lesson-1/src/s06_new_repr.rs), not the tagged `RelNode` enum used in the opening stages.
 
 ```rust
 #[derive(Clone)]
@@ -594,7 +598,7 @@ pub enum RelNodeMatcher {
 }
 ```
 
-We won't talk about how to convert between them in detail now, but we can imagine that such conversion code will not need to do a `match` on all variants of `RelNodeType`. Thus, when users add a new plan node, they only need to define the `RelNodeType` and `RelAttrType`, and the optimizer framework will take care of the rest.
+The conversion details are for a later post. For now, the key point is that this representation avoids matching on every plan node variant. When users add a new plan node, they only need to define the `RelNodeType` and `RelAttrType`, and the optimizer framework will take care of the rest.
 
 On the user side, they are required to implement helper functions to _interpret_ the structure of `RelNode`.
 
@@ -622,4 +626,4 @@ We can make such interpretations generic among `RelNode`, `BindRelNode`, and `Me
 **Takeaways:** Plan representation is a key decision for a query optimizer. A good plan representation should be straightforward for the optimizer framework to manipulate and easy for the user to use. We proposed a new plan representation that allows easy access to the optimizer framework while allowing users to easily extend the framework (rules, plan nodes, etc.).
 </div>
 
-Do you think the proposed plan representation is a better alternative than the Apache Calcite representation? Feel free to comment and share your thoughts on the corresponding [GitHub Discussion](https://github.com/skyzh/skyzh-site/discussions/29) for this blog post.
+Do you think the proposed plan representation is a better alternative than the Apache Calcite representation? Continue the discussion in the corresponding [GitHub Discussion](https://github.com/skyzh/skyzh-site/discussions/29).
