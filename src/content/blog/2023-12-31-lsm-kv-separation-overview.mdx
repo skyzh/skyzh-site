@@ -119,7 +119,7 @@ Once large values live outside the LSM tree, the engine needs a separate way to 
 
 Badger estimates reclaimable space when LSM compaction drops an obsolete entry whose value is stored in the vLog. At that point, it adds the referenced value's byte length to the discard statistic for that vLog file. Badger persists these statistics in the `DISCARD` file.
 
-Applications start collection explicitly. Badger uses the discard statistics to select a vLog file, copies its live values into a new file, and writes their updated pointers back to the LSM tree.
+As shown in the above figure, applications start collection explicitly. Badger uses the discard statistics to select a vLog file, then checks each record against the LSM tree. It skips a record if its key is gone or the current LSM entry no longer points to it. Badger copies the remaining live values into a new file and writes their updated pointers back to the LSM tree.
 
 Because those replacement pointers use the normal LSM write path, GC adds write traffic and must not overwrite a concurrent update or deletion.
 
@@ -135,7 +135,7 @@ TerarkDB rewrites live entries into new v-SSTs and records dependencies from old
 
 ![Compaction in TerarkDB](compaction-terarkdb.svg)
 
-During LSM-tree compaction, TerarkDB also refreshes file numbers. If the referenced v-SST has been replaced, the engine follows the dependency relationship and writes the new file number into the compaction output.
+As shown in the above figure, TerarkDB first selects the levels and files for an LSM-tree compaction. While merging those SSTs, it checks each separated value's v-SST file number. If the referenced v-SST has been replaced, TerarkDB follows the dependency relationship and writes the new file number into the compaction output before adding the new SSTs to the LSM tree.
 
 Over time, lower LSM levels may depend on many v-SSTs, and one v-SST may be referenced by many SSTs. TerarkDB performs a special _rebuild_ compaction to bound and shorten these dependency chains.
 
