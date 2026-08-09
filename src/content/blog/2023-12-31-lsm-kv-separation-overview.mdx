@@ -25,11 +25,11 @@ The idea sounds straightforward, but a practical implementation must answer seve
 * When reclaiming garbage, how should the engine update vptrs in the LSM tree?
 * How should the engine manage the effect of key-value separation on range scans?
 
-Between WiscKey's publication in 2016 and this English article in 2023, several key-value-separated LSM storage engines emerged. In this article, I will introduce four open-source implementations and compare their design tradeoffs. These differences can help readers choose an engine for workloads with large values.
+Several key-value-separated LSM storage engines have emerged since WiscKey. In this article, I will introduce four open-source implementations and compare their design tradeoffs. These differences can help readers choose an engine for workloads with large values.
 
 * [BadgerDB](https://github.com/dgraph-io/badger) is the closest of these engines to the key-value separation described in the WiscKey paper. It is written in Go and was developed for the Dgraph graph database.
-* [TerarkDB](https://github.com/bytedance/terarkdb) was developed by Terark, which ByteDance acquired. The checked source is a fork of RocksDB 5.18.3.
-* [Titan](https://github.com/tikv/titan) is a RocksDB plugin used by TiKV. Its repository documents compatibility with specific TiKV and RocksDB versions rather than promising compatibility with every RocksDB interface.
+* [TerarkDB](https://github.com/bytedance/terarkdb) was developed by Terark, which ByteDance acquired, and is based on RocksDB.
+* [Titan](https://github.com/tikv/titan) is a RocksDB plugin used by TiKV.
 * [BlobDB](https://github.com/facebook/rocksdb/tree/main/db/blob) is integrated into RocksDB and stores large values in separate blob files.
 
 <div style={{ "border": "1px solid", "padding": "0.5em" }}>
@@ -48,11 +48,11 @@ In this article, unless otherwise stated, we assume that the storage engine has 
 
 First, let's look at how a conventional LSM storage engine handles writes. When the engine receives a write, it records the key-value pair in both the memtable and the WAL (Write-Ahead Log). The memtable often uses a skip list. The WAL makes the memtable's contents recoverable after a server failure; once the required WAL record is durable, the engine can acknowledge the write as persisted.
 
-The engine performs two main kinds of background work: flushing memtables to disk and compacting the LSM tree. There is typically one mutable memtable per column family and there may be several immutable memtables waiting to flush. When a memtable reaches its size limit, the engine turns it into an SST and writes it to disk. A WAL can be removed only after no live memtable depends on it. An SST stores ordered key-value pairs in data blocks, often with per-block compression. Its index entries delimit those blocks and direct lookups to candidate blocks. SSTs may also contain structures such as Bloom filters to avoid unnecessary reads.
+The engine performs two main kinds of background work: flushing memtables to disk and compacting the LSM tree. It may have one mutable memtable and several immutable memtables waiting to flush. When a memtable reaches its size limit, the engine writes it as an SST; its WAL can be removed after no live memtable depends on it. An SST stores ordered key-value pairs in compressed blocks, with indexes and often Bloom filters to speed up reads.
 
 Level 0 of the LSM tree consists of multiple SST files whose key ranges may overlap. In a leveled design, files within each level from level 1 onward have non-overlapping key ranges. If a level exceeds its size limit, the storage engine compacts selected files with overlapping files in the next level. As a result, data generally moves toward lower levels over time.
 
-Moving data through every level while an LSM tree is still small would introduce unnecessary write amplification. Many engines therefore choose a dynamic base level (Lbase) according to the current database size and configuration. Early data can move directly from level 0 to that base level instead of passing through every intermediate level.
+Moving data through every level while an LSM tree is still small would introduce unnecessary write amplification. Many engines therefore choose a dynamic base level (Lbase), allowing early data to move there directly from level 0.
 
 ## BadgerDB
 
@@ -77,7 +77,7 @@ Because TerarkDB is based on RocksDB, its foreground write path follows RocksDB:
 
 During a background flush, TerarkDB separates entries according to value size. Small values remain with their keys in an SST. Large values and their keys are written to a v-SST. Because the v-SST has index blocks, a query can locate a value by key. For a separated value, the LSM tree stores the key and the v-SST file number, `<key, fileno>`, without an offset.
 
-Because a v-SST uses SST format, its large values are sorted by key and can use RocksDB's block-level compression. The pinned TerarkDB source sets its separation threshold to 512 B. Thresholds in these engines are configurable and version-dependent, so the comparison table below does not present them as timeless defaults.
+Because a v-SST uses SST format, its large values are sorted by key and can use RocksDB's block-level compression.
 
 ## Titan and BlobDB
 
@@ -89,7 +89,7 @@ Because a v-SST uses SST format, its large values are sorted by key and can use 
 
 Titan is a RocksDB plugin, so its foreground path follows RocksDB. Its background path resembles TerarkDB's, but it stores large values in blob files. A blob file contains key-value records in key order and compresses each record individually. For a separated value, Titan stores `<key, <fileno, offset, size>>` in the LSM tree.
 
-BlobDB has a similar write path and also stores ordered, per-record-compressed values in blob files. Its LSM blob index contains the record type, file number, offset, size, and compression metadata (and an expiration field for TTL values).
+BlobDB has a similar write path and also stores ordered, per-record-compressed values in blob files. Its LSM blob index contains the record type, file number, offset, size, and compression metadata.
 
 ## Comparison of Write Paths
 
@@ -107,7 +107,7 @@ BlobDB has a similar write path and also stores ordered, per-record-compressed v
 
 # Garbage Collection
 
-After users update or delete keys, a conventional LSM engine can discard obsolete records during compaction, as shown below. If compaction finds several versions of a key or a deletion tombstone, it drops old versions and tombstones only when no supported snapshot or lower-level data can still require them.
+After users update or delete keys, a conventional LSM engine can discard obsolete records during compaction, as shown below. It can drop an old version or tombstone once no snapshot or lower-level data still needs it.
 
 ![Compaction in normal LSM](compaction-normal-lsm.svg)
 
@@ -119,23 +119,19 @@ Once large values live outside the LSM tree, the engine needs a separate way to 
 
 Badger estimates reclaimable space when LSM compaction drops an obsolete entry whose value is stored in the vLog. At that point, it adds the referenced value's byte length to the discard statistic for that vLog file. Badger persists these statistics in the `DISCARD` file.
 
-Applications decide when to call `RunValueLogGC(discardRatio)`. The discard statistics guide selection of at most one candidate file per call; they do not trigger a rewrite automatically. During a rewrite, Badger checks each record's exact internal key/version and current LSM value pointer. It skips records that have been deleted, superseded, or no longer point to that location. Live values are appended to a new vLog file, and their updated pointers are written back to the LSM tree.
+Applications start collection explicitly. Badger uses the discard statistics to select a vLog file, copies its live values into a new file, and writes their updated pointers back to the LSM tree.
 
-Because those replacement pointers use the normal LSM write path, GC adds write traffic and can affect foreground throughput. It also raises a correctness question: could GC write an older value back after a concurrent update or deletion?
+Because those replacement pointers use the normal LSM write path, GC adds write traffic and must not overwrite a concurrent update or deletion.
 
 ![Garbage collection consistency in Badger](gc-consistency-badger.svg)
 
-*Correctness boundary: while a vLog rewrite is active, a newer tombstone must remain in the LSM so it continues to shadow any older value pointer written back by GC.*
-
-Badger's internal keys contain a user key and version. GC writes an older internal key/version back with a new value pointer, so a newer update or tombstone must continue to win. Badger reads the newest visible version across the LSM. The checked 2026 source also prevents last-level compaction from discarding a tombstone created after a vLog rewrite began. That retention rule is necessary: older releases could resurrect a deleted value in a narrow compaction/GC race, which was fixed in June 2026.
+*GC may move an old value, but reads still return the newest visible version.*
 
 ## Compaction and Garbage Collection in TerarkDB
 
 ![Garbage collection in TerarkDB](gc-terarkdb.svg)
 
-In TerarkDB, v-SST garbage collection does not need to write replacement pointers back through the foreground LSM write path, reducing its impact on foreground traffic.
-
-In the background, TerarkDB selects v-SSTs according to their estimated garbage and checks each key against the LSM tree to see whether it has been deleted or updated. GC produces new v-SSTs and records dependencies between old and new files in the MANIFEST. If a lookup points to an older v-SST, TerarkDB follows those dependencies to the newest file and reads the value there. This design avoids writing every replacement file number through the foreground path.
+TerarkDB rewrites live entries into new v-SSTs and records dependencies from old files to their replacements. Reads follow those dependencies, so GC does not need to write every replacement file number through the foreground path.
 
 ![Compaction in TerarkDB](compaction-terarkdb.svg)
 
@@ -149,23 +145,19 @@ Titan's regular garbage collection resembles Badger's: statistics identify candi
 
 ![Regular garbage collection in Titan](gc-titan-regular.svg)
 
-Because Titan is a RocksDB plugin, it does not have direct access to every key's internal version. When writing replacement pointers, it registers a `WriteCallback` to prevent GC from overwriting a later user update. This adds write-path synchronization and can affect throughput; the magnitude depends on the workload.
+Regular GC synchronizes pointer updates with foreground writes so it cannot overwrite later values. This can affect write throughput.
 
-Titan also offers an optional scheme called _Level Merge_, shown below. When enabled, compaction into the last two LSM levels can rewrite blob records and place updated blob indexes directly in the compaction output, avoiding a separate regular-GC pointer write-back.
+Titan also offers _Level Merge_, which is off by default. When enabled, compaction into the last two LSM levels can rewrite blob records and place updated blob indexes directly in the compaction output, avoiding a separate regular-GC pointer write-back.
 
 ![Level-merge garbage collection in Titan](gc-titan-level-merge.svg)
 
-Level Merge is off by default.
-
 ## Garbage Collection in BlobDB
 
-RocksDB's integrated BlobDB garbage collection is optional and compaction-integrated. When enabled, the age cutoff selects an oldest fraction of blob files whose references may be relocated during ordinary LSM compaction; the cutoff does not itself trigger compaction. A separate force threshold can schedule targeted leveled compactions when the garbage ratio among eligible files is high enough.
+BlobDB integrates garbage collection with LSM compaction. An age cutoff selects older blob files that may be rewritten, while a separate force threshold can trigger targeted compaction when enough space can be reclaimed.
 
 ![Compaction in BlobDB](compaction-blobdb.svg)
 
-Blob files are not compacted independently. Live blobs are relocated only as their referencing SST entries are processed during LSM compaction.
-
-*The figure shows eligible blob files being rewritten as part of LSM compaction, not a standalone blob-file compaction.*
+Blob files are not compacted independently. Live blobs move only when LSM compaction processes their referencing SST entries.
 
 ## Comparison of Garbage Collection Strategies
 
@@ -180,7 +172,7 @@ Blob files are not compacted independently. Live blobs are relocated only as the
 
 # Read Path of Large Values
 
-For a point lookup, an LSM engine may inspect memtables, overlapping level-0 files, and at most one candidate file in each non-overlapping lower level. Bloom filters, caches, indexes, and an early visible result can avoid many of these probes. The engine must still respect sequence numbers, tombstones, merge operands, and snapshots when choosing the result.
+For a point lookup, an LSM engine may inspect memtables, overlapping level-0 files, and one candidate file in each lower level. Bloom filters, caches, and indexes help it skip work and find the newest visible value.
 
 ![Get in normal LSM](get-normal-lsm.svg)
 
@@ -190,9 +182,9 @@ With key-value separation, the read path gains an out-of-line value lookup.
 
 ![Get in BadgerDB](get-badger.svg)
 
-Badger generally searches the memtables and LSM levels for the newest version at or below the read timestamp; an exact requested timestamp can end the search early. It then decodes the vptr and reads an out-of-line value directly from the vLog.
+Badger finds the newest visible entry in the LSM tree, decodes its vptr, and reads the value directly from the vLog.
 
-All key-value-separated designs add an out-of-line value lookup. Badger's range-scan risk is not that indirection itself: its append-oriented vLog places large values in write order while its iterator returns keys in key order. When those orders differ, a scan can lose spatial locality and perform poorly. Badger mitigates this with configurable value prefetch, which defaults to 100 values; results still depend on the workload and write order.
+Reading a separated value always adds one extra indirection. Badger's scan-specific drawback is different: values are appended in write order, so nearby keys can point to distant locations in the vLog, weakening spatial locality. Badger mitigates this with configurable value prefetch, which defaults to 100 values; scan performance still depends on the workload and write order.
 
 ## TerarkDB
 
@@ -213,12 +205,9 @@ Titan and BlobDB find the vptr in the LSM tree and then read the corresponding r
 | Storage Engine | BadgerDB | TerarkDB | Titan / BlobDB |
 | --- | --- | --- | --- |
 | Out-of-line value locality during a key-ordered scan | Write-order vLog offsets; configurable value prefetch | Key-sorted v-SST blocks; indexed lookup | Key-sorted blob records; direct pointer lookup |
-| Point lookup in the LSM | Generally searches for the newest visible version; an exact timestamp may stop early | Resolves the newest visible entry, then follows any v-SST dependency | Uses RocksDB's visible-entry lookup |
 | Out-of-line value lookup | Direct by offset and length | Through the v-SST index | Direct by offset and size |
 
 </div>
-
-These mechanisms expose different locality and CPU/I/O tradeoffs; they are not a benchmark ranking. A performance comparison must pin engine versions, value thresholds, load order, scan length, cache state, prefetch settings, compression, and hardware.
 
 # Alternative Implementation -- Neon Page Server
 
@@ -228,7 +217,7 @@ A specialized engine can apply the same broad idea to one workload without imple
 
 ![Neon page server](neon-pg-server.svg)
 
-As shown above, the Safekeeper streams WAL to the page server. The page server decodes incoming PostgreSQL WAL into per-key versions in an open in-memory layer. A frozen in-memory layer flushes to a delta layer, which may contain WAL records or page images over key and LSN ranges. Separately, image compaction materializes a snapshot of all keys in a key range at one LSN into an image layer. Keeping deltas and materialized images as distinct layer types lets Neon compact or repartition recent history and create or garbage-collect image snapshots on different schedules.
+Neon streams WAL to the page server, which builds page-version history in memory and flushes it to delta layers. The page server can also materialize image layers containing complete page snapshots at a chosen point in the log. Keeping history and snapshots separate lets Neon compact them on different schedules.
 
 # Summary
 
@@ -239,9 +228,8 @@ Key-value separation can reduce LSM-tree write amplification, but it introduces 
 * [WiscKey: Separating Keys from Values in SSD-conscious Storage](https://www.usenix.org/conference/fast16/technical-sessions/presentation/lu)
 * [BadgerDB source](https://github.com/dgraph-io/badger)
 * [Badger value-pointer layout](https://github.com/dgraph-io/badger/blob/fbd8d2eefad8be8757249767255faf989945b599/structs.go#L15-L18), [discard accounting](https://github.com/dgraph-io/badger/blob/fbd8d2eefad8be8757249767255faf989945b599/levels.go#L702-L715), and [value-log GC API](https://github.com/dgraph-io/badger/blob/fbd8d2eefad8be8757249767255faf989945b599/db.go#L1261-L1306)
-* [Badger iterator defaults and prefetch implementation](https://github.com/dgraph-io/badger/blob/fbd8d2eefad8be8757249767255faf989945b599/iterator.go) and [the tombstone-retention fix](https://github.com/dgraph-io/badger/commit/34dba21bea3683c83684bb9f40d3495976e2828a)
-* [Introducing Badger: a fast key-value store written purely in Go](https://discuss.dgraph.io/t/introducing-badger-a-fast-key-value-store-written-natively-in-go-dgraph-blog/1688)
-* [TerarkDB source at the reviewed revision](https://github.com/bytedance/terarkdb/tree/110bbecf61f3e4ef194e81cad1786f899c730752)
+* [Badger iterator and prefetch implementation](https://github.com/dgraph-io/badger/blob/fbd8d2eefad8be8757249767255faf989945b599/iterator.go)
+* [TerarkDB source](https://github.com/bytedance/terarkdb/tree/110bbecf61f3e4ef194e81cad1786f899c730752)
 * [Titan: a RocksDB plugin for key-value separation](https://github.com/tikv/titan)
 * [Titan blob-index format](https://github.com/tikv/titan/blob/b21afb5d7a50f960fbf47a19c103ebc6c43636a3/src/blob_format.h#L134-L167) and [Level Merge option](https://github.com/tikv/titan/blob/b21afb5d7a50f960fbf47a19c103ebc6c43636a3/include/titan/options.h)
 * [Design and Implementation of Titan](https://www.pingcap.com/blog/titan-storage-engine-design-and-implementation/)
