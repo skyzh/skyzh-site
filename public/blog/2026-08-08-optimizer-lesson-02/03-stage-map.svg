@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Four stages from shallow redirect to invariant-preserving memo merge</title>
+  <desc id="desc">Stage 1 redirects a group but leaves stale child IDs. Stage 2 rewrites child IDs but can create duplicate expression keys. Stage 3 processes collision-driven group merges to a fixed point. Stage 4 uses parent backlinks to target each individual rewrite while also preserving stale handles and winners.</desc>
+  <defs>
+    <marker id="arrow3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#64748b"/></marker>
+    <style>
+      .title{font:700 28px ui-sans-serif,system-ui,-apple-system,sans-serif;fill:#0f172a}.num{font:700 30px ui-sans-serif,system-ui,-apple-system,sans-serif;fill:#ffffff}.label{font:700 20px ui-sans-serif,system-ui,-apple-system,sans-serif;fill:#0f172a}.body{font:16px ui-sans-serif,system-ui,-apple-system,sans-serif;fill:#334155}.code{font:15px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#0f172a}.card{fill:#f8fafc;stroke:#94a3b8;stroke-width:2}.bad{fill:#fee2e2;stroke:#dc2626;stroke-width:2}.warn{fill:#fef3c7;stroke:#d97706;stroke-width:2}.good{fill:#dcfce7;stroke:#16a34a;stroke-width:2}.arrow{stroke:#64748b;stroke-width:3;fill:none;marker-end:url(#arrow3)}
+    </style>
+  </defs>
+  <rect width="1200" height="760" fill="#ffffff"/>
+  <text x="600" y="44" text-anchor="middle" class="title">Each local repair exposes the next global invariant</text>
+
+  <rect x="55" y="90" width="500" height="250" rx="18" class="card"/>
+  <circle cx="102" cy="137" r="29" fill="#dc2626"/><text x="102" y="147" text-anchor="middle" class="num">1</text>
+  <text x="148" y="132" class="label">Redirect the losing group</text>
+  <text x="148" y="158" class="code">move_group(merge_into, merge_from)</text>
+  <rect x="82" y="188" width="446" height="62" rx="10" class="bad"/>
+  <text x="102" y="214" class="body">Failure symptom: stored expressions still contain the old child ID.</text>
+  <text x="102" y="237" class="body">A later insertion misses deduplication and creates a duplicate group.</text>
+  <text x="82" y="287" class="body">Missing invariant: every stored child is its canonical group.</text>
+
+  <rect x="645" y="90" width="500" height="250" rx="18" class="card"/>
+  <circle cx="692" cy="137" r="29" fill="#d97706"/><text x="692" y="147" text-anchor="middle" class="num">2</text>
+  <text x="738" y="132" class="label">Rewrite affected child IDs</text>
+  <text x="738" y="158" class="code">canonicalize_expr(old_expr)</text>
+  <rect x="672" y="188" width="446" height="62" rx="10" class="warn"/>
+  <text x="692" y="214" class="body">Failure symptom: two old keys become the same new key.</text>
+  <text x="692" y="237" class="body">Their owner groups remain separate unless the collision is merged.</text>
+  <text x="672" y="287" class="body">Missing invariant: equal expression keys imply equivalent owners.</text>
+
+  <path d="M555 215 L632 215" class="arrow"/>
+  <path d="M895 340 C895 378,895 378,895 405" class="arrow"/>
+
+  <rect x="645" y="420" width="500" height="250" rx="18" class="card"/>
+  <circle cx="692" cy="467" r="29" fill="#2563eb"/><text x="692" y="477" text-anchor="middle" class="num">3</text>
+  <text x="738" y="462" class="label">Process collisions to a fixed point</text>
+  <text x="738" y="488" class="code">while let Some(pair) = worklist.pop()</text>
+  <rect x="672" y="518" width="446" height="62" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="692" y="544" class="body">Repair: canonicalize each pair, rewrite parents, and push newly</text>
+  <text x="692" y="567" class="body">discovered owner-group collisions until no work remains.</text>
+  <text x="672" y="617" class="body">Boundary: scanning the whole memo finds parents but repeats work.</text>
+
+  <rect x="55" y="420" width="500" height="250" rx="18" class="card"/>
+  <circle cx="102" cy="467" r="29" fill="#16a34a"/><text x="102" y="477" text-anchor="middle" class="num">4</text>
+  <text x="148" y="462" class="label">Follow parent backlinks</text>
+  <text x="148" y="488" class="code">parent_exprs[merge_from]</text>
+  <rect x="82" y="518" width="446" height="62" rx="10" class="good"/>
+  <text x="102" y="544" class="body">Repair: target expressions whose keys can change, then maintain</text>
+  <text x="102" y="567" class="body">the reverse index through every rewrite and collision.</text>
+  <text x="82" y="617" class="body">Cross-cutting state: redirects, stale handles, and cheaper winners.</text>
+
+  <path d="M645 545 L568 545" class="arrow"/>
+
+  <rect x="195" y="698" width="810" height="42" rx="12" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+  <text x="600" y="725" text-anchor="middle" class="label">Done only when every materialized view of equivalence agrees</text>
+</svg>

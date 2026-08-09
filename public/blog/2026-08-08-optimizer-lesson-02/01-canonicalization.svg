@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 650" role="img" aria-labelledby="title desc">
+  <title id="title">Expression keys before and after child-group canonicalization</title>
+  <desc id="desc">Before the merge, two Project x expressions refer to different scan groups. After group G2 redirects to G1, canonicalizing the second Project changes its key so both Projects are identical, which requires their owner groups G3 and G4 to merge.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#334155"/>
+    </marker>
+    <style>
+      .title{font:700 28px ui-sans-serif,system-ui,-apple-system,sans-serif;fill:#0f172a}.label{font:700 18px ui-sans-serif,system-ui,-apple-system,sans-serif;fill:#0f172a}.body{font:16px ui-sans-serif,system-ui,-apple-system,sans-serif;fill:#334155}.code{font:16px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#0f172a}.small{font:14px ui-sans-serif,system-ui,-apple-system,sans-serif;fill:#475569}.group{fill:#f8fafc;stroke:#64748b;stroke-width:2;stroke-dasharray:7 5}.expr{fill:#ffffff;stroke:#334155;stroke-width:2}.merge{fill:#fef3c7;stroke:#d97706;stroke-width:3}.ok{fill:#dcfce7;stroke:#16a34a;stroke-width:2}.edge{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow)}.redirect{stroke:#d97706;stroke-width:3;fill:none;stroke-dasharray:8 6;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1200" height="650" fill="#ffffff"/>
+  <text x="600" y="42" text-anchor="middle" class="title">Canonical child IDs change expression identity</text>
+
+  <rect x="28" y="70" width="548" height="530" rx="18" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="52" y="106" class="label">Before merging G2 into G1</text>
+  <text x="52" y="133" class="body">Different child IDs produce different hash keys.</text>
+
+  <rect x="72" y="180" width="200" height="112" rx="14" class="group"/>
+  <text x="172" y="206" text-anchor="middle" class="label">G3</text>
+  <rect x="92" y="222" width="160" height="48" rx="9" class="expr"/>
+  <text x="172" y="252" text-anchor="middle" class="code">Project[x](!G1)</text>
+
+  <rect x="332" y="180" width="200" height="112" rx="14" class="group"/>
+  <text x="432" y="206" text-anchor="middle" class="label">G4</text>
+  <rect x="352" y="222" width="160" height="48" rx="9" class="expr"/>
+  <text x="432" y="252" text-anchor="middle" class="code">Project[x](!G2)</text>
+
+  <path d="M172 270 C172 330,150 350,150 388" class="edge"/>
+  <path d="M432 270 C432 330,454 350,454 388" class="edge"/>
+
+  <rect x="72" y="390" width="156" height="96" rx="14" class="group"/>
+  <text x="150" y="416" text-anchor="middle" class="label">G1</text>
+  <rect x="91" y="430" width="118" height="38" rx="8" class="expr"/>
+  <text x="150" y="455" text-anchor="middle" class="code">Scan(t1)</text>
+
+  <rect x="376" y="390" width="156" height="96" rx="14" class="group"/>
+  <text x="454" y="416" text-anchor="middle" class="label">G2</text>
+  <rect x="395" y="430" width="118" height="38" rx="8" class="expr"/>
+  <text x="454" y="455" text-anchor="middle" class="code">Scan(alias)</text>
+
+  <text x="302" y="545" text-anchor="middle" class="code">key = operator + canonical child groups + private data</text>
+
+  <rect x="624" y="70" width="548" height="530" rx="18" fill="#fffaf0" stroke="#f59e0b"/>
+  <text x="648" y="106" class="label">After G2 redirects to G1</text>
+  <text x="648" y="133" class="body">Canonicalization reveals a collision that redirects alone cannot repair.</text>
+
+  <rect x="672" y="180" width="200" height="112" rx="14" class="group"/>
+  <text x="772" y="206" text-anchor="middle" class="label">G3</text>
+  <rect x="692" y="222" width="160" height="48" rx="9" class="merge"/>
+  <text x="772" y="252" text-anchor="middle" class="code">Project[x](!G1)</text>
+
+  <rect x="932" y="180" width="200" height="112" rx="14" class="group"/>
+  <text x="1032" y="206" text-anchor="middle" class="label">G4</text>
+  <rect x="952" y="222" width="160" height="48" rx="9" class="merge"/>
+  <text x="1032" y="252" text-anchor="middle" class="code">Project[x](!G1)</text>
+
+  <path d="M772 270 C772 330,808 350,808 388" class="edge"/>
+  <path d="M1032 270 C1032 330,844 350,844 388" class="edge"/>
+
+  <rect x="752" y="390" width="176" height="96" rx="14" class="group"/>
+  <text x="840" y="416" text-anchor="middle" class="label">G1</text>
+  <rect x="771" y="430" width="138" height="38" rx="8" class="expr"/>
+  <text x="840" y="455" text-anchor="middle" class="code">two Scan exprs</text>
+
+  <rect x="968" y="390" width="136" height="76" rx="14" fill="#fff7ed" stroke="#d97706" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="1036" y="418" text-anchor="middle" class="label">G2</text>
+  <text x="1036" y="445" text-anchor="middle" class="small">old handle</text>
+  <path d="M968 428 C938 428,934 428,928 428" class="redirect"/>
+
+  <path d="M872 236 L932 236" class="redirect"/>
+  <text x="902" y="218" text-anchor="middle" class="small">same key</text>
+  <rect x="732" y="520" width="336" height="52" rx="12" class="ok"/>
+  <text x="900" y="552" text-anchor="middle" class="label">Required next repair: merge G4 into G3</text>
+</svg>

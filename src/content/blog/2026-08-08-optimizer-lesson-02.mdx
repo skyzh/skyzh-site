@@ -15,76 +15,222 @@ description: "Group merging looks local. It is not. Four escalating failures and
 
 This is the second part of my blog post series, "Lessons Learned from Building a Query Optimizer". In [Lesson 1](/blog/2025-02-06-optimizer-lesson-01/), we built a generic plan representation with group IDs and left `merge_group` as an unimplemented stub. Today we finish that function.
 
-Merging two memo groups means choosing one representative and repairing every expression and index that refers to either group. The result is not a single patch. It is four escalating stages, each exposing a structural truth about memo tables.
-
-Group merging is a narrow problem: when two group IDs become equivalent, reconcile every piece of state that depends on them. This post is about the _structure_ of that reconciliation, not about cost models, cardinality estimation, or the search algorithm. Those matter, but they sit on top of a memo that must first be correct.
-
-You can find the code for this post at [skyzh/optimizer-lessons](https://github.com/skyzh/optimizer-lessons), branch `skyzh/lesson-2-memo-table`.
+The runnable code is in [skyzh/optimizer-lessons](https://github.com/skyzh/optimizer-lessons/tree/e45b4ad0abefa0902f559dc07163fdf21f1f01a2/lesson-2), pinned to the merged commit used by this post.
 
 </div>
 
-# The Setup
+Suppose an optimizer has already inserted these two expressions:
 
-In Lesson 1, we introduced a memo table indexed by group ID. Each expression is stored under a group. The optimizer's job is to explore equivalent expressions within a group. Two operations matter here: `add_expr` (which Lesson 1 implemented) and `merge_group` (which it left as a stub).
+```
+Project[x](!G1)  in G3
+Project[x](!G2)  in G4
+```
+
+Later, a rule proves that `G1` and `G2` are equivalent. The tempting implementation moves the expressions from `G2` into `G1`, records `G2 -> G1`, and returns. The API call looks finished.
+
+Then the optimizer inserts `Project[x](!G1)` again. Instead of finding the existing expression, the memo creates another group. A task created before the merge still holds `G4`. A winner may still name an expression that was removed as a duplicate. One local call has left several data structures with different answers to the same question: which group does this expression belong to?
+
+That is the motivating failure. A group merge is not a vector append. It changes an equivalence relation that the memo has materialized in expression keys, child IDs, reverse indexes, parent links, stale handles, and optimization state. Each copy of that fact must be reconciled, and one repair can reveal another merge.
+
+This post develops the implementation in four stages. Each stage fixes the smallest visible bug, exposes the next invariant, and carries the same example one level farther.
+
+# A Concrete Memo Model
+
+A **group** represents a set of logically equivalent plans. A **memo expression** stores one operator whose children are group IDs. If `!G1` represents a scan, then `Project[x](!G1)` says that this projection can use any plan in `G1` as its child.
+
+The demo exposes two central operations:
 
 ```rust
 /// Insert an expression into the memo.
 fn add_expr(&mut self, expr: MemoExpr) -> (GroupId, ExprId);
 
 /// Declare that two groups are equivalent.
-fn merge_group(&mut self, a: GroupId, b: GroupId) -> GroupId;
+fn merge_group(&mut self, merge_into: GroupId, merge_from: GroupId) -> GroupId;
 ```
 
-The problem is that a group does not just contain expressions. The memo and its indexes materialize an equivalence relation across many data structures: stored expressions that reference child group IDs, redirect maps that point from merged groups to their representatives, hash tables that locate a group by its expression key, and state like winners and costs. When two groups become equivalent, every index that saw them as distinct must be reconciled.
+`add_expr` deduplicates by expression key. In this lesson, the key is the operator, its private data, and the **canonical** representative of each child group:
 
-This post works through the failures one stage at a time, using the code in the `optimizer-blog-lesson-2` crate. Each stage contains focused tests for one missing invariant.
+```
+key(e) = (operator(e), private_data(e), find(child_1), ..., find(child_n))
+```
 
-# Stage 1: The Shallow Merge
+For example, once `find(G2) == G1`, these expressions have the same key:
 
-The crate's `s01_shallow_merge` module shows what happens with the simplest merge. Redirect one group to another, but do not rewrite any expressions. The real shallow merge delegates to `move_group`:
+```
+Project[x](!G1)
+Project[x](!G2)  -> canonicalize children -> Project[x](!G1)
+```
+
+Therefore their owner groups must also be equivalent:
+
+```
+key(e1) == key(e2)  =>  find(owner(e1)) == find(owner(e2))
+```
+
+This is the congruence rule that drives the whole lesson. Representative lookup is necessary, but lookup alone does not repair an expression already stored under its old hash key.
+
+The memo keeps several views of this state:
+
+| Structure | Question it answers | What a merge can invalidate |
+| --- | --- | --- |
+| `groups` and `expr_to_group` | Which expressions belong to a group? | owner IDs and the surviving winner |
+| `exprs` | What operator and child groups does an expression contain? | child IDs that name the losing group |
+| `expr_to_id` | Have we already stored this expression key? | every entry whose canonical child changes |
+| `parent_exprs` | Which expressions directly use this group? | both ends of the reverse index |
+| `group_redirect` and `expr_redirect` | Where should an old handle resolve now? | redirect chains and deleted duplicates |
+
+The demo also stores one winner per group. It deliberately does not model tasks, statistics, physical properties, or rule-application state. A production optimizer must define merge policies for every such field; this lesson makes that boundary explicit instead of pretending the structural algorithm settles it.
+
+# The Running Example
+
+We will carry one two-level expression graph through all four stages:
+
+| Group | Expression |
+| --- | --- |
+| `G1` | `Scan(t1)` |
+| `G2` | `Scan(t1-alias)` |
+| `G3` | `Project[x](!G1)` |
+| `G4` | `Project[x](!G2)` |
+| `G5` | `Project[y](!G3)` |
+| `G6` | `Project[y](!G4)` |
+
+The scan expressions have different keys, but an external rule has established that their groups are equivalent. We call `merge_group(G1, G2)`, choosing `G1` as the representative.
+
+Canonicalizing `Project[x](!G2)` changes its child to `G1`. That expression now collides with `Project[x](!G1)`, so `G4` must merge into `G3`. Canonicalizing `Project[y](!G4)` then changes its child to `G3`, so `G6` must merge into `G5`. A leaf equivalence has propagated to the root.
+
+![Before a group merge, two Project expressions have different child-group keys. After G2 redirects to G1, canonicalization makes the keys identical and requires their owner groups to merge.](01-canonicalization.svg)
+
+_The redirect answers `find(G2)`, while canonicalization repairs stored keys. When two repaired keys become equal, their owner groups become the next merge._
+
+# Stage 1: A Redirect Leaves Stale Children
+
+The `s01_shallow_merge` module implements the tempting first version. It moves the losing group's expressions and remembers the redirect:
 
 ```rust
-fn merge_group_shallow(&mut self, merge_into: GroupId, merge_from: GroupId) -> GroupId {
+pub fn merge_group_shallow(
+    &mut self,
+    merge_into: GroupId,
+    merge_from: GroupId,
+) -> GroupId {
     self.move_group(merge_into, merge_from)
 }
 ```
 
-The test `shallow_merge_leaves_stale_children` demonstrates the failure. Two expressions are created in different groups. After merging the groups, a new expression that should be structurally equivalent to an existing one ends up in a different group because the existing expression still references stale child IDs. The memo now has two groups representing expressions that should have been deduplicated.
+This is enough for `representative(G2)` to return `G1`. It is not enough for expressions that already contain `G2`. In the running example, `Project[x](!G2)` still carries the losing ID and remains indexed under that stale key.
 
-The invariant we broke:
+The test `shallow_merge_leaves_stale_children` makes the symptom observable. After the shallow merge, inserting an expression with the canonical child does not match the stale stored expression. The memo creates a duplicate group, and `check_invariants` reports the stale child.
 
-> **Key invariance:** If two expressions are structurally identical after resolving their child groups to canonical representatives, they must share a group.
+The missing invariant is:
 
-A redirect map makes representative lookup possible. It does not re-express stored child IDs. After the merge, the old expression still carries the original child IDs, so a new expression with the same structure but resolved to the post-merge representatives produces a different key. The deduplication fails.
+> Every child ID stored in a live memo expression is already its canonical group representative.
 
-# Stage 2: Rewriting Children Changes Identity
+A union-find or redirect map can make `find(G2)` cheap. It still cannot change a key already stored in a hash table. The entry must be removed under its old key, rewritten, and inserted under its new key.
 
-The fix rewrites every expression that directly references the losing group.
-`s02_rewrite_children` demonstrates this. `merge_group_rewrite_only` scans every stored expression, selects those whose children contain `merge_from`, and rewrites those child IDs to `merge_into`.
+# Stage 2: Rewriting a Key Can Create a Collision
 
-But the test `rewriting_children_can_create_duplicate_expressions` reveals a new problem: two expressions that used to be different can become identical after rewriting. When that happens, their groups must also be merged, or the memo violates:
+The `s02_rewrite_children` module scans every stored expression, selects those whose children contain `merge_from`, and rewrites those children to `merge_into`. In the running example, it changes:
 
-> **Congruence closure:** If `key(e1) == key(e2)`, the groups containing `e1` and `e2` must be merged.
+```
+Project[x](!G2)  ->  Project[x](!G1)
+```
 
-After rewriting, the code must check whether any rewritten expression now collides with an existing key and, if so, add that pair to the pending merges.
+Now the child IDs are canonical, but the repair has changed the expression's identity. The rewritten key already belongs to the expression in `G3`. If the reverse index simply overwrites its old entry, two equal expressions remain in different groups and one expression becomes unreachable through the index.
 
-# Stage 3: Cascading Merges
+The test `rewriting_children_can_create_duplicate_expressions` stops at exactly this failure. It finds two groups containing `Project[x](!G1)` after the rewrite.
 
-After a merge rewrites children and produces new collisions, those new merges may rewrite more children and produce more collisions. The process repeats until no new merges appear: a fixed-point computation.
+The missing invariant is congruence closure:
 
-`s03_cascading_merge` demonstrates this with the test `expression_collisions_cascade_to_parent_groups`. A two-level chain of expressions is set up so that merging two leaf groups causes their parents' expressions to collide, which in turn cascades upward. The fix resolves collisions until no new merges appear.
+> If two canonical expressions have the same key, their owner groups must have the same representative.
 
-The published code uses an explicit LIFO worklist, canonicalizes each pair when processed, and reverses newly discovered pairs to preserve recursive depth-first order. A union-find with a hash-key repair loop is an alternative. Finding all affected expressions without scanning the memo requires tracking which expressions reference each group; backlinks make each individual merge targeted, although a cascade can still touch much of the memo.
+The repair therefore cannot end at “rewrite the expression.” On collision it must choose one expression ID, redirect the duplicate expression handle, remove the duplicate from its owner group, and schedule a merge of the two owner groups. For the running example, rewriting the `G4` expression discovers the pair `(G3, G4)`.
 
-# Stage 4: Parent Backlinks
+# Stage 3: A Collision Starts Another Merge
 
-To avoid scanning the entire memo for affected expressions, the code maintains a reverse index: `parent_exprs: HashMap<GroupId, BTreeSet<ExprId>>`. When an expression is inserted, its ID is added to the parent set of every child group. When a merge occurs, only the expressions that directly reference the losing group need rewriting; the surviving group inherits the losing group's parent set.
+Merging `G4` into `G3` rewrites expressions that contain `G4`. That changes `Project[y](!G4)` into `Project[y](!G3)`, which already exists in `G5`. The second collision discovers `(G5, G6)`. In a deeper tree, the same pattern can repeat thousands of times.
 
-`s04_parent_backlinks` tests this mechanism. The backlinks make rewriting targeted, but they are themselves a new invariant to maintain. And they do not solve the remaining problems: the `merge_state_tests` module probes stale group and expression handles plus winner selection. Tasks, statistics, property-envelope state, and rule-application state are not modeled. Each new state field added to the memo adds another merge policy to define.
+This is a fixed-point computation: keep processing newly discovered group equivalences until no collision produces another pair.
+
+The `s03_cascading_merge` module uses a correctness-first implementation that scans the memo for affected expressions. It keeps pending pairs on an explicit `Vec` worklist:
+
+```
+push (merge_into, merge_from)
+
+while the worklist is not empty:
+    pop one pair
+    resolve both IDs to their current representatives
+    skip the pair if both sides already agree
+    move the losing group into the representative
+    rewrite every affected expression to canonical children
+    remove any duplicate expression revealed by a rewritten key
+    push the duplicate expression owners as new group merges
+```
+
+The published implementation uses LIFO `Vec::pop()`. It reverses newly discovered pairs before extending the worklist, preserving the recursive depth-first order of the earlier implementation without putting a deep cascade on the call stack. The test `deep_unary_parent_cascade_uses_bounded_stack` exercises a chain of 7,000 parent expressions. `cascading_merge_handles_cycles_and_repeated_children` covers self-cycles and an expression that uses the same child twice.
+
+![Merging G2 into G1 rewrites its direct Project parent, discovers a G3 and G4 collision, then processes that pair and discovers G5 and G6. Parent backlinks identify each affected expression, while the worklist carries newly discovered group pairs.](02-worklist-backlinks.svg)
+
+_The worklist makes termination state explicit. Canonicalizing each popped pair also makes repeated or already-resolved pairs harmless._
+
+At this point the structural algorithm is correct, but each individual merge finds parents by scanning every expression. That is the next boundary, not a reason to weaken the fixed-point rule.
+
+# Stage 4: Parent Backlinks Target Each Rewrite
+
+To find affected expressions without scanning the whole memo, `s04_parent_backlinks` maintains the inverse edge:
+
+```rust
+parent_exprs: HashMap<GroupId, BTreeSet<ExprId>>
+```
+
+When an expression is inserted, its ID is added to the parent set of each child group. Before redirecting a losing group, `merge_group` clones that group's parent set. Those are the only expressions whose hash keys can change because of this individual merge.
+
+For every affected expression, the implementation performs the same careful sequence:
+
+1. remove the expression's old reverse-index entry;
+2. remove its old parent backlinks;
+3. canonicalize its child IDs;
+4. either insert the new key and backlinks, or redirect it to the existing expression on collision; and
+5. add any newly equivalent owner groups to the worklist.
+
+The order matters. If the code redirects `G2` before capturing `parent_exprs[G2]`, a representative-based lookup may jump to `G1` and lose the exact set of expressions that named the losing group. If it adds the new backlinks before removing the old ones, an unchanged child can lose its new edge and a changed child can retain a stale edge.
+
+`backlinks_track_direct_parent_expressions` also checks the set semantics: an expression that uses one group twice is still one parent expression, not two. `backlinks_are_repaired_through_cascading_merges` verifies the reverse index after both the `G2 -> G1` and `G4 -> G3` repairs.
+
+Backlinks improve the starting point of each rewrite. They do not make a cascading merge globally local or linear. A leaf merge can still expose collisions through a large part of the memo, and the backlink index is itself another invariant that every insertion, rewrite, collision, and deletion must maintain.
+
+# Stale Handles and Winners Are Part of the Contract
+
+Structural repair is not enough if optimizer work can outlive a merge. A task might begin with `G4` and `ExprId(7)`, yield, and finish after those objects have been merged away. Rejecting the old IDs would make group merging a hidden lifetime boundary for every caller.
+
+The demo instead treats IDs as stable handles:
+
+- `group_redirect` maps an old group to its current representative;
+- `expr_redirect` maps a removed duplicate expression to the retained expression;
+- `representative`, `representative_expr`, `group_of_expr`, and `expr` resolve handles before use; and
+- `set_winner` resolves both the group and expression before installing a result.
+
+The test `stale_group_and_expression_ids_remain_usable` creates handles before a merge and uses them afterward to set a winner. The winner lands in the canonical group and names the retained expression. `merging_groups_keeps_the_cheaper_winner` gives each input group a winner and verifies that `move_group` preserves the lower-cost one.
+
+This is a policy, not a universal answer. Another optimizer could invalidate outstanding work and reschedule it. What matters is that the policy is explicit and tested. Adding statistics, required physical properties, rule masks, or task state creates the same question again: join the state, invalidate it, redirect it, or reject the merge. “Move the expressions” is never a complete state policy.
+
+# The Four Stages as One Algorithm
+
+![The four stages progress from a shallow group redirect, to rewriting canonical child IDs, to collision-driven fixed-point merges, and finally to targeted rewrites through parent backlinks plus stale-handle and winner repair.](03-stage-map.svg)
+
+_Each stage preserves the previous repair. The final implementation still redirects groups, canonicalizes keys, resolves collisions to a fixed point, and maintains every reverse edge._
+
+The final structural contract can be stated as five invariants:
+
+1. **Canonical children:** every child ID in every live expression is a group representative.
+2. **Unique expression keys:** `expr_to_id` contains exactly one live expression for each canonical key.
+3. **Congruent owners:** equal canonical keys imply the same representative owner group.
+4. **Exact backlinks:** `parent_exprs[g]` is exactly the set of live expressions that name `g` as a child.
+5. **Resolvable handles and state:** old group/expression IDs reach live representatives, and winner state follows the declared merge policy.
+
+`check_invariants` reconstructs enough of these relationships to catch drift: it checks redirect chains, group membership, reverse-index sizes and entries, canonical child IDs, winner ownership, and a freshly rebuilt backlink map. The stage tests intentionally stop at broken intermediate implementations, while the final tests require the invariant checker to succeed.
 
 # The Bigger Picture
 
-Other query optimizers have encountered this problem:
+Other optimizer designs draw the boundary in different places:
 
 - The public **Columbia** source does not implement `MergeGroups` under its `UNIQ` configuration.
 - **Apache Calcite** uses parent backlinks to rename affected parents, recursively merges sets exposed by renaming, and propagates best-cost changes.
@@ -93,26 +239,27 @@ Other query optimizers have encountered this problem:
 - **CockroachDB** interns immutable expressions and adds explored alternatives to an explicit target group, so it exposes no general group-merge operation.
 - **egg** tracks parent e-nodes, queues affected parents on union, restores congruence lazily in `rebuild`, and merges analysis data under a separate policy.
 
-The Cascades paper identifies cross-group duplicates and discusses merging pattern memories. It does not specify how to find affected parents, repair hash-table keys, detect cascading collisions, or handle stale winners and state. Those details become the implementation.
+The Cascades paper identifies cross-group duplicates and discusses merging pattern memories. It does not prescribe a concrete contract for finding affected parents, repairing hash keys, processing cascading collisions, or reconciling stale handles and optimizer state. Those choices belong to the implementation.
 
-In my own optimizer work, the public `optd-original` code uses redirect maps to resolve merged groups and notes that union-find could optimize them. Current optd uses append-only handles; its join-ordering pass builds a hypergraph per join-group root and uses a DP table keyed by `NodeSet`; this is a different design from the older per-`GroupId` memoization path.
+In my own optimizer work, the public `optd-original` code uses redirect maps to resolve merged groups and notes that union-find could optimize representative lookup. Current optd takes a different path for join ordering: it builds a hypergraph for each join-group root and runs dynamic programming over `NodeSet` keys. It should not be described as a newer version of the general memo merge shown here.
+
+The comparison is not “which optimizer found the one correct data structure?” The useful question is which states can become equivalent after insertion, which indexes materialize that equivalence, and when the system repairs them. A specialized dynamic program or constrained insertion API can remove the need for a general `merge_group`; a general memo must pay the reconciliation cost somewhere.
 
 # What We Learned
 
-Group merging in a memo table is a structural reconciliation that touches stored expressions, redirects, hash keys, parent indexes, and winners. Four invariants fell out of the escalating stages:
+A good memo table is hard to build because it stores the same equivalence fact in several useful forms. The group map makes alternatives easy to enumerate. The expression hash index makes deduplication fast. Parent backlinks find affected expressions. Redirects keep old handles usable. Winners keep optimization results. Each index helps one operation and adds one obligation to merging.
 
-1. **Expression-key invariance:** after a merge, structurally identical expressions (with children resolved to representatives) must be in the same group. A redirect map alone does not guarantee this.
+The running example shows the complete chain:
 
-2. **Congruence closure:** rewriting children can make previously distinct expressions identical, producing new group equivalences that must also be merged.
+1. merging `G2` into `G1` leaves a stale `Project[x](!G2)` unless child IDs are rewritten;
+2. rewriting it to `Project[x](!G1)` collides with the expression in `G3`, so `G4` must merge into `G3`;
+3. that merge rewrites `Project[y](!G4)`, discovers the `G5`/`G6` collision, and keeps the worklist alive; and
+4. backlinks target each rewrite, while redirects and winner policies preserve the rest of the API contract.
 
-3. **Cascading reach:** a single merge can trigger a cascade of new equivalences, requiring a fixed-point traversal. The published implementation uses an explicit canonicalizing fixed-point worklist; union-find with hash-key repair is an alternative design.
-
-4. **Parent indexing:** finding affected expressions without scanning the entire memo requires reverse indexes from groups to their parent expressions. These indexes are themselves a new invariant.
-
-The stages and tests are in the `optimizer-blog-lesson-2` crate: `s01_shallow_merge`, `s02_rewrite_children`, `s03_cascading_merge`, `s04_parent_backlinks`, and `merge_state_tests`. Run them:
+Run the eleven Lesson 2 tests with:
 
 ```bash
 cargo test -p optimizer-blog-lesson-2
 ```
 
-If you are building a Cascades optimizer, do not leave `merge_group` as a stub. Work through the stages in order. The structural lessons apply to any memo design that permits equivalent groups to be discovered after insertion. The invariant is the same: equivalence is global even when the API call looks local, and every materialized index must agree on the answer.
+If your optimizer permits equivalent groups to be discovered after insertion, do not treat `merge_group` as a local container operation. Write down the canonical-key rule, the owner-congruence rule, every reverse index, and the state policy. Then test the smallest collision that forces each one. The fixed-point worklist is the mechanism; the real invariant is that every materialized view of equivalence agrees when it becomes empty.

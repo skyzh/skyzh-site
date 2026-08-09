@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Collision propagation through parent backlinks and the merge worklist</title>
+  <desc id="desc">Merging scan group G2 into G1 rewrites its direct parent Project x. That expression collides with the Project x in G3, so pair G3 G4 enters the worklist. Processing that pair rewrites Project y and discovers a second collision between G5 and G6. The worklist continues until empty.</desc>
+  <defs>
+    <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#334155"/></marker>
+    <style>
+      .title{font:700 28px ui-sans-serif,system-ui,-apple-system,sans-serif;fill:#0f172a}.label{font:700 18px ui-sans-serif,system-ui,-apple-system,sans-serif;fill:#0f172a}.body{font:16px ui-sans-serif,system-ui,-apple-system,sans-serif;fill:#334155}.code{font:15px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#0f172a}.small{font:14px ui-sans-serif,system-ui,-apple-system,sans-serif;fill:#475569}.node{fill:#f8fafc;stroke:#475569;stroke-width:2}.hot{fill:#fef3c7;stroke:#d97706;stroke-width:3}.done{fill:#dcfce7;stroke:#16a34a;stroke-width:2}.edge{stroke:#475569;stroke-width:2;fill:none;marker-end:url(#arrow2)}.back{stroke:#2563eb;stroke-width:2.5;fill:none;stroke-dasharray:7 5;marker-end:url(#arrow2)}.flow{stroke:#d97706;stroke-width:3;fill:none;marker-end:url(#arrow2)}
+    </style>
+  </defs>
+  <rect width="1200" height="700" fill="#ffffff"/>
+  <text x="600" y="42" text-anchor="middle" class="title">A collision is another group merge, not the end of the first one</text>
+
+  <text x="66" y="92" class="label">Running expression graph</text>
+
+  <rect x="75" y="130" width="180" height="68" rx="12" class="node"/>
+  <text x="165" y="157" text-anchor="middle" class="label">G5</text>
+  <text x="165" y="182" text-anchor="middle" class="code">Project[y](!G3)</text>
+  <rect x="325" y="130" width="180" height="68" rx="12" class="hot"/>
+  <text x="415" y="157" text-anchor="middle" class="label">G6</text>
+  <text x="415" y="182" text-anchor="middle" class="code">Project[y](!G4)</text>
+
+  <rect x="75" y="285" width="180" height="68" rx="12" class="node"/>
+  <text x="165" y="312" text-anchor="middle" class="label">G3</text>
+  <text x="165" y="337" text-anchor="middle" class="code">Project[x](!G1)</text>
+  <rect x="325" y="285" width="180" height="68" rx="12" class="hot"/>
+  <text x="415" y="312" text-anchor="middle" class="label">G4</text>
+  <text x="415" y="337" text-anchor="middle" class="code">Project[x](!G2)</text>
+
+  <rect x="75" y="440" width="180" height="68" rx="12" class="node"/>
+  <text x="165" y="467" text-anchor="middle" class="label">G1</text>
+  <text x="165" y="492" text-anchor="middle" class="code">Scan(t1)</text>
+  <rect x="325" y="440" width="180" height="68" rx="12" class="hot"/>
+  <text x="415" y="467" text-anchor="middle" class="label">G2</text>
+  <text x="415" y="492" text-anchor="middle" class="code">Scan(alias)</text>
+
+  <path d="M165 285 L165 198" class="edge"/>
+  <path d="M415 285 L415 198" class="edge"/>
+  <path d="M165 440 L165 353" class="edge"/>
+  <path d="M415 440 L415 353" class="edge"/>
+
+  <path d="M505 474 C575 474,575 320,505 320" class="back"/>
+  <text x="545" y="392" class="small" transform="rotate(-90 545 392)">parent_exprs[G2] points to this Project</text>
+  <path d="M255 319 C290 319,290 164,255 164" class="back"/>
+  <text x="274" y="243" class="small" transform="rotate(-90 274 243)">parent_exprs[G3]</text>
+
+  <rect x="610" y="105" width="520" height="490" rx="18" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="640" y="145" class="label">LIFO merge worklist</text>
+
+  <rect x="650" y="175" width="440" height="82" rx="14" class="hot"/>
+  <text x="675" y="205" class="label">1. Pop (G1, G2)</text>
+  <text x="675" y="232" class="body">Capture G2's backlinks, redirect G2, rewrite Project[x].</text>
+  <path d="M870 257 L870 292" class="flow"/>
+
+  <rect x="650" y="295" width="440" height="82" rx="14" class="hot"/>
+  <text x="675" y="325" class="label">2. Discover (G3, G4)</text>
+  <text x="675" y="352" class="body">The rewritten Project[x] key already belongs to G3.</text>
+  <path d="M870 377 L870 412" class="flow"/>
+
+  <rect x="650" y="415" width="440" height="82" rx="14" class="hot"/>
+  <text x="675" y="445" class="label">3. Pop (G3, G4)</text>
+  <text x="675" y="472" class="body">Rewrite Project[y], then discover collision (G5, G6).</text>
+  <path d="M870 497 L870 527" class="flow"/>
+
+  <rect x="650" y="530" width="440" height="48" rx="12" class="done"/>
+  <text x="870" y="561" text-anchor="middle" class="label">Continue until the worklist is empty</text>
+
+  <rect x="72" y="570" width="436" height="76" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="92" y="598" class="label">Backlink boundary</text>
+  <text x="92" y="623" class="body">Backlinks target each individual rewrite. The cascade may still</text>
+  <text x="92" y="644" class="body">touch much of the memo, so they do not make merging globally local.</text>
+</svg>
