@@ -48,7 +48,7 @@ In this article, unless otherwise stated, we assume that the storage engine has 
 
 First, let's look at how a conventional LSM storage engine handles writes. When the engine receives a write, it records the key-value pair in both the memtable and the WAL (Write-Ahead Log). The memtable often uses a skip list. The WAL makes the memtable's contents recoverable after a server failure; once the required WAL record is durable, the engine can acknowledge the write as persisted.
 
-The engine performs two main kinds of background work: flushing memtables to disk and compacting the LSM tree. It may have one mutable memtable and several immutable memtables waiting to flush. When a memtable reaches its size limit, the engine writes it as an SST; its WAL can be removed after no live memtable depends on it. An SST stores ordered key-value pairs in compressed blocks, with indexes and often Bloom filters to speed up reads.
+The engine performs two main kinds of background work: flushing memtables to disk and compacting the LSM tree. It may have one mutable memtable and several immutable memtables waiting to flush. When a memtable reaches its size limit, the engine writes it as an SST; its WAL can be removed after no live memtable depends on it. An SST stores ordered key-value pairs in blocks, which may be compressed, with indexes and often Bloom filters to speed up reads.
 
 Level 0 of the LSM tree consists of multiple SST files whose key ranges may overlap. In a leveled design, files within each level from level 1 onward have non-overlapping key ranges. If a level exceeds its size limit, the storage engine compacts selected files with overlapping files in the next level. As a result, data generally moves toward lower levels over time.
 
@@ -87,9 +87,9 @@ Because a v-SST uses SST format, its large values are sorted by key and can use 
 
 </div>
 
-Titan is a RocksDB plugin, so its foreground path follows RocksDB. Its background path resembles TerarkDB's, but it stores large values in blob files. A blob file contains key-value records in key order and compresses each record individually. For a separated value, Titan stores `<key, <fileno, offset, size>>` in the LSM tree.
+Titan is a RocksDB plugin, so its foreground path follows RocksDB. Its background path resembles TerarkDB's, but it stores large values in blob files. A blob file contains key-value records in key order and can compress each record. For a separated value, Titan stores `<key, <fileno, offset, size>>` in the LSM tree.
 
-BlobDB has a similar write path and also stores ordered, per-record-compressed values in blob files. Its LSM blob index contains the record type, file number, offset, size, and compression metadata.
+BlobDB has a similar write path and also stores ordered values with per-record compression when enabled. Its LSM blob index contains the record type, file number, offset, size, and compression metadata.
 
 ## Comparison of Write Paths
 
