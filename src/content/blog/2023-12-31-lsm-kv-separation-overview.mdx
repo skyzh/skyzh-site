@@ -44,7 +44,11 @@ In this article, unless otherwise stated, we assume that the storage engine has 
 
 ## Without Key-Value Separation
 
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Writing to LSM diagram">
+
 ![Writing to LSM](write-normal-lsm.svg)
+
+</div>
 
 First, let's look at how a conventional LSM storage engine handles writes. When the engine receives a write, it records the key-value pair in both the memtable and the WAL (Write-Ahead Log). The memtable often uses a skip list. The WAL makes the memtable's contents recoverable after a server failure; once the required WAL record is durable, the engine can acknowledge the write as persisted.
 
@@ -58,7 +62,7 @@ Moving data through every level while an LSM tree is still small would introduce
 
 BadgerDB writes large values directly to its value log (vLog), as shown below.
 
-<div class="wide-write-path-figure">
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Writing to Badger diagram">
 
 ![Writing to Badger](write-badger.svg)
 
@@ -71,7 +75,11 @@ When a user writes a key-value pair to Badger, values below a configurable thres
 
 ## TerarkDB
 
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Writing to TerarkDB diagram">
+
 ![Writing to TerarkDB](write-terarkdb.svg)
+
+</div>
 
 Because TerarkDB is based on RocksDB, its foreground write path follows RocksDB: key-value pairs enter the memtable and WAL, and the memtable is later flushed to disk. Compared with Badger's direct vLog path, a large value is written once to the WAL and again to the v-SST (Value SST) during the flush, adding one full-value write.
 
@@ -81,7 +89,7 @@ Because a v-SST uses SST format, its large values are sorted by key and can use 
 
 ## Titan and BlobDB
 
-<div class="wide-write-path-figure">
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Writing to Titan and BlobDB diagram">
 
 ![Writing to Titan / BlobDB](write-titan.svg)
 
@@ -109,13 +117,21 @@ BlobDB has a similar write path and also stores ordered values with per-record c
 
 After users update or delete keys, a conventional LSM engine can discard obsolete records during compaction, as shown below. It can drop an old version or tombstone once no snapshot or lower-level data still needs it.
 
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Compaction in normal LSM diagram">
+
 ![Compaction in normal LSM](compaction-normal-lsm.svg)
+
+</div>
 
 Once large values live outside the LSM tree, the engine needs a separate way to reclaim obsolete records and control space amplification.
 
 ## Garbage Collection in BadgerDB
 
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Garbage collection in Badger diagram">
+
 ![Garbage collection in Badger](gc-badger.svg)
+
+</div>
 
 Badger estimates reclaimable space when LSM compaction drops an obsolete entry whose value is stored in the vLog. At that point, it adds the referenced value's byte length to the discard statistic for that vLog file. Badger persists these statistics in the `DISCARD` file.
 
@@ -123,17 +139,29 @@ As shown in the above figure, applications start collection explicitly. Badger u
 
 Because those replacement pointers use the normal LSM write path, GC adds write traffic and must not overwrite a concurrent update or deletion.
 
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Garbage collection consistency in Badger diagram">
+
 ![Garbage collection consistency in Badger](gc-consistency-badger.svg)
+
+</div>
 
 As shown in the above figure, a deletion at version 10 can coexist with a GC pointer update for the older value at version 9. Badger keeps the deletion visible while the rewrite is active, and its version ordering makes the deletion the newest visible entry. Moving the older value therefore does not make the deleted key visible again.
 
 ## Compaction and Garbage Collection in TerarkDB
 
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Garbage collection in TerarkDB diagram">
+
 ![Garbage collection in TerarkDB](gc-terarkdb.svg)
+
+</div>
 
 As shown in the above figure, TerarkDB uses each v-SST's garbage estimate to choose files for collection. It checks each record against the LSM tree, writes the live values into new v-SSTs, and records dependencies from the old files to their replacements. A read that still points to an old v-SST follows the dependency to the latest file, so GC does not have to write every replacement file number through the foreground path.
 
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Compaction in TerarkDB diagram">
+
 ![Compaction in TerarkDB](compaction-terarkdb.svg)
+
+</div>
 
 As shown in the above figure, TerarkDB first selects the levels and files for an LSM-tree compaction. While merging those SSTs, it checks each separated value's v-SST file number. If the referenced v-SST has been replaced, TerarkDB follows the dependency relationship and writes the new file number into the compaction output before adding the new SSTs to the LSM tree.
 
@@ -143,19 +171,31 @@ Over time, lower LSM levels may depend on many v-SSTs, and one v-SST may be refe
 
 Titan's regular garbage collection resembles Badger's: statistics identify candidate blob files, Titan rewrites their live records, and it writes new vptrs back to the LSM tree. The process is shown below.
 
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Regular garbage collection in Titan diagram">
+
 ![Regular garbage collection in Titan](gc-titan-regular.svg)
+
+</div>
 
 Regular GC synchronizes pointer updates with foreground writes so it cannot overwrite later values. This can affect write throughput.
 
 Titan also offers _Level Merge_, which is off by default. When enabled, compaction into the last two LSM levels can rewrite blob records and place updated blob indexes directly in the compaction output, avoiding a separate regular-GC pointer write-back.
 
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Level-merge garbage collection in Titan diagram">
+
 ![Level-merge garbage collection in Titan](gc-titan-level-merge.svg)
+
+</div>
 
 ## Garbage Collection in BlobDB
 
 BlobDB integrates garbage collection with LSM compaction. An age cutoff selects older blob files that may be rewritten, while a separate force threshold can trigger targeted compaction when enough space can be reclaimed.
 
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Compaction in BlobDB diagram">
+
 ![Compaction in BlobDB](compaction-blobdb.svg)
+
+</div>
 
 Blob files are not compacted independently. Live blobs move only when LSM compaction processes their referencing SST entries.
 
@@ -174,13 +214,21 @@ Blob files are not compacted independently. Live blobs move only when LSM compac
 
 For a point lookup, an LSM engine may inspect memtables, overlapping level-0 files, and one candidate file in each lower level. Bloom filters, caches, and indexes help it skip work and find the newest visible value.
 
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Get in normal LSM diagram">
+
 ![Get in normal LSM](get-normal-lsm.svg)
+
+</div>
 
 With key-value separation, the read path gains an out-of-line value lookup.
 
 ## BadgerDB
 
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Get in BadgerDB diagram">
+
 ![Get in BadgerDB](get-badger.svg)
+
+</div>
 
 Badger finds the newest visible entry in the LSM tree, decodes its vptr, and reads the value directly from the vLog.
 
@@ -188,13 +236,21 @@ Reading a separated value always adds one extra indirection. Badger's scan-speci
 
 ## TerarkDB
 
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Get in TerarkDB diagram">
+
 ![Get in TerarkDB](get-terarkdb.svg)
+
+</div>
 
 TerarkDB first finds the v-SST file number in the LSM tree. It follows any dependency relationship to the latest v-SST, uses that file's index to locate the key, and then reads the value.
 
 ## Titan and BlobDB
 
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Get in Titan diagram">
+
 ![Get in Titan](get-titan.svg)
+
+</div>
 
 Titan and BlobDB find the vptr in the LSM tree and then read the corresponding record from a blob file.
 
@@ -215,7 +271,11 @@ A specialized engine can apply the same broad idea to one workload without imple
 
 [Neon](https://neon.com)'s page server, the underlying storage engine of Neon's serverless Postgres service, uses an LSM-like structure for Postgres page-version history. Redo information is generally smaller than a materialized 8 KiB page. Managing incremental history and page images as different layer types can reduce write amplification compared with eagerly materializing every page version in a general-purpose LSM-tree layout.
 
+<div class="labeled-figure-scroller" tabindex="0" role="region" aria-label="Neon page server diagram">
+
 ![Neon page server](neon-pg-server.svg)
+
+</div>
 
 Neon streams WAL to the page server, which builds page-version history in memory and flushes it to delta layers. The page server can also materialize image layers containing complete page snapshots at a chosen point in the log. Keeping history and snapshots separate lets Neon compact them on different schedules.
 

@@ -230,12 +230,19 @@ h6 {
 	width: max-content;
 }
 
-.wide-write-path-figure {
+.labeled-figure-scroller {
 	overflow-x: auto;
+	overscroll-behavior-inline: contain;
+	-webkit-overflow-scrolling: touch;
+}
+
+.labeled-figure-scroller:focus-visible {
+	outline: 2px solid var(--border-strong);
+	outline-offset: 0.25rem;
 }
 
 @media (max-width: 767px) {
-	.prose .wide-write-path-figure img {
+	.prose .labeled-figure-scroller img {
 		max-width: none;
 	}
 }
