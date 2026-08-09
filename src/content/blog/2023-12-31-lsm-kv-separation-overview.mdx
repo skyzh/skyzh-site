@@ -125,13 +125,13 @@ Because those replacement pointers use the normal LSM write path, GC adds write 
 
 ![Garbage collection consistency in Badger](gc-consistency-badger.svg)
 
-*GC may move an old value, but reads still return the newest visible version.*
+As shown in the above figure, a deletion at version 10 can coexist with a GC pointer update for the older value at version 9. Badger keeps the deletion visible while the rewrite is active, and its version ordering makes the deletion the newest visible entry. Moving the older value therefore does not make the deleted key visible again.
 
 ## Compaction and Garbage Collection in TerarkDB
 
 ![Garbage collection in TerarkDB](gc-terarkdb.svg)
 
-TerarkDB rewrites live entries into new v-SSTs and records dependencies from old files to their replacements. Reads follow those dependencies, so GC does not need to write every replacement file number through the foreground path.
+As shown in the above figure, TerarkDB uses each v-SST's garbage estimate to choose files for collection. It checks each record against the LSM tree, writes the live values into new v-SSTs, and records dependencies from the old files to their replacements. A read that still points to an old v-SST follows the dependency to the latest file, so GC does not have to write every replacement file number through the foreground path.
 
 ![Compaction in TerarkDB](compaction-terarkdb.svg)
 
