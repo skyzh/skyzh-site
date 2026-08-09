@@ -230,6 +230,23 @@ h6 {
 	width: max-content;
 }
 
+.labeled-figure-scroller {
+	overflow-x: auto;
+	overscroll-behavior-inline: contain;
+	-webkit-overflow-scrolling: touch;
+}
+
+.labeled-figure-scroller:focus-visible {
+	outline: 2px solid var(--border-strong);
+	outline-offset: 0.25rem;
+}
+
+@media (max-width: 767px) {
+	.prose .labeled-figure-scroller img {
+		max-width: none;
+	}
+}
+
 .page-heading {
 	margin: 0;
 }
