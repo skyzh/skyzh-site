@@ -87,7 +87,7 @@ HyPer is an in-memory database, while BusTub needs to persist data to disk. A la
 5. We do not garbage-collect the index or table heap, which means that the index always grows and unused slots in the table heap are never reused. This also greatly simplifies the implementation.
 6. (Not shown in the figure) To simplify the serializable verification, we did not implement the precision locking algorithm. Instead, we simply have a write set and a read predicate set to do backward OCC verification.
 
-Things worked well, and I spent half of my fall break working on the reference solution for the new project. By the end of the break, we had everything ready—version chains, indexes, aborts, and serializable verification. I spent another week on [the write-up](https://15445.courses.cs.cmu.edu/fall2023/project4/) and yet another week designing the test cases. I broke my own implementation twice and spent several hours fixing it.
+Things worked well, and I spent half of my fall break working on the reference solution for the new project. By the end of the break, we had everything ready—version chains, indexes, aborts, and serializable verification. I spent another week on [the write-up](https://15445.courses.cs.cmu.edu/fall2023/project4/) and yet another week designing the test cases. I broke my own implementation twice and spent some hours fixing it.
 
 ## Now It’s Meeting Time...
 
@@ -99,7 +99,7 @@ I also designed the project to have two leaderboard rankings: one for speed and 
 
 # Balancing the Difficulty
 
-So far, I have described how we designed the point distribution to make the first 80 points easy to earn and the remaining points difficult. I also employed several methods to balance the difficulty of each part of the project.
+So far, I have described how we designed the point distribution to make the first 80 points easy to earn and the remaining points difficult. I also employed multiple ways to balance the difficulty of each part of the project.
 
 <img src="point-distribution.png" alt="workload distribution of the project"/>
 <center><small>workload distribution of the project</small></center>
@@ -137,7 +137,7 @@ With my approach to balancing the project’s difficulty, the grade distribution
 
 # Calcite on BusTub
 
-As part of my optimizer research with Andy, I studied several optimizer frameworks. Apache Calcite is the one that particularly interests me, and I tried building something on top of it.
+As part of my optimizer research with Andy, I studied some optimizer frameworks. Apache Calcite is the one that particularly interests me, and I tried building something on top of it.
 
 I plugged Calcite into [BusTub’s query frontend](https://github.com/skyzh/calcite-bustub). BusTub runs [an HTTP service](https://github.com/cmu-db/bustub/pull/628) that listens for JSON query plans and serves the catalog. Calcite parses the SQL, generates a query plan for BusTub, and sends it to the BusTub HTTP service.
 
