@@ -62,7 +62,7 @@ One fun fact: I did not implement any optimizations in the reference solution. I
 
 ## Web Shell
 
-Another crazy thing I did was [bring BusTub to the browser](https://15445.courses.cs.cmu.edu/spring2023/bustub/). We made it possible using Emscripten, which compiles the C++ codebase to WASM and adds polyfills for filesystem operations. The BusTub codebase is relatively simple, and we needed to resolve only a few symbol conflicts to make it work. With the BusTub web SQL shell set up, students could try the entire system before starting their projects. Besides the SQL shell, we also compiled our [B+ Tree implementation](https://15445.courses.cs.cmu.edu/spring2023/bpt-printer/) to WASM. We visualized the B+ tree structure in the browser using GraphViz (thanks to [Ricky Xu](https://www.linkedin.com/in/xuchen22/) for the original version of the dot file generator) so that students could test their understanding and see how the B+ tree splits and merges in the browser.
+Another crazy thing I did was [bring BusTub to the browser](https://15445.courses.cs.cmu.edu/spring2023/bustub/). We made it possible using Emscripten, which compiles the C++ codebase to WASM and adds polyfills for filesystem operations. The BusTub codebase is relatively simple, and we needed to resolve only some symbol conflicts to make it work. With the BusTub web SQL shell set up, students could try the entire system before starting their projects. Besides the SQL shell, we also compiled our [B+ Tree implementation](https://15445.courses.cs.cmu.edu/spring2023/bpt-printer/) to WASM. We visualized the B+ tree structure in the browser using GraphViz (thanks to [Ricky Xu](https://www.linkedin.com/in/xuchen22/) for the original version of the dot file generator) so that students could test their understanding and see how the B+ tree splits and merges in the browser.
 
 
 <img class="img-border" src="bustub-webshell.png" alt="BusTub Web Shell"/>
@@ -93,7 +93,7 @@ yliang412
 
 ## Better Benchmarks
 
-All leaderboard tests have been redesigned to ensure that students focus on architectural changes instead of design hacks. It is well known that Gradescope can be unstable for computation-heavy workloads, causing some students working on leaderboard tests to submit 50–200 times to squeeze the best result from the same piece of code. With the new benchmark suites, students are expected to implement new algorithms and make significant architectural changes to achieve better performance, rather than simply change a few parameters and hope that Gradescope returns a good result. For example, in Project 1, we added latency to disk operations in the buffer pool manager benchmark. Therefore, students must find a way to issue parallel I/O requests to exploit throughput improvements.
+All leaderboard tests have been redesigned to ensure that students focus on architectural changes instead of design hacks. It is well known that Gradescope can be unstable for computation-heavy workloads, causing some students working on leaderboard tests to submit 50–200 times to squeeze the best result from the same piece of code. With the new benchmark suites, students are expected to implement new algorithms and make significant architectural changes to achieve better performance, rather than simply change some parameters and hope that Gradescope returns a good result. For example, in Project 1, we added latency to disk operations in the buffer pool manager benchmark. Therefore, students must find a way to issue parallel I/O requests to exploit throughput improvements.
 
 ## New Project 0
 
@@ -110,7 +110,7 @@ We redesigned [Project 0](https://15445.courses.cs.cmu.edu/spring2023/project0/)
 
 ## Making B+ Tree Less Painful
 
-The B+ tree project was known for its ridiculous difficulty before spring 2023. Two of the main reasons students could not finish it were misuse of the buffer pool manager APIs and incorrect concurrency control schemes.
+The B+ tree project was known for its ridiculous difficulty before spring 2023. One of the main reasons students could not finish it was the misuse of buffer pool manager APIs and the incorrect concurrency control scheme.
 
 With these challenges in mind, we redesigned the project to use `PageGuard` when manipulating a page from the buffer pool manager. If a user needs to access a page, they must acquire a guard from the buffer pool manager that pins the page in memory. The pin count automatically decreases when the guard goes out of scope, preventing mistakes such as forgetting to unpin a page or pinning it multiple times in one code path.
 
@@ -128,11 +128,11 @@ To ensure that students implement lock crabbing correctly, we added a heuristic-
 
 With the new query optimizer, students can make their queries more efficient by writing and applying transformation rules that generate the most efficient query plan.
 
-Furthermore, this enables students to optimize the system as a whole. In spring 2023, there was a query with an index scan over two index columns and filter conditions on both columns. An optimal approach would first convert the query into an index scan and then design the B+ tree iterators so that they could easily skip keys on internal nodes.
+Furthermore, this enables students to optimize the system as a whole. In spring 2023, there was a query with an index scan over two index columns and two filter conditions on those columns. An optimal approach would first convert the query into an index scan and then design the B+ tree iterators so that they could easily skip keys on internal nodes.
  
 ## Transactions in a Correct Way
 
-The transaction manager project has long been known for buggy and flaky test cases. From an architectural perspective, BusTub’s storage layer was not designed with concurrency control in mind, and the transaction manager was added sometime in 2018. Therefore, it needed to integrate better with the rest of the system, and several correctness bugs remained. I revisited the concurrency control implementation and fixed several bugs that might have caused correctness issues in spring 2023. I also reworked all the test cases for the storage executors. As a result, we received fewer complaints about the concurrency control implementation in storage-related query executors this semester. However, there are still improvements to make on the lock manager side.
+The transaction manager project has long been known for buggy and flaky test cases. From an architectural perspective, BusTub’s storage layer was not designed with concurrency control in mind, and the transaction manager was added sometime in 2018. Therefore, it needed to integrate better with the rest of the system, and some correctness bugs remained. I revisited the concurrency control implementation and fixed several bugs that might have caused correctness issues in spring 2023. I also reworked all the test cases for the storage executors. As a result, we received fewer complaints about the concurrency control implementation in storage-related query executors this semester. However, there are still improvements to make on the lock manager side.
 
 # What's Next
 
