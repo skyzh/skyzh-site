@@ -146,7 +146,7 @@ If the `join_commute` transformation receives a join plan node, it returns an eq
 
 We can express such transformations in a more general form as rules. A rule takes a plan and rewrites it into another plan that produces the same result. The user provides the optimizer with a set of rules, and the optimizer decides when and where to fire them and whether the rewritten plan is better than the original.
 
-Now we have a plan representation, several plan nodes, and a rule. We can start building a query optimizer!
+Now we have a plan representation, some plan nodes, and a rule. We can start building a query optimizer!
 
 # A Heuristic Optimizer Framework
 
