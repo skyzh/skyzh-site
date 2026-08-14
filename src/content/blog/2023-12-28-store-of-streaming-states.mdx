@@ -66,7 +66,7 @@ In a conventional database system, this query typically produces the following e
 
 ![base plan of the query](base-system.png)
 
-The execution plan of a stream processing system is not significantly different from that of a conventional database system. The following sections explain how several stream processing systems represent and store intermediate computation state.
+The execution plan of a stream processing system is not significantly different from that of a conventional database system. The following sections explain how various stream processing systems represent and store intermediate computation state.
 
 # Full State -- Operators Maintain Their Complete State
 
@@ -189,7 +189,7 @@ In a streaming system, it is often impossible to store and process all data on a
 
 ![remote shuffle of differential dataflow](dd-remote-shuffle-2.png)
 
-In this case, shuffling arrangements is unavoidable in Differential Dataflow. Each compute node performing a join must create new arrangements for the subset of keys required by its join partition. In general, arranging and computing on different nodes can greatly increase latency, while placing them on a single node may prevent the system from fully using distributed resources. This creates an inherent tradeoff.
+In this case, shuffling arrangements is unavoidable in Differential Dataflow. Each compute node performing a join must create new arrangements for the subset of keys required by its join partition. In general, arranging and computing on different nodes will greatly increase latency, while placing them on a single node cannot fully utilize distributed resources. This creates an inherent tradeoff.
 
 As long as the system ensures that arrangements and joins use the same key distribution and parallelism, state can still be shared without being shuffled.
 
@@ -249,7 +249,7 @@ Stream processing systems that store partial state respond to user queries in re
 * Dataflow in the computation graph is bidirectional: data can flow downstream, while upqueries flow upstream.
 * Recursive upqueries may introduce slightly higher computation latency than other state-storage methods.
 * Data consistency is difficult to achieve. The other storage methods described in this post can achieve eventual consistency more easily. A system that stores partial state must take special care when propagating updates and upquery results simultaneously through the stream, and the correctness of each operator's implementation must be carefully proven.
-* DDL and recovery are fast. Because operator state is computed on demand, the system can clear its caches and allocate new nodes after operations such as adding or removing columns from a view or migrating it, without paying the high cost of state recovery.
+* DDL/Recovery is very fast. Because operator state is computed on demand, the system can clear its caches and allocate new nodes after operations such as adding or removing columns from a view or migrating it, without paying the high cost of state recovery.
 
 Finally, let's compare the characteristics of streaming state stores for different state storage methods:
 
