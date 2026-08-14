@@ -219,12 +219,12 @@
       </g>
       <g id="Graphic_179">
         <text transform="translate(269.97948 739.875)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="12" fill="black" x="0" y="11">Register WriteCallback, and update vptr</tspan>
+          <tspan font-family="Helvetica Neue" font-size="12" fill="black" x="0" y="11">Register WriteCallback and update vptr</tspan>
         </text>
       </g>
       <g id="Graphic_180">
         <text transform="translate(-91.404 471.026)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">1. Select blob files to GC</tspan>
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">1. Select blob files for GC</tspan>
         </text>
       </g>
       <g id="Graphic_181">
@@ -234,7 +234,7 @@
       </g>
       <g id="Graphic_182">
         <text transform="translate(-153.1 691.276)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="17337243e-19" y="15">3. Write updated vPtr to LSM tree</tspan>
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="17337243e-19" y="15">3. Update vptr in the LSM tree</tspan>
         </text>
       </g>
     </g>

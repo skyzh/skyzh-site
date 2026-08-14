@@ -187,7 +187,7 @@
       </g>
       <g id="Graphic_110">
         <text transform="translate(761.8195 387.58)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="14" fill="black" x="0" y="13">GC process updates vPtr of A at ts=9</tspan>
+          <tspan font-family="Helvetica Neue" font-size="14" fill="black" x="0" y="13">GC process updates A's vptr at ts=9</tspan>
         </text>
       </g>
       <g id="Graphic_111">

@@ -125,7 +125,7 @@
       </g>
       <g id="Graphic_215">
         <text transform="translate(-110 484.078)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">1. Compaction triggered in the LSM structure</tspan>
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">1. Trigger compaction in the LSM tree.</tspan>
         </text>
       </g>
       <g id="Graphic_217">
@@ -157,7 +157,7 @@
       </g>
       <g id="Graphic_227">
         <text transform="translate(-110 697.375)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">2. Rewrite the blob files while compaction, store new vPtr in compacted files.</tspan>
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">2. Rewrite the blob files during compaction and store the new vptr in the compacted files.</tspan>
         </text>
       </g>
       <g id="Line_228">

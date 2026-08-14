@@ -219,7 +219,7 @@
         <rect x="214.5" y="558.052" width="66.624" height="28.447998" fill="white"/>
         <rect x="214.5" y="558.052" width="66.624" height="28.447998" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
         <text transform="translate(219.5 563.052)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="6.832" y="15" xml:space="preserve">File Id</tspan>
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="6.832" y="15" xml:space="preserve">File ID</tspan>
         </text>
       </g>
       <g id="Graphic_55">
