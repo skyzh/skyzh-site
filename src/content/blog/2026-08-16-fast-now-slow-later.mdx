@@ -1,0 +1,233 @@
+---
+title: "Fast Now, Slow Later: Compaction Is Borrowed Time"
+pubDate: "2026-08-16T12:00:00-07:00"
+tags: ["Database", "Storage", "LSM", "Compaction"]
+description: "A deterministic experiment shows how deferring compaction makes foreground work look cheap now while moving read work and latency into the future."
+---
+
+# Table of Contents
+
+---
+
+# The Attractive Shortcut
+
+An LSM-tree turns a write into cheap sequential work, then leaves compaction to
+clean up the immutable files later. This separation is useful, but it also makes
+one scheduling policy look deceptively attractive:
+
+> Give foreground reads and writes the whole device. Run compaction only when
+> the foreground has nothing left to do.
+
+That policy should complete more foreground work early. But what happens to the
+reads that arrive after the files have accumulated?
+
+Before looking at the result, make a prediction. Compare two choices:
+
+1. **Threshold-only:** foreground work has priority; compaction receives only
+   otherwise-idle service.
+2. **Reserved maintenance:** while compaction is active, reserve some device
+   service for it even when foreground work is waiting.
+
+Which policy produces fewer write stalls? Which one drains the entire workload
+first? Which one gives the final reads less physical work?
+
+To answer those questions without changing the workload between runs, I built
+the deterministic [`workload-debt`](https://github.com/skyzh/stateful-system-lessons/tree/75a38db6d6513e6aea31f12c97b271e0f77ddf4a/simulators/workload-debt)
+teaching model.
+
+# One Workload, No Moving Goalposts
+
+Every policy replays the same input, whose digest is
+`bede51c7f9f5e3af`:
+
+- **Ingest, ticks 0–11:** two puts arrive per tick, for 24 puts.
+- **Mixed, ticks 12–23:** one put followed by one read arrives per tick, for 12
+  more puts and 12 reads.
+- **Debt payment, ticks 24–59:** one read arrives per tick, for 36 more reads.
+
+That is exactly 36 puts and 48 reads. The model returns the same logical values
+under all three policies. Only the scheduling decision changes.
+
+The virtual device provides 4 KiB and 4 IOPS per tick. These are two separate
+ceilings: a tick may run out of bytes while it still has IOPS, or vice versa. A
+record is 1 KiB, four records fill a memtable, and four L0 files trigger
+compaction.
+
+The simulator reports three parts of latency rather than hiding them inside one
+number:
+
+- **Queue latency:** time spent waiting before service begins.
+- **Service latency:** time from first service through completion.
+- **Total latency:** arrival through completion.
+
+Every latency in this post is measured in **deterministic model ticks**. None of
+these numbers measures a machine, SSD, cloud service, or production database.
+
+# Where the Debt Comes From
+
+Each full memtable becomes an immutable L0 file. As those files accumulate, a
+read may need to inspect more physical sources even though its logical answer
+does not change.
+
+Compaction can reduce that future read work, but it is not free. It must read
+old files and write a replacement using the same byte and IOPS budgets that
+serve foreground requests. Reserving maintenance service therefore moves cost
+*through time*; it does not remove cost.
+
+The model calls the pending background service **compaction debt**. It counts
+the bytes and IOPS still owed to active and queued compaction work. A policy can
+make the foreground look faster during ingest by postponing that service. The
+bill remains in the storage state.
+
+There is one more detail that matters for interpreting the trace. A read pins
+its physical sources when it is admitted. Compaction captures exact input file
+IDs and publishes its replacement atomically. A read captured before
+publication finishes against the old sources; a later read can observe the
+new layout. This keeps the logical result stable while making the physical cost
+visible.
+
+# The Mini-LSM-Shaped Result
+
+The first preset has overlapping L0 files above one sorted bottom run. Here is
+the complete comparison needed for the argument; the table remains the
+authoritative fallback if the visual is unavailable.
+
+<div class="table-container">
+
+| Mini-LSM-shaped metric | Threshold-only | Fixed reserve | Debt-aware |
+| --- | ---: | ---: | ---: |
+| Write stall ticks | 4 | 14 | 14 |
+| Maintenance write bytes | 46,080 | 55,296 | 55,296 |
+| Mixed-phase debt, bytes / IOPS | 61,440 / 15 | 47,104 / 8 | 47,104 / 8 |
+| Peak L0 files | 9 | 6 | 6 |
+| Foreground read work, bytes / IOPS | 452,608 / 442 | 376,832 / 368 | 376,832 / 368 |
+| Final trailing-eight read p99, ticks | 71 | 69 | 69 |
+| Drain tick | 137 | 127 | 127 |
+
+</div>
+
+![Mini-LSM-shaped deterministic comparison. Threshold-only spends less maintenance service during the workload and stalls writes for fewer ticks, but ends the mixed phase with more compaction debt, gives reads more physical work, reaches a final trailing-eight p99 of 71 ticks instead of 69, and drains at tick 137 instead of 127.](compaction-debt.svg)
+
+Threshold-only delivers the expected short-term benefit: four write-stall ticks
+instead of fourteen, and less maintenance writing during the foreground-heavy
+part of the run. That is the “fast now” side of the bargain.
+
+The later state exposes the borrowed work. At the end of the mixed phase,
+threshold-only still owes 61,440 bytes and 15 IOPS of compaction service. The
+reserved policies owe 47,104 bytes and 8 IOPS. Reads consequently perform
+452,608 physical bytes and 442 physical IOPS under threshold-only, compared
+with 376,832 bytes and 368 IOPS under reserved maintenance.
+
+The final p99 uses the last eight reads **in completion order**, not the last
+eight arrivals. It is 71 ticks under threshold-only and 69 under reserved
+maintenance. The whole workload drains at tick 137 versus tick 127.
+
+This is not a story in which compaction makes every operation faster. The
+reserved policies stall writes for more ticks and perform more maintenance
+writes. They spend present service to reduce later overlap and finish the
+remaining work sooner.
+
+# When Two Policies Tie
+
+The executable comparison has three policies, not two:
+
+- `threshold-only` has no compaction reservation;
+- `fixed-reserve` reserves 1 KiB and 1 IOP per tick while compaction is active;
+- `debt-aware` starts with the same floor and can raise the reservation to 50%
+  at a high-debt threshold, then lower it with hysteresis.
+
+In these canonical fixtures, `fixed-reserve` and `debt-aware` produce identical
+metrics and event timing. The workload does not demonstrate a measured benefit from
+the hysteresis rule. That result is useful: a policy can have a more adaptive
+mechanism without this particular experiment activating a distinguishable
+outcome.
+
+For this post, **reserved maintenance** refers to the shared observed result of
+those two policies. The evidence supports comparing that result with
+threshold-only. It does not support claiming that debt-aware beats fixed
+reserve.
+
+# A Neon-Shaped Cross-Check
+
+The second preset changes the physical mapping: it uses whole-key-space L0
+deltas, key-range-partitioned L1 deltas, and an image lookup. The same workload
+and policies run again.
+
+<div class="table-container">
+
+| Neon-shaped metric | Threshold-only | Fixed reserve | Debt-aware |
+| --- | ---: | ---: | ---: |
+| Write stall ticks | 4 | 12 | 12 |
+| Maintenance write bytes | 53,248 | 69,632 | 69,632 |
+| Mixed-phase debt, bytes / IOPS | 49,152 / 9 | 34,816 / 4 | 34,816 / 4 |
+| Peak L0 files | 9 | 6 | 6 |
+| Foreground read work, bytes / IOPS | 452,608 / 442 | 387,072 / 378 | 387,072 / 378 |
+| Final trailing-eight read p99, ticks | 71 | 71 | 71 |
+| Drain tick | 137 | 129 | 129 |
+
+</div>
+
+The p99 is an explicit **71/71 tie**. Reserved maintenance still ends the mixed
+phase with less debt, gives reads less physical work, and drains eight ticks
+earlier, but this preset does not show a lower final read p99.
+
+The mapping is intentionally narrow. It is not a model of Neon's scheduler,
+cache, remote storage, retention, garbage collection, branching, image policy,
+or production compaction. It only asks whether the same deferred-work
+principle remains visible when the teaching model changes from overlapping LSM
+runs to image/delta-shaped lookup costs.
+
+# Reproduce, Observe, Explain
+
+Check out the exact revision used by this post:
+
+```console
+git clone https://github.com/skyzh/stateful-system-lessons.git
+cd stateful-system-lessons
+git checkout 75a38db6d6513e6aea31f12c97b271e0f77ddf4a
+```
+
+Run both comparisons:
+
+```console
+cargo run -p workload-debt --bin workload-debt-sim -- compare --preset mini-lsm
+cargo run -p workload-debt --bin workload-debt-sim -- compare --preset neon-shaped
+```
+
+Export the tick-by-tick visual input:
+
+```console
+cargo run -p workload-debt --bin workload-debt-sim -- \
+  compare --preset mini-lsm --format csv > /tmp/mini-lsm-timeline.csv
+```
+
+Then inspect one causal run rather than only its summary:
+
+```console
+cargo run -p workload-debt --bin workload-debt-sim -- \
+  trace --preset mini-lsm --policy threshold-only
+```
+
+The CSV exposes phase, queue length, L0 count, byte and IOPS debt, foreground
+and compaction service, and the recent read p99 for every tick. The trace names
+arrivals, flushes, compaction capture and atomic publication, read source IDs
+and results, and phase boundaries. Together they let you move through the full
+learning loop:
+
+1. **Predict** which policy wins now and which state it leaves for later.
+2. **Change** only the scheduling policy.
+3. **Observe** debt, physical read work, stalls, latency, and drain time.
+4. **Explain** the result from the captured files and the service actually
+   paid in each phase.
+
+The executable evidence verifies a bounded claim: deferred maintenance can
+preserve early foreground service while increasing later modeled debt and
+physical read work. It also falsifies the simplistic claim that more
+compaction is always faster.
+
+What it does **not** establish is just as important. It does not measure
+wall-clock latency, CPU or SSD behavior, effective bandwidth, durability,
+universal thresholds, an optimal policy, or the relative performance of real
+storage engines. Compaction is borrowed time in this model; deciding how much
+to borrow in production still requires the workload and system that this small
+experiment deliberately leaves out.

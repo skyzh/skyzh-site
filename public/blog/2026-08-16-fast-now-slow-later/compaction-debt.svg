@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Mini-LSM-shaped compaction cost now and later</title>
+  <desc id="desc">Threshold-only performs 45 KiB of maintenance writes and has four write-stall ticks, but ends with 60 KiB of mixed-phase debt, 442 read IOPS, a 71-tick final read p99, and drain tick 137. Reserved maintenance performs 54 KiB of maintenance writes and has fourteen write-stall ticks, but ends with 46 KiB of debt, 368 read IOPS, a 69-tick final read p99, and drain tick 127. Fixed reserve and debt-aware have identical results.</desc>
+  <rect width="1200" height="760" rx="28" fill="#fffaf2"/>
+  <text x="64" y="68" fill="#18212f" font-family="Inter, system-ui, sans-serif" font-size="34" font-weight="700">Same workload, different timing</text>
+  <text x="64" y="105" fill="#526072" font-family="Inter, system-ui, sans-serif" font-size="19">Mini-LSM-shaped preset · deterministic model ticks, not machine latency</text>
+
+  <rect x="64" y="140" width="506" height="178" rx="20" fill="#fff0e5" stroke="#f0b27a" stroke-width="2"/>
+  <text x="92" y="180" fill="#9a3412" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="700" letter-spacing="1">SPEND DURING THE WORKLOAD</text>
+  <text x="92" y="222" fill="#18212f" font-family="Inter, system-ui, sans-serif" font-size="20">Maintenance writes</text>
+  <rect x="286" y="204" width="150" height="20" rx="10" fill="#dc6b2f"/>
+  <text x="449" y="221" fill="#7c2d12" font-family="Inter, system-ui, sans-serif" font-size="18">45 KiB</text>
+  <rect x="286" y="237" width="180" height="20" rx="10" fill="#268b83"/>
+  <text x="479" y="254" fill="#115e59" font-family="Inter, system-ui, sans-serif" font-size="18">54 KiB</text>
+  <text x="92" y="292" fill="#526072" font-family="Inter, system-ui, sans-serif" font-size="18">Write-stall ticks</text>
+  <text x="286" y="292" fill="#9a3412" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="700">4</text>
+  <text x="342" y="292" fill="#115e59" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="700">14</text>
+
+  <rect x="630" y="140" width="506" height="178" rx="20" fill="#eaf8f6" stroke="#75c8bf" stroke-width="2"/>
+  <text x="658" y="180" fill="#115e59" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="700" letter-spacing="1">THE LATER BILL</text>
+  <text x="658" y="222" fill="#18212f" font-family="Inter, system-ui, sans-serif" font-size="20">Mixed-phase debt</text>
+  <rect x="852" y="204" width="180" height="20" rx="10" fill="#dc6b2f"/>
+  <text x="1045" y="221" fill="#7c2d12" font-family="Inter, system-ui, sans-serif" font-size="18">60 KiB</text>
+  <rect x="852" y="237" width="138" height="20" rx="10" fill="#268b83"/>
+  <text x="1003" y="254" fill="#115e59" font-family="Inter, system-ui, sans-serif" font-size="18">46 KiB</text>
+  <text x="658" y="292" fill="#526072" font-family="Inter, system-ui, sans-serif" font-size="18">Peak L0 files</text>
+  <text x="852" y="292" fill="#9a3412" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="700">9</text>
+  <text x="908" y="292" fill="#115e59" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="700">6</text>
+
+  <circle cx="76" cy="360" r="9" fill="#dc6b2f"/>
+  <text x="96" y="367" fill="#526072" font-family="Inter, system-ui, sans-serif" font-size="18">Threshold-only</text>
+  <circle cx="252" cy="360" r="9" fill="#268b83"/>
+  <text x="272" y="367" fill="#526072" font-family="Inter, system-ui, sans-serif" font-size="18">Reserved maintenance (fixed reserve = debt-aware here)</text>
+
+  <text x="64" y="421" fill="#18212f" font-family="Inter, system-ui, sans-serif" font-size="23" font-weight="700">Physical read work</text>
+  <text x="64" y="457" fill="#526072" font-family="Inter, system-ui, sans-serif" font-size="18">Threshold-only</text>
+  <rect x="236" y="438" width="690" height="24" rx="12" fill="#dc6b2f"/>
+  <text x="946" y="457" fill="#7c2d12" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="700">442 IOPS · 452,608 bytes</text>
+  <text x="64" y="496" fill="#526072" font-family="Inter, system-ui, sans-serif" font-size="18">Reserved</text>
+  <rect x="236" y="477" width="575" height="24" rx="12" fill="#268b83"/>
+  <text x="831" y="496" fill="#115e59" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="700">368 IOPS · 376,832 bytes</text>
+
+  <line x1="64" y1="536" x2="1136" y2="536" stroke="#d5d9df" stroke-width="2"/>
+  <text x="64" y="583" fill="#18212f" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="700">Final trailing-eight read p99</text>
+  <text x="392" y="583" fill="#9a3412" font-family="Inter, system-ui, sans-serif" font-size="29" font-weight="700">71 ticks</text>
+  <text x="540" y="583" fill="#526072" font-family="Inter, system-ui, sans-serif" font-size="21">→</text>
+  <text x="594" y="583" fill="#115e59" font-family="Inter, system-ui, sans-serif" font-size="29" font-weight="700">69 ticks</text>
+
+  <text x="64" y="638" fill="#18212f" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="700">Whole workload drains</text>
+  <text x="392" y="638" fill="#9a3412" font-family="Inter, system-ui, sans-serif" font-size="29" font-weight="700">tick 137</text>
+  <text x="540" y="638" fill="#526072" font-family="Inter, system-ui, sans-serif" font-size="21">→</text>
+  <text x="594" y="638" fill="#115e59" font-family="Inter, system-ui, sans-serif" font-size="29" font-weight="700">tick 127</text>
+
+  <rect x="64" y="681" width="1072" height="42" rx="14" fill="#eef1f5"/>
+  <text x="600" y="708" text-anchor="middle" fill="#364152" font-family="Inter, system-ui, sans-serif" font-size="17">The reservation shifts I/O through time; it does not make compaction free.</text>
+</svg>
