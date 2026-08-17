@@ -6,8 +6,6 @@ description: "Shared Indexes and Joins in Streaming Databases"
 external: true
 ---
 
-This article is basically an English version of [my previous post](https://www.skyzh.dev/posts/articles/2022-05-29-shared-state-in-risingwave/), which was originally written in May 2022. This is also a summary of my
-undergraduate's thesis on streaming indexes and streaming joins. Now it is half a year later and the implementation
-in RisingWave has changed a lot. But the basic idea stays the same: push data to the remote node instead of pull.
+This article is an English version of [my previous post](https://www.skyzh.dev/posts/articles/2022-05-29-shared-state-in-risingwave/), which was originally published in May 2022. It also summarizes my undergraduate thesis on streaming indexes and streaming joins. Half a year has passed since then, and the implementation in RisingWave has changed significantly. But the basic idea remains the same: push data to the remote node instead of pulling it.
 
 [https://www.risingwave-labs.com/blog/shared-indexes-and-joins-in-streaming-databases/](https://www.risingwave-labs.com/blog/shared-indexes-and-joins-in-streaming-databases/)
