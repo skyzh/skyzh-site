@@ -2,7 +2,7 @@
 title: "State Store in Streaming Systems"
 pubDate: "2023-12-28T15:00:00+08:00"
 tags: ["Stream Processing", "State", "Storage", "Database"]
-description: "In this blog post, we walk through 3 different design approaches to state stores in streaming systems."
+description: "In this blog post, we walk through three different approaches to designing state stores in streaming systems."
 socialImage: "/images/2023-12-28-store-of-streaming-states-social.png"
 heroImage: "/images/2023-12-28-store-of-streaming-states-banner.png"
 ---
@@ -14,16 +14,16 @@ heroImage: "/images/2023-12-28-store-of-streaming-states-banner.png"
 
 # Introduction
 
-Data processed by a stream processing system is often unbounded: data keeps flowing in from the data source, and users need to see the real-time results of SQL queries. At the same time, the compute nodes in the stream processing system may encounter errors or failures, and they may need to scale up or down in real-time based on user demands. In this process, the system needs to efficiently transfer the intermediate states of computations between nodes and persist them in external systems to ensure uninterrupted computation.
+Data processed by a stream processing system is often unbounded: data keeps flowing in from the data source, and users need to see the real-time results of SQL queries. At the same time, compute nodes may encounter errors or failures, and the system may need to scale them up or down in real time according to demand. Throughout this process, the system must efficiently transfer intermediate computation state between nodes and persist it in external systems to keep computation running without interruption.
 
-This blog post introduces three approaches to storing the state of stream processing systems in the industry and academia: storing complete state (e.g., [Flink][flink]), storing shared state (i.e., [Materialize][materialize] / [Differential Dataflow][dd]), and storing partial state (e.g., [Noria (OSDI '18)][noria]). Each of these state storage solutions has its advantages and can provide some insights for the development of future stream processing engines.
+This blog post introduces three approaches to storing state in stream processing systems from industry and academia: storing complete state (e.g., [Flink][flink]), storing shared state (e.g., [Materialize][materialize] and [Differential Dataflow][dd]), and storing partial state (e.g., [Noria (OSDI '18)][noria]). Each approach has its own advantages and can offer insights into the development of future stream processing engines.
 
-Assuming there are two tables in a shopping system:
+Assume there are two tables in a shopping system:
 
 * `visit(product, user, length)` represents the number of seconds a user views a product.
 * `info(product, category)` represents the category to which a product belongs.
 
-Now we want to query: What is the longest time that a user has viewed a product in a certain category?
+Now we want to answer this question: What is the longest time that a user has viewed a product in a given category?
 
 ```sql
 CREATE VIEW result AS
@@ -33,9 +33,9 @@ CREATE VIEW result AS
   GROUP BY category
 ```
 
-This query includes a join operation between two tables and an aggregation operation. The following discussion will be based on this query.
+This query contains a join between two tables and an aggregation. The following discussion is based on this query.
 
-Assuming the current state of the system is:
+Assume the current state of the system is:
 
 ```plain
 info(product, category)
@@ -62,49 +62,49 @@ Vegetable, 60
 
 The Fruit category was viewed by users for a maximum of 40 seconds (corresponding to Alice's visit to Banana); the Vegetable category was viewed for a maximum of 60 seconds (corresponding to Eve's visit to Potato).
 
-In common database products, the system usually generates the following execution plan for this query (not considering the optimizer):
+In a conventional database system, this query typically produces the following execution plan (ignoring optimizer choices):
 
 ![base plan of the query](base-system.png)
 
-The execution plan of a stream processing system is not significantly different from the plans of common database systems. Below, we will explain how various stream processing systems represent and store the intermediate states of computations.
+The execution plan of a stream processing system is not significantly different from that of a conventional database system. The following sections explain how various stream processing systems represent and store intermediate computation state.
 
-# Full State -- Operators maintain their complete state
+# Full State -- Operators Maintain Their Complete State
 
-Stream processing systems such as [Flink][flink] persist the complete state of each operator and also propagate data update information among operators in the stream computation graph. This method of storing state is very intuitive. The SQL query described earlier would create this computation graph in systems like Flink:
+A stream processing system such as [Flink][flink] persists the complete state of each operator and propagates data updates among operators in the stream computation graph. This state-storage model is intuitive. In a system like Flink, the SQL query described earlier would produce this computation graph:
 
 ![plan of Flink](flink-operators.png)
 
-The data source emits messages indicating the addition or removal of rows. After going through the stream operators, these messages are transformed into the desired results.
+The data sources emit messages that add or remove rows. As these messages pass through the stream operators, they are transformed into the desired results.
 
 ## State Storage of Join State
 
-When messages from the data source enter the system, the first operator they encounter is the join operator. Let's revisit the Join condition in the SQL query: `info INNER JOIN visit ON product`. After receiving messages from the left side `info`, the join operator first fetches the rows from the right side `visit` that have the same `product`, and then sends them downstream. Subsequently, the messages from the left side `info` are recorded in its own state. The processing of messages from the right side follows the same pattern.
+When messages from a data source enter the system, the first operator they encounter is the join operator. Let's revisit the join condition in the SQL query: `info INNER JOIN visit ON product`. After receiving a message from the left side, `info`, the join operator fetches rows from the right side, `visit`, that have the same `product` and sends the joined rows downstream. It then records the message from `info` in its own state. Messages from the right side follow the same process.
 
-For example, let's say the right side `visit` receives a message stating that Eve looked at Potato for 60 seconds (`+ Potato Eve 60`). Assuming the left side `info` already has four records in its state, the join operator would query the records where `product = Potato` from the left side `info` and obtain the result that Potato is a Vegetable. It would then send `Potato, Vegetable, 60` downstream.
+For example, suppose the right side, `visit`, receives a message stating that Eve looked at Potato for 60 seconds (`+ Potato Eve 60`). If the left side, `info`, already has four records in its state, the join operator queries it for records where `product = Potato` and finds that Potato is a vegetable. It then sends `Potato, Vegetable, 60` downstream.
 
-Furthermore, the state of the right side `visit` would include a record `Potato -> Eve, 60` as well. As a result, if there are any changes in the left side `info`, the join operator can also send the corresponding updates to the downstream `visit` operator.
+The state for the right side, `visit`, also includes the record `Potato -> Eve, 60`. As a result, if the left side, `info`, changes, the join operator can send the corresponding updates to the downstream `visit` operator.
 
 ## State Storage of Aggregation State
 
-The messages are then passed to the aggregation operator, which needs to group the data based on the category and calculate the maximum length for each category.
+The messages then pass to the aggregation operator, which groups the data by category and calculates the maximum length for each group.
 
-Some simple aggregation states (such as sum) only need to keep track of the current value for each group. If an insert message is received from the upstream operator, the sum is incremented by the corresponding value. If a delete message is received, the sum is decremented. Therefore, the state required for aggregations like sum and count (without distinct) is very small.
+Some simple aggregations, such as sum, only need to track the current value for each group. When the operator receives an insert message from upstream, it increases the sum by the corresponding value. When it receives a delete message, it decreases the sum. Therefore, aggregations such as sum and count (without distinct) require very little state.
 
-However, for the max state, we cannot just record the maximum value. If a delete message is received from upstream, the max state needs to send the second largest value as the new maximum value to the downstream. If only the maximum value is recorded, we would not be able to determine the second largest value after removing the maximum value. Therefore, the aggregation operator needs to store the complete data for each group. In our example, the AggMaxState currently stores the following data:
+For the max aggregation, however, we cannot record only the maximum value. If a delete message arrives from upstream, the max state must send the second-largest value downstream as the new maximum. If it stored only the maximum, it could not determine the second-largest value after removing the maximum. Therefore, the aggregation operator must store the complete data for each group. In our example, `AggMaxState` currently stores the following data:
 
 ```
 Fruit -> { 10, 20, 30, 40 }
 Vegetable -> { 50 }
 ```
 
-If an insert message `Potato, Vegetable, 60` is received from the upstream join operator, the aggregation operator would update its state:
+If the aggregation operator receives an insert message, `Potato, Vegetable, 60`, from the upstream join operator, it updates its state:
 
 ```
 Fruit -> { 10, 20, 30, 40 }
 Vegetable -> { 50, [60] }
 ```
 
-It would also send the update for the Vegetable group downstream:
+It also sends the update for the Vegetable group downstream:
 
 ```
 DELETE Vegetable, 50
@@ -117,147 +117,149 @@ The entire process is illustrated in the following diagram:
 
 ## Summary
 
-Stream processing systems that store complete state typically have the following characteristics:
+Stream processing systems that store complete state typically have these characteristics:
 
-* Messages indicating data changes (addition/deletion) are propagated unidirectionally in the stream computation graph.
-* Stream operators maintain and access their own state. In the case of multi-way Joins, the stored state may be duplicated. This will be explained in more detail when discussing shared state later in this blog post.
+* Messages that indicate data changes (additions and deletions) propagate in one direction through the stream computation graph.
+* Stream operators maintain and access their own state. For multi-way joins, the stored state may be duplicated. The shared-state section explains this in more detail.
 
-# Shared State -- Sharing state among operators
+# Shared State -- Sharing State Among Operators
 
-We will use the example of Shared Arrangement in [Differential Dataflow][dd] (the computation engine underneath Materialize) to explain the implementation of shared state. Differential Dataflow will be used as an abbreviation for Differential Dataflow.
+We will use shared arrangements in [Differential Dataflow][dd] (the computation engine underneath Materialize) to explain how shared state is implemented.
 
 ## Arrange Operators and Arrangements in Differential Dataflow
 
 ![intro of shared arrangement](shared-arrangement.png)
 
-Differential Dataflow uses arrangements to maintain state. In simple terms, Arrangement is a key-value map data structure that supports MVCC. It stores the mapping of key to (value, time, diff). With Arrangement, you can:
-* Query the mapping relationship of key-value at a certain point in time using a handler.
-* Query the changes of a key during a certain period of time.
-* Specify the watermark for the query and merge or delete historical data that is no longer used in the background.
+Differential Dataflow uses arrangements to maintain state. In simple terms, an arrangement is a key-value map that supports MVCC. It maps each key to `(value, time, diff)` tuples. With an arrangement, you can:
 
-In Differential Dataflow, most operators do not have states, and all states are stored in arrangements. arrangements can be generated using arrange operators or maintained by operators themselves (such as the reduce operator). In the computation graph of Differential Dataflow, there are two types of message passing:
+* Query the key-value mapping at a given point in time through a handle.
+* Query changes to a key over a given period.
+* Specify a query watermark and merge or delete historical data that is no longer needed in the background.
 
-* Changes in data at a certain moment in time `(data, time, diff)`. This type of data flow is called Collection.
-* Snapshots of data, which are handlers of arrangements. This type of data flow is called Arranged.
+In Differential Dataflow, most operators do not have their own state; state is stored in arrangements. Arrange operators can create arrangements, and some operators, such as reduce, maintain arrangements themselves. A Differential Dataflow computation graph passes two kinds of messages:
 
-Each operator in Differential Dataflow has certain requirements for its input and output, as shown in the following examples:
-* Map operator (corresponding to SQL's Projection) takes Collection as input and outputs Collection.
-* JoinCore operator (a stage of Join) takes Arranged as input and outputs Collection.
-* ReduceCore operator (a stage of Aggregation) takes Arranged as input and outputs Arranged.
+* Data changes at a particular logical time, represented as `(data, time, diff)`. This type of dataflow is called a `Collection`.
+* Data snapshots represented by arrangement handles. This type of dataflow is called `Arranged`.
 
-Later on, we will provide a detailed introduction to the JoinCore and ReduceCore operators in Differential Dataflow.
+Each Differential Dataflow operator has specific input and output requirements. For example:
+
+* A map operator (corresponding to an SQL projection) takes a `Collection` as input and produces a `Collection`.
+* A `JoinCore` operator (a stage of a join) takes `Arranged` inputs and produces a `Collection`.
+* A `ReduceCore` operator (a stage of an aggregation) takes an `Arranged` input and produces `Arranged` output.
+
+The following sections introduce the `JoinCore` and `ReduceCore` operators in more detail.
 
 ## From Differential Dataflow to Materialize
 
-Materialize converts SQL queries input by users into the computation graph of Differential Dataflow. It is worth mentioning that SQL operations such as join and group by often do not correspond to a single operator in Differential Dataflow. By following the flow of messages, let's see how Materialize stores states.
+Materialize converts user-submitted SQL queries into Differential Dataflow computation graphs. SQL operations such as joins and `GROUP BY` often do not correspond to a single Differential Dataflow operator. By following the flow of messages, we can see how Materialize stores state.
 
 ![plan of differential dataflow](dd-operators.png)
 
 ## State Storage of Join State
 
-The A Join B operation in SQL corresponds to three operators in Differential Dataflow: two Arranges and one JoinCore. The arrange operators persist the states of the two sources separately based on the join keys, storing them in arrangements in the form of key-value pairs. After batching the inputs, the arrange operators send TraceHandles to the downstream JoinCore operator. The actual join logic takes place in the JoinCore operator, which does not store any states.
+The `A JOIN B` operation in SQL corresponds to three operators in Differential Dataflow: two arrange operators and one `JoinCore`. The arrange operators persist the state of the two sources separately by join key, storing it in arrangements as key-value pairs. After batching the inputs, the arrange operators send trace handles to the downstream `JoinCore` operator. The actual join logic runs in `JoinCore`, which does not store any state itself.
 
 ![join state of differential dataflow](dd-state-join.png)
 
-As shown in the above figure, suppose a new update comes to the Visit side: Eve looks at the Potato for 60 seconds. The JoinCore operator accesses this update through Trace B and queries the rows with `product = Potato` on the other side (Trace A). It matches that `Potato` is a vegetable and outputs the change `Potato, Vegetable, 60` downstream.
+As shown above, suppose a new update arrives on the Visit side: Eve looks at Potato for 60 seconds. The `JoinCore` operator accesses this update through Trace B and queries rows with `product = Potato` on the other side, Trace A. It finds that Potato is a vegetable and outputs the change `Potato, Vegetable, 60` downstream.
 
 ## State Storage of Reduce (Aggregation) State
 
-In Differential Dataflow, SQL aggregation operator corresponds to the reduce operation. The reduce operation includes two operators: Arrange and ReduceCore. The arrange operator stores the input data based on the group key, and the ReduceCore operator maintains an Arrangement to store the aggregated results. Finally, the results are output as a collection using the `as_collection` operation.
+In Differential Dataflow, an SQL aggregation corresponds to a reduce operation. A reduce operation contains two operators: arrange and `ReduceCore`. The arrange operator stores input data by group key, while `ReduceCore` maintains an arrangement containing the aggregated results. Finally, the `as_collection` operation emits those results as a collection.
 
 ![aggregation state of differential dataflow](dd-state-agg.png)
 
-When the update from the Join operation arrives at the reduce operator, it is first stored in Arrangement by the arrange operator based on the group key. After receiving Trace C, the ReduceCore operator scans all the rows with `key = Vegetable` and calculates the maximum value. The maximum value is then updated in its own Arrangement. After passing through the `as_collection` operation, Trace D can be output as data updates, which can be processed by other operators.
+When an update from the join arrives at the reduce operation, the arrange operator first stores it in an arrangement by group key. After receiving Trace C, `ReduceCore` scans all rows with `key = Vegetable` and calculates the maximum value. It then updates that value in its own arrangement. The `as_collection` operation turns Trace D into data updates that other operators can process.
 
 ## Convenient State Reuse for Operators
 
-Since the operators that store states in Differential Dataflow are separate from the operators for actual computation, we can take advantage of this property to reuse operator states.
+Because the operators that store state in Differential Dataflow are separate from those that perform the actual computation, the system can reuse operator state.
 
 ![3-way join of differential dataflow](dd-join-3-way.png)
 
-For example, if a user wants to query `A JOIN B` and `B JOIN C` at the same time, in Differential Dataflow, a possible computation graph would generate three arrange operators and two JoinCore operators. Compared to stream processing systems that store complete states, we can avoid duplicating the state of B.
+For example, if a user wants to query `A JOIN B` and `B JOIN C` at the same time, one possible Differential Dataflow computation graph has three arrange operators and two `JoinCore` operators. Compared with a stream processing system that stores complete state, this graph avoids duplicating the state of B.
 
-Another example is a multi-way join, such as `SELECT * FROM A, B, C WHERE A.x = B.x and A.x = C.x`. In this example, if JoinCore operator is used to generate the computation graph, there is still a possibility of state duplication, requiring a total of four arrangements.
+Consider another example: a multi-way join such as `SELECT * FROM A, B, C WHERE A.x = B.x and A.x = C.x`. If `JoinCore` operators are used to build the computation graph, state may still be duplicated, requiring four arrangements in total.
 
-Besides being converted into the JoinCore operator in Differential Dataflow as described above, Materialize's SQL Join can also be converted into Delta Join. As shown in the figure, we only need to generate three arrangements for A, B, and C respectively, and then use the lookup operator to query the rows in A that correspond to modifications in B and C (and vice versa). Finally, we perform a union to obtain the result of the join. Delta Join can make full use of existing arrangements for calculation, greatly reducing the number of states required for Join.
+Besides using `JoinCore` as described above, Materialize can implement an SQL join as a delta join. As shown in the figure, the system needs only three arrangements, one each for A, B, and C. Lookup operators then query rows in A that correspond to changes in B and C, and vice versa. Finally, a union produces the join result. A delta join can make full use of existing arrangements, greatly reducing the amount of state required for the join.
 
 ## Overheads of Shuffling States
 
-In a streaming system, it is often impossible to store and compute all the data generated during computation on a single node. Therefore, the execution generally needs to be partitioned by some keys so that it can be distributed on multiple compute nodes. In the example of a two-table join shown below, the arrangements of two tables A and B may be generated on nodes different from the nodes performing the join operations. The join operation might be using a different arrange key or using different number of nodes (parallelism).
+In a streaming system, it is often impossible to store and process all data on a single node. Execution therefore generally needs to be partitioned by key across multiple compute nodes. In the two-table join below, the arrangements for tables A and B may be produced on different nodes from those performing the join. The join may also use a different arrangement key or a different number of nodes (different parallelism).
 
 ![remote shuffle of differential dataflow](dd-remote-shuffle-2.png)
 
-In this case, shuffles on arrangements are inevitable in Differential Dataflow. We will need to store the fraction of keys required by a partition of joins on the compute node performing the join by creating new arrangements. Generally, arranging and computing on different nodes will greatly increase the computation delay, and arranging and computing on a single node cannot fully utilize the resources of distributed systems, which is a contradictory situation.
+In this case, shuffling arrangements is unavoidable in Differential Dataflow. Each compute node performing a join must create new arrangements for the subset of keys required by its join partition. In general, arranging and computing on different nodes will greatly increase latency, while placing them on a single node cannot fully utilize distributed resources. This creates an inherent tradeoff.
 
-As long as the system ensure that the distribution of keys and the parallelism are the same for the arrangements and joins, states can still be shared without being shuffled.
+As long as the system ensures that arrangements and joins use the same key distribution and parallelism, state can still be shared without being shuffled.
 
-_There was a mistake in this blog post explaining Differential Dataflow to use remote access for partitioned states, as pointed out in [GitHub Discussion](https://github.com/skyzh/skyzh-site/discussions/27#discussioncomment-7965243). We have fixed it._
+_This blog post previously stated that Differential Dataflow uses remote access for partitioned state. As noted in this [GitHub Discussion](https://github.com/skyzh/skyzh-site/discussions/27#discussioncomment-7965243), that explanation was incorrect and has been fixed._
 
 ## Summary
 
-In a shared state streaming system, the computation logic and storage logic of operators are divided into multiple operators. Therefore, different computation tasks can share the same storage and reduce the number of stored states. If you want to implement a shared state streaming system, it generally has the following characteristics:
+In a shared-state streaming system, computation and storage logic are split among multiple operators. Different computation tasks can therefore share storage and reduce the amount of duplicated state. Such a system generally has these characteristics:
 
-* The streaming computation graph not only carries the data changes but also includes the shared information of states (such as Differential Dataflow's Trace Handle).
-* Accessing state in streaming operators incurs certain overheads, but compared to streaming systems that store complete states, the number of stored states is smaller throughout the streaming computation process, thanks to state reuse.
+* The stream computation graph carries not only data changes but also shared state information, such as Differential Dataflow's trace handles.
+* Accessing state from stream operators incurs some overhead, but state reuse means that less state is stored overall than in a system where each operator stores complete state.
 
-# Partial State -- Operators store only partial information
+# Partial State -- Operators Store Only Partial Information
 
-In the Noria system introduced in [Noria (OSDI '18)][noria], computations are not triggered when data sources are updated, and streaming operators do not store complete information.
+In the Noria system introduced in [Noria (OSDI '18)][noria], data-source updates do not trigger computation, and stream operators do not store complete information.
 
-For example, when a user creates a view (`CREATE VIEW result`), the system builds the dataflow but not compute anything. When a user executes the following query on a previously created view:
+For example, when a user creates a view (`CREATE VIEW result`), the system builds the dataflow but does not perform any computation. When the user executes the following query against that view:
 
 ```
 SELECT * FROM result WHERE category = "Vegetable"
 ```
 
-The system then starts piping data on the dataflow. During the computation, only the data related to `category = "Vegetable"` is processed and the relevant state is stored. Using this query as an example, we will explain Noria's computation method and state storage.
+The system then starts sending data through the dataflow. During computation, it processes only data related to `category = "Vegetable"` and stores only the relevant state. We will use this query to explain how Noria computes and stores state.
 
 ## Upqueries
 
-Each operator in Noria only stores a portion of the data. A user's query may directly hit the cached portion of the state or may need to backtrack to upstream queries. Assuming that all operators' states are empty at the moment, Noria needs to recursively query the state of upstream operators through upqueries to obtain the correct result.
+Each operator in Noria stores only a portion of the data. A user's query may hit the cached portion of the state directly or may need to query upstream. If every operator's state is initially empty, Noria recursively queries upstream operators through upqueries to obtain the correct result.
 
 ![upquery of Noria](noria-upquery.png)
 
-The user queries for the maximum value of `category = "Vegetable"`. In order to compute this result, the aggregation operator needs to know all records with the category of vegetables. Therefore, the aggregation operator forwards this upquery to the upstream join operator.
+The user queries the maximum value for `category = "Vegetable"`. To compute this result, the aggregation operator needs all records in the vegetable category, so it forwards the upquery to the upstream join operator.
 
-The join operator needs to obtain all information related to vegetables by querying two upstream tables separately. Since the category belongs to the Info table, the join operator forwards this upquery to the Info table.
+The join operator must obtain all information related to vegetables by querying the two upstream tables separately. Because `category` belongs to the Info table, the join operator first forwards the upquery there.
 
 ## Join Operator Implementation
 
 ![join implementation of Noria - the left side](noria-join-left.png)
 
-After the Info table returns all products under the vegetable category, the join operator sends an upquery to the other side, the Visit table, to query the browsing records corresponding to carrots and potatoes.
+After the Info table returns all products in the vegetable category, the join operator sends an upquery to the other side, the Visit table, for the browsing records associated with carrots and potatoes.
 
 ![join implementation of Noria - the right side](noria-join-right.png)
 
-After the Visit table returns the corresponding records, the join operator can compute the Join result based on the outputs of both upqueries.
+After the Visit table returns the corresponding records, the join operator can compute the join result from the outputs of both upqueries.
 
-In Noria, the join operator does not need to store any actual state; it only needs to record the ongoing upquery.
+In Noria, the join operator does not need to store any data state; it only needs to record the ongoing upquery.
 
 ## Aggregation Operator Implementation
 
 ![aggregation implementation of Noria](noria-agg.png)
 
-When the data arrives at the aggregation operator, Noria directly calculates the maximum value and stores it in the operator's state. In the system described earlier, the aggregation operator's state needs to store the complete data (all browsing records for fruits and vegetables). Noria only needs to cache the requested state, so in this query, it only records the records for vegetables. At the same time, if a deletion operation occurs upstream, Noria can directly delete the corresponding rows for vegetables to recalculate the maximum value later. Therefore, in a partial state storage system, there is no need to backtrack and find the second largest value by recording all values - simply clearing the cache is sufficient.
+When data arrives at the aggregation operator, Noria calculates the maximum value directly and stores it in the operator's state. In the systems described earlier, the aggregation operator must store the complete data set (all browsing records for fruits and vegetables). Noria only needs to cache the requested state, so this query records only the rows for vegetables. If a deletion occurs upstream, Noria can delete the corresponding vegetable rows and recalculate the maximum later. Therefore, a partial-state system does not need to record every value so that it can find the second-largest one; clearing the cache is sufficient.
 
 ## Summary
 
-Streaming systems that store partial state respond to user queries in real-time using upqueries. In the implementation described in this blog post, the minimum number of states that need to be stored is required. They generally have the following characteristics:
+Stream processing systems that store partial state respond to user queries in real time through upqueries and keep only the minimum state required. They generally have these characteristics:
 
-* The data flow in the computation graph is bidirectional - data can flow from upstream to downstream and downstream to upstream through upqueries.
-* Due to the need for recursive upqueries, the computation latency may be slightly larger compared to other state storage methods.
-* Data consistency is difficult to achieve. The other storage methods described in this blog post can easily achieve eventual consistency, but for systems that store partial state, special care needs to be taken to handle the propagation of updates and upquery results simultaneously on the stream. The correctness of the implementation needs to be carefully proven for each operator.
-* DDL/Recovery is very fast. Since the information inside operators is calculated on-demand, if a user performs operations such as adding or deleting columns on a View or performs migration, the cache can be cleared and new nodes can be allocated without the expensive cost of state recovery.
+* Dataflow in the computation graph is bidirectional: data can flow downstream, while upqueries flow upstream.
+* Recursive upqueries may introduce slightly higher computation latency than other state-storage methods.
+* Data consistency is difficult to achieve. The other storage methods described in this post can achieve eventual consistency more easily. A system that stores partial state must take special care when propagating updates and upquery results simultaneously through the stream, and the correctness of each operator's implementation must be carefully proven.
+* DDL/Recovery is very fast. Because operator state is computed on demand, the system can clear its caches and allocate new nodes after operations such as adding or removing columns from a view or migrating it, without paying the high cost of state recovery.
 
 Finally, let's compare the characteristics of streaming state stores for different state storage methods:
 
 ![comparison of streaming state stores](state-compare.png)
 
-* Full state storage (e.g., Flink): Data flows on the stream.
-* Shared state storage (e.g., Materialize / Differential Dataflow): Data and snapshots flow on the stream.
-* Partial state storage (e.g., Noria): Data flows on the stream, and messages flow bidirectionally on the stream.
+* Full-state storage (e.g., Flink): data flows through the stream.
+* Shared-state storage (e.g., Materialize and Differential Dataflow): data and snapshots flow through the stream.
+* Partial-state storage (e.g., Noria): data flows downstream, while upquery messages can flow upstream.
 
-# Reference
+# References
 
 * [Apache Flink][flink]
 * [Flink SQL](https://nightlies.apache.org/flink/flink-docs-release-1.14/docs/dev/table/sql/gettingstarted/)
@@ -267,7 +269,7 @@ Finally, let's compare the characteristics of streaming state stores for differe
 * [differential-dataflow][dd]
 * [Noria][noria]
 
-This blog post is translated by ChatGPT from [my previous blog post](https://www.skyzh.dev/blog/2022-01-15-store-of-streaming-states/), originally posted on 01/15/2022.
+This blog post was translated with ChatGPT from [my previous blog post](https://www.skyzh.dev/blog/2022-01-15-store-of-streaming-states/), originally published on January 15, 2022.
 
 Feel free to comment and share your thoughts on the corresponding [GitHub Discussion](https://github.com/skyzh/skyzh-site/discussions/27) for this blog post.
 
