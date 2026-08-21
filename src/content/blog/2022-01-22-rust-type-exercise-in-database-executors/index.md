@@ -316,7 +316,7 @@ error[E0658]: generic associated types are unstable
    = help: add `#![feature(generic_associated_types)]` to the crate attributes to enable
 ```
 
-又一次无情被编译器打脸，编译器说要开启 "generic associated types" (GAT)，这是个啥？
+又一次无情被编译器打脸，编译器说要开启 “generic associated types” (GAT)，这是个啥？
 
 trait 里面的 associated type 的声明，通常来说不能再有第二层 generic parameter。举例：
 

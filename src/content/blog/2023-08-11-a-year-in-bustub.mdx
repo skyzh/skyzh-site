@@ -134,7 +134,7 @@ Furthermore, this enables students to optimize the system as a whole. In spring 
 
 The transaction manager project has long been known for buggy and flaky test cases. From an architectural perspective, BusTub’s storage layer was not designed with concurrency control in mind, and the transaction manager was added sometime in 2018. Therefore, it needed to integrate better with the rest of the system, and some correctness bugs remained. I revisited the concurrency control implementation and fixed several bugs that might have caused correctness issues in spring 2023. I also reworked all the test cases for the storage executors. As a result, we received fewer complaints about the concurrency control implementation in storage-related query executors this semester. However, there are still improvements to make on the lock manager side.
 
-# What's Next
+# What’s Next
 
 The BusTub project has improved dramatically in the past year, and I still have some ideas that I want to implement. At one point, I imagined that we could have a Rust version of BusTub called RusTub, but I do not have much time to work on it, and we do not have enough TAs to support a course built on a language unfamiliar to most CMU students. Therefore, we can look into some smaller changes to the existing codebase. On the storage side, we can try an LSM index. The UCSB team adapted BusTub for their database course and asked their students to implement an LSM index, which we could adopt at CMU. On the optimizer side, we could choose different things to optimize each semester. It was join optimization in fall 2022, indexes in spring 2023, and probably sorts in fall 2023.
 
