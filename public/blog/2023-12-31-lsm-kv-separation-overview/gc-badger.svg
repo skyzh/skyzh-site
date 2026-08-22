@@ -218,22 +218,22 @@
       </g>
       <g id="Graphic_179">
         <text transform="translate(353.24165 746.5)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="12" fill="black" x="5684342e-19" y="11">Update vPtr</tspan>
+          <tspan font-family="Helvetica Neue" font-size="12" fill="black" x="5684342e-19" y="11">Update vptr</tspan>
         </text>
       </g>
       <g id="Graphic_180">
         <text transform="translate(-95 471.276)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="15063506e-19" y="15">1. Select vLog files to GC</tspan>
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="15063506e-19" y="15">1. Select vLog files for GC</tspan>
         </text>
       </g>
       <g id="Graphic_181">
         <text transform="translate(-139.828 587.276)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="27853275e-19" y="15">2.Scan LSM and write new vLog</tspan>
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="27853275e-19" y="15">2. Scan LSM; write a new vLog</tspan>
         </text>
       </g>
       <g id="Graphic_182">
         <text transform="translate(-147.3 691.276)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">3. Write updated vptr to LSM tree</tspan>
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">3. Update vptr in the LSM tree</tspan>
         </text>
       </g>
     </g>

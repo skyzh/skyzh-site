@@ -44,7 +44,7 @@
       </g>
       <g id="Graphic_142">
         <text transform="translate(345.89056 529.078)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">Blob DB</tspan>
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">BlobDB</tspan>
         </text>
       </g>
       <g id="Graphic_203">
@@ -125,7 +125,7 @@
       </g>
       <g id="Graphic_215">
         <text transform="translate(-116 420.63)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">1. Select blobs files to garbage-collect, find all SSTs that </tspan>
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">1. Select blob files to garbage-collect and find all SSTs that </tspan>
           <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="33.448">point to the blob files.</tspan>
         </text>
       </g>
@@ -158,7 +158,7 @@
       </g>
       <g id="Graphic_227">
         <text transform="translate(-110 697.375)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">3. Rewrite the blob files while compaction, store new vPtr in compacted files.</tspan>
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">3. Rewrite the blob files during compaction and store the new vptr in the compacted files.</tspan>
         </text>
       </g>
       <g id="Line_228">
@@ -198,7 +198,7 @@
       </g>
       <g id="Graphic_249">
         <text transform="translate(345.89056 872.776)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">Blob DB</tspan>
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">BlobDB</tspan>
         </text>
       </g>
       <g id="Graphic_248">
@@ -299,7 +299,7 @@
       </g>
       <g id="Graphic_276">
         <text transform="translate(345.89056 370.854)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">Blob DB</tspan>
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">BlobDB</tspan>
         </text>
       </g>
       <g id="Graphic_262">

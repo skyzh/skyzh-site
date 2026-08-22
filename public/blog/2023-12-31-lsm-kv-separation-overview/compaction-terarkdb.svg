@@ -228,7 +228,7 @@
       </g>
       <g id="Graphic_129">
         <text transform="translate(173.87234 552.1915)" fill="black">
-          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">2. Merge files while updating file numbers, put new files into LSM.</tspan>
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="0" y="15">2. Merge files while updating file numbers, then put the new files into the LSM tree.</tspan>
         </text>
       </g>
       <g id="Graphic_132">
