@@ -16,7 +16,7 @@ heroImage: "/images/2023-12-28-store-of-streaming-states-banner.png"
 
 Data processed by a stream processing system is often unbounded: data keeps flowing in from the data source, and users need to see the real-time results of SQL queries. At the same time, compute nodes may encounter errors or failures, and the system may need to scale them up or down in real time according to demand. Throughout this process, the system must efficiently transfer intermediate computation state between nodes and persist it in external systems to keep computation running without interruption.
 
-This blog post introduces three approaches to storing state in stream processing systems from industry and academia: storing complete state (e.g., [Flink][flink]), storing shared state (e.g., [Materialize][materialize] and [Differential Dataflow][dd]), and storing partial state (e.g., [Noria (OSDI '18)][noria]). Each approach has its own advantages and can offer insights into the development of future stream processing engines.
+This blog post introduces three approaches to storing state in stream processing systems from industry and academia: storing complete state (e.g., [Flink][flink]), storing shared state (e.g., [Materialize][materialize] and [Differential Dataflow][dd]), and storing partial state (e.g., [Noria (OSDI ’18)][noria]). Each approach has its own advantages and can offer insights into the development of future stream processing engines.
 
 Assume there are two tables in a shopping system:
 
@@ -60,7 +60,7 @@ Fruit, 40
 Vegetable, 60
 ```
 
-The Fruit category was viewed by users for a maximum of 40 seconds (corresponding to Alice's visit to Banana); the Vegetable category was viewed for a maximum of 60 seconds (corresponding to Eve's visit to Potato).
+The Fruit category was viewed by users for a maximum of 40 seconds (corresponding to Alice’s visit to Banana); the Vegetable category was viewed for a maximum of 60 seconds (corresponding to Eve’s visit to Potato).
 
 In a conventional database system, this query typically produces the following execution plan (ignoring optimizer choices):
 
@@ -78,7 +78,7 @@ The data sources emit messages that add or remove rows. As these messages pass t
 
 ## State Storage of Join State
 
-When messages from a data source enter the system, the first operator they encounter is the join operator. Let's revisit the join condition in the SQL query: `info INNER JOIN visit ON product`. After receiving a message from the left side, `info`, the join operator fetches rows from the right side, `visit`, that have the same `product` and sends the joined rows downstream. It then records the message from `info` in its own state. Messages from the right side follow the same process.
+When messages from a data source enter the system, the first operator they encounter is the join operator. Let’s revisit the join condition in the SQL query: `info INNER JOIN visit ON product`. After receiving a message from the left side, `info`, the join operator fetches rows from the right side, `visit`, that have the same `product` and sends the joined rows downstream. It then records the message from `info` in its own state. Messages from the right side follow the same process.
 
 For example, suppose the right side, `visit`, receives a message stating that Eve looked at Potato for 60 seconds (`+ Potato Eve 60`). If the left side, `info`, already has four records in its state, the join operator queries it for records where `product = Potato` and finds that Potato is a vegetable. It then sends `Potato, Vegetable, 60` downstream.
 
@@ -199,12 +199,12 @@ _This blog post previously stated that Differential Dataflow uses remote access 
 
 In a shared-state streaming system, computation and storage logic are split among multiple operators. Different computation tasks can therefore share storage and reduce the amount of duplicated state. Such a system generally has these characteristics:
 
-* The stream computation graph carries not only data changes but also shared state information, such as Differential Dataflow's trace handles.
+* The stream computation graph carries not only data changes but also shared state information, such as Differential Dataflow’s trace handles.
 * Accessing state from stream operators incurs some overhead, but state reuse means that less state is stored overall than in a system where each operator stores complete state.
 
 # Partial State -- Operators Store Only Partial Information
 
-In the Noria system introduced in [Noria (OSDI '18)][noria], data-source updates do not trigger computation, and stream operators do not store complete information.
+In the Noria system introduced in [Noria (OSDI ’18)][noria], data-source updates do not trigger computation, and stream operators do not store complete information.
 
 For example, when a user creates a view (`CREATE VIEW result`), the system builds the dataflow but does not perform any computation. When the user executes the following query against that view:
 
@@ -216,7 +216,7 @@ The system then starts sending data through the dataflow. During computation, it
 
 ## Upqueries
 
-Each operator in Noria stores only a portion of the data. A user's query may hit the cached portion of the state directly or may need to query upstream. If every operator's state is initially empty, Noria recursively queries upstream operators through upqueries to obtain the correct result.
+Each operator in Noria stores only a portion of the data. A user’s query may hit the cached portion of the state directly or may need to query upstream. If every operator’s state is initially empty, Noria recursively queries upstream operators through upqueries to obtain the correct result.
 
 ![upquery of Noria](noria-upquery.png)
 
@@ -240,7 +240,7 @@ In Noria, the join operator does not need to store any data state; it only needs
 
 ![aggregation implementation of Noria](noria-agg.png)
 
-When data arrives at the aggregation operator, Noria calculates the maximum value directly and stores it in the operator's state. In the systems described earlier, the aggregation operator must store the complete data set (all browsing records for fruits and vegetables). Noria only needs to cache the requested state, so this query records only the rows for vegetables. If a deletion occurs upstream, Noria can delete the corresponding vegetable rows and recalculate the maximum later. Therefore, a partial-state system does not need to record every value so that it can find the second-largest one; clearing the cache is sufficient.
+When data arrives at the aggregation operator, Noria calculates the maximum value directly and stores it in the operator’s state. In the systems described earlier, the aggregation operator must store the complete data set (all browsing records for fruits and vegetables). Noria only needs to cache the requested state, so this query records only the rows for vegetables. If a deletion occurs upstream, Noria can delete the corresponding vegetable rows and recalculate the maximum later. Therefore, a partial-state system does not need to record every value so that it can find the second-largest one; clearing the cache is sufficient.
 
 ## Summary
 
@@ -248,10 +248,10 @@ Stream processing systems that store partial state respond to user queries in re
 
 * Dataflow in the computation graph is bidirectional: data can flow downstream, while upqueries flow upstream.
 * Recursive upqueries may introduce slightly higher computation latency than other state-storage methods.
-* Data consistency is difficult to achieve. The other storage methods described in this post can achieve eventual consistency more easily. A system that stores partial state must take special care when propagating updates and upquery results simultaneously through the stream, and the correctness of each operator's implementation must be carefully proven.
+* Data consistency is difficult to achieve. The other storage methods described in this post can achieve eventual consistency more easily. A system that stores partial state must take special care when propagating updates and upquery results simultaneously through the stream, and the correctness of each operator’s implementation must be carefully proven.
 * DDL/Recovery is very fast. Because operator state is computed on demand, the system can clear its caches and allocate new nodes after operations such as adding or removing columns from a view or migrating it, without paying the high cost of state recovery.
 
-Finally, let's compare the characteristics of streaming state stores for different state storage methods:
+Finally, let’s compare the characteristics of streaming state stores for different state storage methods:
 
 ![comparison of streaming state stores](state-compare.png)
 
